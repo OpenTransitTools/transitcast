@@ -1,0 +1,4142 @@
+[
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083565,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "9848"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083596,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 2,
+    "StopId": "9846"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083627,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 2,
+    "StopId": "9846"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083658,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 2,
+    "StopId": "9846"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083677,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 2,
+    "StopId": "9846"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083708,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 3,
+    "StopId": "9843"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083738,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 3,
+    "StopId": "9843"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083769,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 3,
+    "StopId": "9843"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083799,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 4,
+    "StopId": "9841"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083830,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 4,
+    "StopId": "9841"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083861,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 4,
+    "StopId": "9841"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083892,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 5,
+    "StopId": "9838"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083922,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 5,
+    "StopId": "9838"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083953,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 5,
+    "StopId": "9838"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576083983,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 5,
+    "StopId": "9838"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084014,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 5,
+    "StopId": "9838"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084045,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 5,
+    "StopId": "9838"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084075,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 6,
+    "StopId": "9839"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084106,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 6,
+    "StopId": "9839"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084136,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 6,
+    "StopId": "9839"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084167,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 7,
+    "StopId": "9835"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084198,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 7,
+    "StopId": "9835"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084229,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 7,
+    "StopId": "9835"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084259,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 7,
+    "StopId": "9835"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084290,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 8,
+    "StopId": "9834"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084320,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 8,
+    "StopId": "9834"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084351,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 8,
+    "StopId": "9834"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084381,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 8,
+    "StopId": "9834"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084412,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 8,
+    "StopId": "9834"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084442,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 8,
+    "StopId": "9834"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084473,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 9,
+    "StopId": "9831"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084504,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 9,
+    "StopId": "9831"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084534,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 9,
+    "StopId": "9831"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084565,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 9,
+    "StopId": "9831"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084595,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 10,
+    "StopId": "9830"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084626,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 10,
+    "StopId": "9830"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084657,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 10,
+    "StopId": "9830"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084802,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 10,
+    "StopId": "9830"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084833,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 10,
+    "StopId": "9830"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084864,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 11,
+    "StopId": "9828"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084894,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 11,
+    "StopId": "9828"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084926,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 11,
+    "StopId": "9828"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084957,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 12,
+    "StopId": "9822"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576084988,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 12,
+    "StopId": "9822"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085018,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 12,
+    "StopId": "9822"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085019,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 12,
+    "StopId": "9822"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085049,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 13,
+    "StopId": "9826"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085080,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 13,
+    "StopId": "9826"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085111,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 13,
+    "StopId": "9826"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085141,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 13,
+    "StopId": "9826"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085172,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 14,
+    "StopId": "9824"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085202,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 14,
+    "StopId": "9824"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085233,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 14,
+    "StopId": "9824"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085264,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 14,
+    "StopId": "9824"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085295,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 15,
+    "StopId": "9821"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085326,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 15,
+    "StopId": "9821"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085356,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 15,
+    "StopId": "9821"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085387,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 15,
+    "StopId": "9821"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085418,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 15,
+    "StopId": "9821"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085448,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085479,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085510,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085540,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085572,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085603,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085634,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085665,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085696,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085726,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 16,
+    "StopId": "9969"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085757,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085787,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085818,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085849,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085879,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085910,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085941,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576085971,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086002,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086032,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086064,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086094,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086125,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086155,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 17,
+    "StopId": "10120"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086186,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 18,
+    "StopId": "10118"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086216,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 18,
+    "StopId": "10118"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086247,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 18,
+    "StopId": "10118"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086278,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 18,
+    "StopId": "10118"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086309,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 19,
+    "StopId": "9759"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086340,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 19,
+    "StopId": "9759"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086370,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 19,
+    "StopId": "9759"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086402,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 20,
+    "StopId": "9758"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086432,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 20,
+    "StopId": "9758"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086463,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 20,
+    "StopId": "9758"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086494,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 21,
+    "StopId": "8333"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086524,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 21,
+    "StopId": "8333"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086555,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 21,
+    "StopId": "8333"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086586,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 21,
+    "StopId": "8333"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086616,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 21,
+    "StopId": "8333"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086647,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 21,
+    "StopId": "8333"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086678,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 22,
+    "StopId": "8334"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086708,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 22,
+    "StopId": "8334"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086739,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 22,
+    "StopId": "8334"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086769,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 23,
+    "StopId": "8335"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086800,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 23,
+    "StopId": "8335"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086831,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 23,
+    "StopId": "8335"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086862,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 24,
+    "StopId": "8336"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086892,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 24,
+    "StopId": "8336"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086923,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 25,
+    "StopId": "8337"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086953,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 25,
+    "StopId": "8337"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576086984,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 25,
+    "StopId": "8337"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087015,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 26,
+    "StopId": "8338"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087046,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 26,
+    "StopId": "8338"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087076,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 26,
+    "StopId": "8338"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087107,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 27,
+    "StopId": "8339"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087138,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 27,
+    "StopId": "8339"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087168,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 27,
+    "StopId": "8339"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087199,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 27,
+    "StopId": "8339"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087230,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 28,
+    "StopId": "8340"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087260,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 28,
+    "StopId": "8340"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087291,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 28,
+    "StopId": "8340"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087321,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 28,
+    "StopId": "8340"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087352,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 28,
+    "StopId": "8340"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087382,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 28,
+    "StopId": "8340"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087413,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 28,
+    "StopId": "8340"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087443,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 29,
+    "StopId": "8341"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087474,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 29,
+    "StopId": "8341"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087505,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 30,
+    "StopId": "8342"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087535,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 30,
+    "StopId": "8342"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087566,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 30,
+    "StopId": "8342"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087596,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 31,
+    "StopId": "8343"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087627,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 31,
+    "StopId": "8343"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087658,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 31,
+    "StopId": "8343"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087688,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "8344"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087719,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "8344"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087750,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "8344"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087781,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "8344"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087811,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "8344"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087842,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 32,
+    "StopId": "8344"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087873,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 32,
+    "StopId": "8344"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087903,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "8345"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087934,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "8345"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087964,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "8345"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576087995,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 33,
+    "StopId": "8345"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088026,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 33,
+    "StopId": "8345"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088056,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 34,
+    "StopId": "8346"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088087,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 34,
+    "StopId": "8346"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088118,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 34,
+    "StopId": "8346"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088148,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 34,
+    "StopId": "8346"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088179,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 34,
+    "StopId": "8346"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088209,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 35,
+    "StopId": "8347"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088240,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 35,
+    "StopId": "8347"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088271,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 35,
+    "StopId": "8347"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088301,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 35,
+    "StopId": "8347"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088332,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 35,
+    "StopId": "8347"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088362,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 35,
+    "StopId": "8347"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088393,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 36,
+    "StopId": "8348"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088424,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 36,
+    "StopId": "8348"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088455,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 36,
+    "StopId": "8348"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088486,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 36,
+    "StopId": "8348"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088516,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 36,
+    "StopId": "8348"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088547,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 36,
+    "StopId": "8348"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088578,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 37,
+    "StopId": "8349"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088608,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 37,
+    "StopId": "8349"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088640,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 37,
+    "StopId": "8349"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088671,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 37,
+    "StopId": "8349"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088703,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 37,
+    "StopId": "8349"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088736,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 38,
+    "StopId": "8350"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088767,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 38,
+    "StopId": "8350"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088797,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 38,
+    "StopId": "8350"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088829,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 38,
+    "StopId": "8350"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088860,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 38,
+    "StopId": "8350"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088890,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 38,
+    "StopId": "8350"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088921,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 39,
+    "StopId": "8351"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088951,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 39,
+    "StopId": "8351"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576088982,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 39,
+    "StopId": "8351"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089013,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 39,
+    "StopId": "8351"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089043,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 40,
+    "StopId": "8352"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089074,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 40,
+    "StopId": "8352"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089105,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 40,
+    "StopId": "8352"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089136,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 41,
+    "StopId": "8353"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089166,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 41,
+    "StopId": "8353"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089197,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 41,
+    "StopId": "8353"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089228,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 42,
+    "StopId": "8354"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089258,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 42,
+    "StopId": "8354"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089289,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 43,
+    "StopId": "8355"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089319,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 43,
+    "StopId": "8355"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089350,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 43,
+    "StopId": "8355"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089381,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 43,
+    "StopId": "8355"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089564,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 43,
+    "StopId": "8355"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089594,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "13450"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089625,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "13450"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089656,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "13450"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089686,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "13450"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089717,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 44,
+    "StopId": "13450"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089748,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 44,
+    "StopId": "13450"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089778,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 45,
+    "StopId": "8356"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089809,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 45,
+    "StopId": "8356"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089839,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 46,
+    "StopId": "8357"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089870,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 46,
+    "StopId": "8357"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089901,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 46,
+    "StopId": "8357"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089931,
+    "TripId": "9529801",
+    "VehicleStopStatus": 1,
+    "StopSequence": 46,
+    "StopId": "8357"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089962,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 47,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576089993,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 47,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Gresham",
+    "Timestamp": 1576090024,
+    "TripId": "9529801",
+    "VehicleStopStatus": 2,
+    "StopSequence": 47,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090054,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090085,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090116,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090146,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090177,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090208,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090238,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090269,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090300,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090330,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090361,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090392,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090423,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090453,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090484,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090515,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090545,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090576,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090607,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090637,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090668,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090698,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090729,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090760,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090791,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090822,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090852,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090883,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090914,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090944,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576090975,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091005,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091036,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091067,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091097,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091128,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091159,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091190,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091220,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091251,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091281,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091312,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091343,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091369,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091400,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 1,
+    "StopId": "8359"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091430,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 2,
+    "StopId": "8360"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091461,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 2,
+    "StopId": "8360"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091492,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 2,
+    "StopId": "8360"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091522,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 2,
+    "StopId": "8360"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091553,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 3,
+    "StopId": "8361"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091584,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 3,
+    "StopId": "8361"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091614,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 3,
+    "StopId": "8361"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091645,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 4,
+    "StopId": "13449"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091676,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 4,
+    "StopId": "13449"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091706,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 5,
+    "StopId": "8362"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091737,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 5,
+    "StopId": "8362"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091768,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 5,
+    "StopId": "8362"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091798,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 5,
+    "StopId": "8362"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091829,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 5,
+    "StopId": "8362"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091860,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 6,
+    "StopId": "8363"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091890,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 6,
+    "StopId": "8363"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091921,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 6,
+    "StopId": "8363"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091952,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 6,
+    "StopId": "8363"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576091983,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 7,
+    "StopId": "8364"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092013,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 7,
+    "StopId": "8364"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092044,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 8,
+    "StopId": "8365"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092075,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 8,
+    "StopId": "8365"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092106,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 8,
+    "StopId": "8365"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092136,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 9,
+    "StopId": "8366"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092167,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 9,
+    "StopId": "8366"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092197,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 9,
+    "StopId": "8366"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092228,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 10,
+    "StopId": "8367"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092259,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 10,
+    "StopId": "8367"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092289,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 10,
+    "StopId": "8367"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092320,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 10,
+    "StopId": "8367"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092351,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 11,
+    "StopId": "8368"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092381,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 11,
+    "StopId": "8368"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092412,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 11,
+    "StopId": "8368"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092443,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 11,
+    "StopId": "8368"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092474,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 11,
+    "StopId": "8368"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092504,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 11,
+    "StopId": "8368"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092535,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 12,
+    "StopId": "8369"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092566,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 12,
+    "StopId": "8369"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092596,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 12,
+    "StopId": "8369"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092627,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 12,
+    "StopId": "8369"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092658,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 12,
+    "StopId": "8369"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092688,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 12,
+    "StopId": "8369"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092719,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 13,
+    "StopId": "8370"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092749,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 13,
+    "StopId": "8370"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092780,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 13,
+    "StopId": "8370"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092811,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 13,
+    "StopId": "8370"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092841,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 13,
+    "StopId": "8370"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092872,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 13,
+    "StopId": "8370"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092903,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 13,
+    "StopId": "8370"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092933,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 13,
+    "StopId": "8370"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092964,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 14,
+    "StopId": "8371"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576092995,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 14,
+    "StopId": "8371"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093025,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 14,
+    "StopId": "8371"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093056,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 14,
+    "StopId": "8371"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093087,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 15,
+    "StopId": "8372"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093118,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 15,
+    "StopId": "8372"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093149,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 15,
+    "StopId": "8372"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093180,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 15,
+    "StopId": "8372"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093211,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 15,
+    "StopId": "8372"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093241,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "8373"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093272,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "8373"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093303,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 16,
+    "StopId": "8373"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093333,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 16,
+    "StopId": "8373"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093364,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "8374"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093395,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "8374"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093425,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "8374"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093456,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "8374"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093487,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 17,
+    "StopId": "8374"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093517,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 17,
+    "StopId": "8374"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093548,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 17,
+    "StopId": "8374"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093578,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 18,
+    "StopId": "8375"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093609,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 18,
+    "StopId": "8375"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093640,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 18,
+    "StopId": "8375"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093670,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 19,
+    "StopId": "8376"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093701,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 19,
+    "StopId": "8376"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093732,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 19,
+    "StopId": "8376"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093762,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 20,
+    "StopId": "8377"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093793,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 20,
+    "StopId": "8377"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093824,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 20,
+    "StopId": "8377"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093854,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 20,
+    "StopId": "8377"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093885,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 20,
+    "StopId": "8377"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093915,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 21,
+    "StopId": "8378"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093946,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 21,
+    "StopId": "8378"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576093977,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 21,
+    "StopId": "8378"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094007,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 21,
+    "StopId": "8378"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094038,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 21,
+    "StopId": "8378"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094069,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 21,
+    "StopId": "8378"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094100,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 22,
+    "StopId": "8379"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094130,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 22,
+    "StopId": "8379"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094161,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 22,
+    "StopId": "8379"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094191,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 23,
+    "StopId": "8380"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094222,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 23,
+    "StopId": "8380"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094253,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 23,
+    "StopId": "8380"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094283,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 24,
+    "StopId": "8381"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094314,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 24,
+    "StopId": "8381"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094344,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 24,
+    "StopId": "8381"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094375,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 24,
+    "StopId": "8381"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094406,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 25,
+    "StopId": "8382"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094436,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 25,
+    "StopId": "8382"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094467,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 25,
+    "StopId": "8382"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094499,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 26,
+    "StopId": "8383"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094530,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 26,
+    "StopId": "8383"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094562,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 26,
+    "StopId": "8383"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094594,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 27,
+    "StopId": "8384"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094626,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 27,
+    "StopId": "8384"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094658,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 27,
+    "StopId": "8384"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094689,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 28,
+    "StopId": "9757"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094719,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 28,
+    "StopId": "9757"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094750,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 28,
+    "StopId": "9757"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094781,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 28,
+    "StopId": "9757"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094811,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 28,
+    "StopId": "9757"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094842,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 28,
+    "StopId": "9757"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094873,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 29,
+    "StopId": "9820"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094904,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 29,
+    "StopId": "9820"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094935,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 29,
+    "StopId": "9820"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094965,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 30,
+    "StopId": "10117"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576094996,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 30,
+    "StopId": "10117"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095027,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 30,
+    "StopId": "10117"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095057,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 30,
+    "StopId": "10117"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095088,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095118,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095149,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095180,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095210,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095241,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095272,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095302,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095332,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095363,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095393,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095424,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095455,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 31,
+    "StopId": "10121"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095485,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "9624"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095516,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "9624"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095547,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "9624"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095577,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "9624"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095608,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 32,
+    "StopId": "9624"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095639,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 32,
+    "StopId": "9624"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095669,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 32,
+    "StopId": "9624"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095700,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 32,
+    "StopId": "9624"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095731,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095761,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095792,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095823,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095853,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095885,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095915,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095946,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576095977,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 33,
+    "StopId": "9818"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096008,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 34,
+    "StopId": "9823"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096039,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 34,
+    "StopId": "9823"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096070,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 34,
+    "StopId": "9823"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096100,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 34,
+    "StopId": "9823"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096131,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 35,
+    "StopId": "9825"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096162,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 35,
+    "StopId": "9825"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096192,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 35,
+    "StopId": "9825"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096223,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 35,
+    "StopId": "9825"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096254,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 35,
+    "StopId": "9825"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096284,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 36,
+    "StopId": "9819"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096315,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 36,
+    "StopId": "9819"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096347,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 36,
+    "StopId": "9819"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096378,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 37,
+    "StopId": "9827"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096410,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 37,
+    "StopId": "9827"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096441,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 37,
+    "StopId": "9827"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096473,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 38,
+    "StopId": "9829"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096504,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 38,
+    "StopId": "9829"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096535,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 38,
+    "StopId": "9829"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096566,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 38,
+    "StopId": "9829"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096597,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 38,
+    "StopId": "9829"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096628,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 38,
+    "StopId": "9829"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096659,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 38,
+    "StopId": "9829"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096690,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 38,
+    "StopId": "9829"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096721,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 39,
+    "StopId": "9832"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096739,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 39,
+    "StopId": "9832"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096769,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 39,
+    "StopId": "9832"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096800,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 39,
+    "StopId": "9832"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096831,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 39,
+    "StopId": "9832"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096861,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 40,
+    "StopId": "9833"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096892,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 40,
+    "StopId": "9833"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096922,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 40,
+    "StopId": "9833"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096953,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 40,
+    "StopId": "9833"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576096984,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 41,
+    "StopId": "9836"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097015,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 41,
+    "StopId": "9836"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097045,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 41,
+    "StopId": "9836"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097076,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 41,
+    "StopId": "9836"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097107,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 41,
+    "StopId": "9836"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097137,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 42,
+    "StopId": "9840"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097168,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 42,
+    "StopId": "9840"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097198,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 42,
+    "StopId": "9840"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097229,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 42,
+    "StopId": "9840"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097260,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 43,
+    "StopId": "9837"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097291,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 43,
+    "StopId": "9837"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097321,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 43,
+    "StopId": "9837"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097352,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 43,
+    "StopId": "9837"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097383,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "9842"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097413,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "9842"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097444,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "9842"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097475,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "9842"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097505,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 44,
+    "StopId": "9842"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097536,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 44,
+    "StopId": "9842"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097567,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 44,
+    "StopId": "9842"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097598,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 45,
+    "StopId": "9844"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097629,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 45,
+    "StopId": "9844"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097660,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 45,
+    "StopId": "9844"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097690,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 45,
+    "StopId": "9844"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097721,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 46,
+    "StopId": "9845"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097752,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 46,
+    "StopId": "9845"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097783,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 46,
+    "StopId": "9845"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097814,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 47,
+    "StopId": "9848"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097846,
+    "TripId": "9530573",
+    "VehicleStopStatus": 2,
+    "StopSequence": 47,
+    "StopId": "9848"
+  },
+  {
+    "Id": "102",
+    "Label": "Blue to Hillsboro",
+    "Timestamp": 1576097846,
+    "TripId": "9530573",
+    "VehicleStopStatus": 1,
+    "StopSequence": 47,
+    "StopId": "9848"
+  }
+]

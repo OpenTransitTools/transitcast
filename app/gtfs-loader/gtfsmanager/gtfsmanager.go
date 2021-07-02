@@ -133,7 +133,7 @@ func shouldUpdateGTFSSchedule(log *log.Logger, db *sqlx.DB, url string) bool {
 		return false
 	}
 
-	existingDataSet, err := gtfs.GetLatestSavedDataSet(db)
+	existingDataSet, err := gtfs.GetLatestDataSet(db)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Printf("No DataSet loaded, should perform initial load")
@@ -166,14 +166,14 @@ func shouldUpdateGTFSSchedule(log *log.Logger, db *sqlx.DB, url string) bool {
 }
 
 // ListGTFSSchedules displays a list of all DataSets to logger
-func ListGTFSSchedules(log *log.Logger, db *sqlx.DB) error {
-	log.Println("Loaded DataSets:")
+func ListGTFSSchedules(db *sqlx.DB) error {
+	fmt.Println("Loaded DataSets:")
 	dataSets, err := gtfs.GetAllDataSets(db)
 	if err != nil {
 		return err
 	}
 	for _, ds := range dataSets {
-		log.Println(&ds)
+		fmt.Println(&ds)
 	}
 	return nil
 }
@@ -208,8 +208,7 @@ func loadGTFSScheduleFromFile(log *log.Logger,
 		}
 		log.Printf("Loaded %v", filesLoaded)
 		now := time.Now()
-		ds.SavedAt = &now
-		innerErr = gtfs.SaveDataSet(tx, &ds)
+		innerErr = gtfs.SaveAndTerminateReplacedDataSet(tx, &ds, now)
 		if innerErr != nil {
 			return innerErr
 		}

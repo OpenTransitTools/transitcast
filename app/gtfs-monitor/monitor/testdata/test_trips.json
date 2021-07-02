@@ -1,0 +1,872 @@
+[
+  {
+    "data_set_id": 1,
+    "trip_id": "9529801",
+    "route_id": "100",
+    "service_id": "A",
+    "block_id": "9020",
+    "trip_headsign": "Cleveland Ave MAX Station",
+    "trip_short_name": "Hatfield Government Center",
+    "stop_time_instances": [
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 1,
+        "arrival_time": 32350,
+        "departure_time": 32350,
+        "shape_dist_traveled": 0,
+        "stop_id": "9848",
+       "first_stop": true
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 2,
+        "arrival_time": 32455,
+        "departure_time": 32480,
+        "shape_dist_traveled": 1830.1,
+        "stop_id": "9846"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 3,
+        "arrival_time": 32550,
+        "departure_time": 32570,
+        "shape_dist_traveled": 3601.3,
+        "stop_id": "9843"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 4,
+        "arrival_time": 32655,
+        "departure_time": 32680,
+        "shape_dist_traveled": 5876.7,
+        "stop_id": "9841"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 5,
+        "arrival_time": 32830,
+        "departure_time": 32855,
+        "shape_dist_traveled": 12379.1,
+        "stop_id": "9838"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 6,
+        "arrival_time": 32945,
+        "departure_time": 32965,
+        "shape_dist_traveled": 16481.5,
+        "stop_id": "9839"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 7,
+        "arrival_time": 33055,
+        "departure_time": 33090,
+        "shape_dist_traveled": 20308.8,
+        "stop_id": "9835"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 8,
+        "arrival_time": 33230,
+        "departure_time": 33270,
+        "shape_dist_traveled": 27760.4,
+        "stop_id": "9834"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 9,
+        "arrival_time": 33375,
+        "departure_time": 33420,
+        "shape_dist_traveled": 33009.4,
+        "stop_id": "9831"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 10,
+        "arrival_time": 33540,
+        "departure_time": 33660,
+        "shape_dist_traveled": 38515.8,
+        "stop_id": "9830"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 11,
+        "arrival_time": 33735,
+        "departure_time": 33760,
+        "shape_dist_traveled": 41461.6,
+        "stop_id": "9828"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 12,
+        "arrival_time": 33830,
+        "departure_time": 33850,
+        "shape_dist_traveled": 44377.5,
+        "stop_id": "9822"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 13,
+        "arrival_time": 33940,
+        "departure_time": 33965,
+        "shape_dist_traveled": 47890.5,
+        "stop_id": "9826"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 14,
+        "arrival_time": 34085,
+        "departure_time": 34120,
+        "shape_dist_traveled": 52090.2,
+        "stop_id": "9824"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 15,
+        "arrival_time": 34205,
+        "departure_time": 34245,
+        "shape_dist_traveled": 53669.7,
+        "stop_id": "9821"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 16,
+        "arrival_time": 34515,
+        "departure_time": 34545,
+        "shape_dist_traveled": 64643.6,
+        "stop_id": "9969"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 17,
+        "arrival_time": 34830,
+        "departure_time": 34855,
+        "shape_dist_traveled": 81704.4,
+        "stop_id": "10120"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 18,
+        "arrival_time": 35080,
+        "departure_time": 35115,
+        "shape_dist_traveled": 88971.3,
+        "stop_id": "10118"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 19,
+        "arrival_time": 35190,
+        "departure_time": 35210,
+        "shape_dist_traveled": 90234.2,
+        "stop_id": "9759"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 20,
+        "arrival_time": 35260,
+        "departure_time": 35290,
+        "shape_dist_traveled": 90729.2,
+        "stop_id": "9758"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 21,
+        "arrival_time": 35435,
+        "departure_time": 35470,
+        "shape_dist_traveled": 92989.6,
+        "stop_id": "8333"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 22,
+        "arrival_time": 35530,
+        "departure_time": 35575,
+        "shape_dist_traveled": 93669,
+        "stop_id": "8334"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 23,
+        "arrival_time": 35615,
+        "departure_time": 35660,
+        "shape_dist_traveled": 94233.5,
+        "stop_id": "8335"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 24,
+        "arrival_time": 35715,
+        "departure_time": 35745,
+        "shape_dist_traveled": 95039.9,
+        "stop_id": "8336"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 25,
+        "arrival_time": 35825,
+        "departure_time": 35850,
+        "shape_dist_traveled": 96334.6,
+        "stop_id": "8337"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 26,
+        "arrival_time": 35920,
+        "departure_time": 35945,
+        "shape_dist_traveled": 97403,
+        "stop_id": "8338"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 27,
+        "arrival_time": 35990,
+        "departure_time": 36030,
+        "shape_dist_traveled": 98164.9,
+        "stop_id": "8339"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 28,
+        "arrival_time": 36200,
+        "departure_time": 36240,
+        "shape_dist_traveled": 100847.4,
+        "stop_id": "8340"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 29,
+        "arrival_time": 36285,
+        "departure_time": 36320,
+        "shape_dist_traveled": 101618.4,
+        "stop_id": "8341"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 30,
+        "arrival_time": 36380,
+        "departure_time": 36410,
+        "shape_dist_traveled": 102686.9,
+        "stop_id": "8342"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 31,
+        "arrival_time": 36465,
+        "departure_time": 36505,
+        "shape_dist_traveled": 103738.1,
+        "stop_id": "8343"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 32,
+        "arrival_time": 36695,
+        "departure_time": 36720,
+        "shape_dist_traveled": 112924.3,
+        "stop_id": "8344"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 33,
+        "arrival_time": 36830,
+        "departure_time": 36855,
+        "shape_dist_traveled": 118248,
+        "stop_id": "8345"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 34,
+        "arrival_time": 36990,
+        "departure_time": 37020,
+        "shape_dist_traveled": 125649.4,
+        "stop_id": "8346"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 35,
+        "arrival_time": 37160,
+        "departure_time": 37205,
+        "shape_dist_traveled": 129826.6,
+        "stop_id": "8347"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 36,
+        "arrival_time": 37365,
+        "departure_time": 37395,
+        "shape_dist_traveled": 134343.5,
+        "stop_id": "8348"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 37,
+        "arrival_time": 37530,
+        "departure_time": 37560,
+        "shape_dist_traveled": 139602,
+        "stop_id": "8349"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 38,
+        "arrival_time": 37725,
+        "departure_time": 37750,
+        "shape_dist_traveled": 146552.2,
+        "stop_id": "8350"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 39,
+        "arrival_time": 37845,
+        "departure_time": 37875,
+        "shape_dist_traveled": 150197.2,
+        "stop_id": "8351"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 40,
+        "arrival_time": 37950,
+        "departure_time": 37975,
+        "shape_dist_traveled": 152836.1,
+        "stop_id": "8352"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 41,
+        "arrival_time": 38045,
+        "departure_time": 38070,
+        "shape_dist_traveled": 155152.3,
+        "stop_id": "8353"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 42,
+        "arrival_time": 38125,
+        "departure_time": 38160,
+        "shape_dist_traveled": 156710.4,
+        "stop_id": "8354"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 43,
+        "arrival_time": 38265,
+        "departure_time": 38295,
+        "shape_dist_traveled": 160112.9,
+        "stop_id": "8355"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 44,
+        "arrival_time": 38435,
+        "departure_time": 38460,
+        "shape_dist_traveled": 165468.6,
+        "stop_id": "13450"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 45,
+        "arrival_time": 38520,
+        "departure_time": 38550,
+        "shape_dist_traveled": 167101.3,
+        "stop_id": "8356"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 46,
+        "arrival_time": 38630,
+        "departure_time": 38665,
+        "shape_dist_traveled": 169744.9,
+        "stop_id": "8357"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9529801",
+        "stop_sequence": 47,
+        "arrival_time": 38765,
+        "departure_time": 38765,
+        "shape_dist_traveled": 171872.7,
+        "stop_id": "8359"
+      }
+    ]
+  },
+  {
+    "data_set_id": 1,
+    "trip_id": "9530573",
+    "route_id": "100",
+    "service_id": "A",
+    "block_id": "9020",
+    "trip_headsign": "Hatfield Government Center",
+    "trip_short_name": "Cleveland Ave MAX Station",
+    "stop_time_instances": [
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 1,
+        "arrival_time": 40125,
+        "departure_time": 40125,
+        "shape_dist_traveled": 0,
+        "stop_id": "8359",
+       "first_stop": true
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 2,
+        "arrival_time": 40215,
+        "departure_time": 40245,
+        "shape_dist_traveled": 2322.3,
+        "stop_id": "8360"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 3,
+        "arrival_time": 40320,
+        "departure_time": 40345,
+        "shape_dist_traveled": 4921,
+        "stop_id": "8361"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 4,
+        "arrival_time": 40400,
+        "departure_time": 40425,
+        "shape_dist_traveled": 6577,
+        "stop_id": "13449"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 5,
+        "arrival_time": 40550,
+        "departure_time": 40575,
+        "shape_dist_traveled": 12354.9,
+        "stop_id": "8362"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 6,
+        "arrival_time": 40670,
+        "departure_time": 40695,
+        "shape_dist_traveled": 15339.9,
+        "stop_id": "8363"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 7,
+        "arrival_time": 40760,
+        "departure_time": 40785,
+        "shape_dist_traveled": 17219.9,
+        "stop_id": "8364"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 8,
+        "arrival_time": 40855,
+        "departure_time": 40880,
+        "shape_dist_traveled": 19544,
+        "stop_id": "8365"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 9,
+        "arrival_time": 40960,
+        "departure_time": 40990,
+        "shape_dist_traveled": 22182.3,
+        "stop_id": "8366"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 10,
+        "arrival_time": 41085,
+        "departure_time": 41115,
+        "shape_dist_traveled": 25817.7,
+        "stop_id": "8367"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 11,
+        "arrival_time": 41275,
+        "departure_time": 41310,
+        "shape_dist_traveled": 32761.9,
+        "stop_id": "8368"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 12,
+        "arrival_time": 41445,
+        "departure_time": 41480,
+        "shape_dist_traveled": 38027.2,
+        "stop_id": "8369"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 13,
+        "arrival_time": 41655,
+        "departure_time": 41695,
+        "shape_dist_traveled": 42240.2,
+        "stop_id": "8370"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 14,
+        "arrival_time": 41815,
+        "departure_time": 41840,
+        "shape_dist_traveled": 46434.7,
+        "stop_id": "8371"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 15,
+        "arrival_time": 41970,
+        "departure_time": 41995,
+        "shape_dist_traveled": 53853.7,
+        "stop_id": "8372"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 16,
+        "arrival_time": 42100,
+        "departure_time": 42125,
+        "shape_dist_traveled": 59153.5,
+        "stop_id": "8373"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 17,
+        "arrival_time": 42305,
+        "departure_time": 42340,
+        "shape_dist_traveled": 68342.3,
+        "stop_id": "8374"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 18,
+        "arrival_time": 42395,
+        "departure_time": 42425,
+        "shape_dist_traveled": 69353.1,
+        "stop_id": "8375"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 19,
+        "arrival_time": 42485,
+        "departure_time": 42510,
+        "shape_dist_traveled": 70445.5,
+        "stop_id": "8376"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 20,
+        "arrival_time": 42570,
+        "departure_time": 42600,
+        "shape_dist_traveled": 71222.1,
+        "stop_id": "8377"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 21,
+        "arrival_time": 42775,
+        "departure_time": 42805,
+        "shape_dist_traveled": 73953.6,
+        "stop_id": "8378"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 22,
+        "arrival_time": 42850,
+        "departure_time": 42875,
+        "shape_dist_traveled": 74618.8,
+        "stop_id": "8379"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 23,
+        "arrival_time": 42940,
+        "departure_time": 42975,
+        "shape_dist_traveled": 75782,
+        "stop_id": "8380"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 24,
+        "arrival_time": 43060,
+        "departure_time": 43100,
+        "shape_dist_traveled": 77062.9,
+        "stop_id": "8381"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 25,
+        "arrival_time": 43140,
+        "departure_time": 43180,
+        "shape_dist_traveled": 77613.4,
+        "stop_id": "8382"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 26,
+        "arrival_time": 43220,
+        "departure_time": 43270,
+        "shape_dist_traveled": 78181.8,
+        "stop_id": "8383"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 27,
+        "arrival_time": 43315,
+        "departure_time": 43365,
+        "shape_dist_traveled": 78852.4,
+        "stop_id": "8384"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 28,
+        "arrival_time": 43485,
+        "departure_time": 43515,
+        "shape_dist_traveled": 81012.5,
+        "stop_id": "9757"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 29,
+        "arrival_time": 43565,
+        "departure_time": 43595,
+        "shape_dist_traveled": 81759.4,
+        "stop_id": "9820"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 30,
+        "arrival_time": 43670,
+        "departure_time": 43700,
+        "shape_dist_traveled": 82999.3,
+        "stop_id": "10117"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 31,
+        "arrival_time": 43890,
+        "departure_time": 43915,
+        "shape_dist_traveled": 90314.6,
+        "stop_id": "10121"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 32,
+        "arrival_time": 44210,
+        "departure_time": 44245,
+        "shape_dist_traveled": 107308,
+        "stop_id": "9624"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 33,
+        "arrival_time": 44500,
+        "departure_time": 44535,
+        "shape_dist_traveled": 118318.8,
+        "stop_id": "9818"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 34,
+        "arrival_time": 44605,
+        "departure_time": 44630,
+        "shape_dist_traveled": 119870,
+        "stop_id": "9823"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 35,
+        "arrival_time": 44750,
+        "departure_time": 44775,
+        "shape_dist_traveled": 124067.8,
+        "stop_id": "9825"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 36,
+        "arrival_time": 44855,
+        "departure_time": 44880,
+        "shape_dist_traveled": 127578.4,
+        "stop_id": "9819"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 37,
+        "arrival_time": 44950,
+        "departure_time": 44980,
+        "shape_dist_traveled": 130498.5,
+        "stop_id": "9827"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 38,
+        "arrival_time": 45060,
+        "departure_time": 45085,
+        "shape_dist_traveled": 133445.3,
+        "stop_id": "9829"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 39,
+        "arrival_time": 45205,
+        "departure_time": 45235,
+        "shape_dist_traveled": 138955.6,
+        "stop_id": "9832"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 40,
+        "arrival_time": 45345,
+        "departure_time": 45370,
+        "shape_dist_traveled": 144196.5,
+        "stop_id": "9833"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 41,
+        "arrival_time": 45510,
+        "departure_time": 45535,
+        "shape_dist_traveled": 151664,
+        "stop_id": "9836"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 42,
+        "arrival_time": 45635,
+        "departure_time": 45660,
+        "shape_dist_traveled": 155501.9,
+        "stop_id": "9840"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 43,
+        "arrival_time": 45750,
+        "departure_time": 45780,
+        "shape_dist_traveled": 159594.2,
+        "stop_id": "9837"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 44,
+        "arrival_time": 45930,
+        "departure_time": 45955,
+        "shape_dist_traveled": 166095.7,
+        "stop_id": "9842"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 45,
+        "arrival_time": 46040,
+        "departure_time": 46065,
+        "shape_dist_traveled": 168368.2,
+        "stop_id": "9844"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 46,
+        "arrival_time": 46135,
+        "departure_time": 46170,
+        "shape_dist_traveled": 170144.5,
+        "stop_id": "9845"
+      },
+      {
+        "data_set_id": 1,
+        "trip_id": "9530573",
+        "stop_sequence": 47,
+        "arrival_time": 46290,
+        "departure_time": 46290,
+        "shape_dist_traveled": 171789.4,
+        "stop_id": "9848"
+      }
+    ]
+  }
+]

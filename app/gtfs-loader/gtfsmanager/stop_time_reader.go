@@ -47,7 +47,7 @@ func buildStopTime(parser *gtfsFileParser) (*gtfs.StopTime, error) {
 	stopTime := gtfs.StopTime{}
 	stopTime.TripId = parser.getString("trip_id", false)
 	stopTime.StopId = parser.getString("stop_id", false)
-	stopTime.StopSequence = parser.getInt("stop_sequence", false)
+	stopTime.StopSequence = uint32(parser.getInt("stop_sequence", false))
 	stopTime.ArrivalTime = parser.getGTFSTime("arrival_time", false)
 	stopTime.DepartureTime = parser.getGTFSTime("departure_time", false)
 	stopTime.ShapeDistTraveled = parser.getFloat64Pointer("shape_dist_traveled", true)

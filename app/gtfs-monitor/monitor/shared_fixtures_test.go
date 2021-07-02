@@ -1,0 +1,69 @@
+package monitor
+
+import (
+	"encoding/json"
+	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
+	"io/ioutil"
+	"log"
+	"testing"
+	"time"
+)
+
+type testLogWriter struct {
+	logLines []string
+	log      *log.Logger
+}
+
+func makeTestLogWriter() *testLogWriter {
+	logWriter := testLogWriter{
+		logLines: make([]string, 0),
+	}
+	logger := log.New(&logWriter, "GTFS_MONITOR : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	logWriter.log = logger
+	return &logWriter
+}
+
+func strPtr(s string) *string {
+	return &s
+}
+
+func float64Ptr(f float64) *float64 {
+	return &f
+}
+
+func (t *testLogWriter) Write(p []byte) (n int, err error) {
+	t.logLines = append(t.logLines, string(p))
+	return len(p), nil
+}
+
+func getTestTrip(trips []*gtfs.TripInstance, tripId *string, t *testing.T) *gtfs.TripInstance {
+	if tripId == nil {
+		return nil
+	}
+	for _, trip := range trips {
+		if trip.TripId == *tripId {
+			return trip
+		}
+	}
+	t.Errorf("unable to find test tripId %s", *tripId)
+	return nil
+}
+
+func getTestTrips(serviceDate time.Time, t *testing.T) []*gtfs.TripInstance {
+	var result []*gtfs.TripInstance
+	file, err := ioutil.ReadFile("testdata/test_trips.json")
+	if err != nil {
+		t.Errorf("unable to read test trips file: %v", err)
+	}
+	err = json.Unmarshal(file, &result)
+	if err != nil {
+		t.Errorf("unable to read test trips file: %v", err)
+	}
+	for _, trip := range result {
+		for _, s := range trip.StopTimeInstances {
+			s.ArrivalDateTime = gtfs.MakeScheduleTime(serviceDate, s.ArrivalTime)
+			s.DepartureDateTime = gtfs.MakeScheduleTime(serviceDate, s.DepartureTime)
+		}
+	}
+	return result
+}

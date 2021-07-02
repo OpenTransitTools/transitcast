@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
+	"github.com/ardanlabs/conf"
+	"gitlab.trimet.org/transittracker/transitmon/app/gtfs-monitor/monitor"
 	"gitlab.trimet.org/transittracker/transitmon/foundation/database"
 	logger "log"
 	"os"
-	"strconv"
-
-	"github.com/ardanlabs/conf"
-	"gitlab.trimet.org/transittracker/transitmon/app/gtfs-loader/gtfsmanager"
+	"os/signal"
+	"syscall"
 )
 
 var build = "develop"
 
 func main() {
-	log := logger.New(os.Stdout, "GTFS_LOADER : ", logger.LstdFlags|logger.Lmicroseconds|logger.Lshortfile)
+	log := logger.New(os.Stdout, "GTFS_MONITOR : ", logger.LstdFlags|logger.Lmicroseconds|logger.Lshortfile)
 	if err := run(log); err != nil {
 		log.Printf("main: error: %v", err)
 		os.Exit(1)
@@ -33,14 +33,15 @@ func run(log *logger.Logger) error {
 			DisableTLS bool   `conf:"default:true"`
 		}
 		GTFS struct {
-			Url           string `conf:"default:https://developer.trimet.org/schedule/gtfs.zip"`
-			TempDir       string `conf:"default:gtfs_tmp"`
-			ForceDownload bool   `conf:"default:false"`
+			VehiclePositionsUrl   string  `conf:"default:https://developer.trimet.org/ws/V1/VehiclePositions"`
+			LoadEverySeconds      int     `conf:"default:3"`
+			EarlyTolerance        float64 `conf:"default:0.3"`
+			ExpirePositionSeconds int     `conf:"default:900"`
 		}
 	}
 	cfg.Version.SVN = build
 	cfg.Version.Desc = "Maintain gtfs schedule instances in database"
-	const prefix = "LOADER"
+	const prefix = "MONITOR"
 	if err := conf.Parse(os.Args[1:], prefix, &cfg); err != nil {
 		switch err {
 		case conf.ErrHelpWanted:
@@ -97,42 +98,16 @@ func run(log *logger.Logger) error {
 		}
 	}()
 
-	switch cfg.Args.Num(0) {
-	case "load":
-		err = gtfsmanager.UpdateGTFSSchedule(log, db, cfg.GTFS.TempDir, cfg.GTFS.Url, cfg.GTFS.ForceDownload)
-		if err != nil {
-			return err
-		}
-		return gtfsmanager.ListGTFSSchedules(db)
-	case "delete":
-		dataSetIdString := cfg.Args.Num(1)
-		if len(dataSetIdString) < 1 {
-			return fmt.Errorf("expected data set id with command delete")
-		}
-		dataSetId, err := strconv.ParseInt(cfg.Args.Num(1), 10, 64)
-		if err != nil {
-			return fmt.Errorf("unable to parse data set id %s, error: %w", dataSetIdString, err)
-		}
-		return gtfsmanager.DeleteGTFSSchedule(log, db, dataSetId)
+	// Make a channel to listen for an interrupt or terminate signal from the OS.
+	// Use a buffered channel because the signal package requires it.
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
 
-	case "list":
-		return gtfsmanager.ListGTFSSchedules(db)
+	return monitor.RunVehicleMonitorLoop(log, db, cfg.GTFS.VehiclePositionsUrl, cfg.GTFS.LoadEverySeconds,
+		cfg.GTFS.EarlyTolerance, cfg.GTFS.ExpirePositionSeconds, shutdown)
 
-	default:
-		usage, err := conf.Usage("GTFS_LOADER", &cfg)
-		if err != nil {
-			return fmt.Errorf("generating config usage: %w", err)
-		}
-		printUsage(usage)
-		return nil
-	}
 }
 
 func printUsage(confUsage string) {
 	fmt.Println(confUsage)
-	fmt.Println("commands:")
-	fmt.Println("load: download and update (if needed) latest gtfs data set")
-	fmt.Println("delete <ID>: remove a gtfs data set from the database with <ID>")
-	fmt.Println("list: list all gtfs data sets in the database")
-
 }

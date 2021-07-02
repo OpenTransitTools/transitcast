@@ -34,8 +34,9 @@ func RecordCalendar(calendar *Calendar, dsTx *DataSetTransaction) error {
 		"tuesday, " +
 		"wednesday, " +
 		"thursday, " +
-		"friday," +
-		"saturday," +
+		"friday, " +
+		"saturday, " +
+		"sunday, " +
 		"start_date," +
 		"end_date) " +
 		"values (" +
@@ -45,8 +46,9 @@ func RecordCalendar(calendar *Calendar, dsTx *DataSetTransaction) error {
 		":tuesday, " +
 		":wednesday, " +
 		":thursday, " +
-		":friday," +
-		":saturday," +
+		":friday, " +
+		":saturday, " +
+		":sunday, " +
 		":start_date," +
 		":end_date) "
 	statementString = dsTx.Tx.Rebind(statementString)

@@ -8,9 +8,6 @@ import (
 	"time"
 )
 
-//test removal of db:id simple fields
-// add terminatedAt to DataSet
-
 // DataSetOperation contains required data for operating on gtfs records owned by a DataSet
 type DataSetOperation struct {
 	DS *DataSet
@@ -36,6 +33,7 @@ type DataSet struct {
 	LastModifiedTimestamp int64      `db:"last_modified_timestamp"`
 	DownloadedAt          time.Time  `db:"downloaded_at"`
 	SavedAt               *time.Time `db:"saved_at"`
+	ReplacedAt            *time.Time `db:"replaced_at"`
 }
 
 func (d DataSet) String() string {
@@ -44,8 +42,8 @@ func (d DataSet) String() string {
 		lastModTime := time.Unix(d.LastModifiedTimestamp, 0)
 		lastModified = formatTime(&lastModTime)
 	}
-	return fmt.Sprintf("DataSet Id:%d, url:%s, ETag:%s, lastModified:%s downloaded:%s savedAt:%s",
-		d.Id, d.URL, d.ETag, lastModified, formatTime(&d.DownloadedAt), formatTime(d.SavedAt))
+	return fmt.Sprintf("DataSet id:%d, url:%s, ETag:%s, lastModified:%s savedAt:%s replacedAt:%s",
+		d.Id, d.URL, d.ETag, lastModified, formatTime(d.SavedAt), formatTime(d.ReplacedAt))
 }
 
 func formatTime(time *time.Time) string {
@@ -55,8 +53,29 @@ func formatTime(time *time.Time) string {
 	return time.Format("2006-01-02T15:04:05")
 }
 
+// SaveAndTerminateReplacedDataSet updates all DataSet where now is between DataSet.SavedAt and DataSet.ReplacedAt and
+//sets DataSet.ReplacedAt to one microsecond before now.
+//ds is then saved with now as DataSet.SavedAt and the default DataSet.ReplacedAt date of 9999-12-31
+func SaveAndTerminateReplacedDataSet(tx *sqlx.Tx, ds *DataSet, now time.Time) error {
+	endDate, err := time.Parse("2006-01-02", "9999-12-31")
+	if err != nil {
+		return err
+	}
+	millisecondAgo := now.Add(-time.Microsecond)
+	statementString := "update data_set set replaced_at = :millisecondAgo" +
+		" where :now between saved_at and replaced_at"
+	//statementString = tx.Rebind(statementString)
+	_, err = tx.NamedExec(statementString, map[string]interface{}{"now": now, "millisecondAgo": millisecondAgo})
+	if err != nil {
+		return err
+	}
+	ds.SavedAt = &now
+	ds.ReplacedAt = &endDate
+	return SaveDataSet(tx, ds)
+}
+
 /*
-SaveDataSet saves new or updates existing DataSets. Existing records are determined by a non-zero DataSet.ID
+SaveDataSet saves new or updates existing DataSets.
 
 */
 func SaveDataSet(tx *sqlx.Tx, ds *DataSet) error {
@@ -65,21 +84,24 @@ func SaveDataSet(tx *sqlx.Tx, ds *DataSet) error {
 		"e_tag, " +
 		"last_modified_timestamp, " +
 		"downloaded_at, " +
-		"saved_at) " +
+		"saved_at, " +
+		"replaced_at) " +
 		"values (" +
 		":url, " +
 		":e_tag, " +
 		":last_modified_timestamp, " +
 		":downloaded_at, " +
-		":saved_at)"
+		":saved_at, " +
+		":replaced_at)"
 	if ds.Id != 0 {
 		statementString = "update data_set set " +
 			"url = :url, " +
 			"e_tag = :e_tag, " +
 			"last_modified_timestamp = :last_modified_timestamp, " +
 			"downloaded_at = :downloaded_at, " +
-			"saved_at = :saved_at " +
-			" where id = :id"
+			"saved_at = :saved_at, " +
+			"replaced_at = :replaced_at " +
+			"where id = :id"
 	}
 
 	statementString = tx.Rebind(statementString)
@@ -110,11 +132,17 @@ func GetDataSet(db *sqlx.DB, dataSetId int64) (*DataSet, error) {
 	return &ds, err
 }
 
-// GetLatestSavedDataSet retrieves the latest DataSet with a saved_at date
-func GetLatestSavedDataSet(db *sqlx.DB) (*DataSet, error) {
-	query := "select * from data_set where saved_at is not null order by saved_at desc, downloaded_at desc limit 1"
+// GetLatestDataSet retrieves the latest DataSet that is active
+func GetLatestDataSet(db *sqlx.DB) (*DataSet, error) {
+	return GetDataSetAt(db, time.Now())
+}
+
+// GetDataSetAt retrieves the DataSet that was active at a time
+func GetDataSetAt(db *sqlx.DB, at time.Time) (*DataSet, error) {
+	query := "select * from data_set " +
+		"where $1 between saved_at and replaced_at order by saved_at desc limit 1"
 	ds := DataSet{}
-	err := db.Get(&ds, query)
+	err := db.Get(&ds, db.Rebind(query), at)
 	return &ds, err
 }
 
@@ -124,4 +152,22 @@ func GetAllDataSets(db *sqlx.DB) ([]DataSet, error) {
 	var results []DataSet
 	err := db.Select(&results, query)
 	return results, err
+}
+
+// prepareNamedQueryRowsFromMap wraps boilerplate sqlx to prepare named query from map of sql parameters
+func prepareNamedQueryRowsFromMap(statementString string, db *sqlx.DB, sqlArgMap map[string]interface{}) (*sqlx.Rows, error) {
+	query, args, err := sqlx.Named(statementString, sqlArgMap)
+	if err != nil {
+		return nil, err
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	query = db.Rebind(query)
+	rows, err := db.Queryx(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
