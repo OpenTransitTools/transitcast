@@ -1,0 +1,75 @@
+# github.com/ardanlabs/conf v1.4.0
+## explicit
+github.com/ardanlabs/conf
+# github.com/cockroachdb/apd v1.1.0
+## explicit
+# github.com/gofrs/uuid v4.0.0+incompatible
+## explicit
+# github.com/jackc/fake v0.0.0-20150926172116-812a484cc733
+## explicit
+# github.com/jackc/pgx v3.6.2+incompatible
+## explicit
+github.com/jackc/pgx
+github.com/jackc/pgx/chunkreader
+github.com/jackc/pgx/internal/sanitize
+github.com/jackc/pgx/pgio
+github.com/jackc/pgx/pgproto3
+github.com/jackc/pgx/pgtype
+github.com/jackc/pgx/stdlib
+# github.com/jmoiron/sqlx v1.3.4
+## explicit
+github.com/jmoiron/sqlx
+github.com/jmoiron/sqlx/reflectx
+# github.com/matryer/is v1.4.0
+## explicit
+github.com/matryer/is
+# github.com/pkg/errors v0.9.1
+## explicit
+github.com/pkg/errors
+# github.com/shopspring/decimal v1.2.0
+## explicit
+# golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
+## explicit
+golang.org/x/crypto/pbkdf2
+# golang.org/x/text v0.3.6
+## explicit
+golang.org/x/text/cases
+golang.org/x/text/internal
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
+golang.org/x/text/internal/tag
+golang.org/x/text/language
+golang.org/x/text/runes
+golang.org/x/text/secure/bidirule
+golang.org/x/text/secure/precis
+golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+golang.org/x/text/width
+# google.golang.org/protobuf v1.27.1
+## explicit
+google.golang.org/protobuf/encoding/prototext
+google.golang.org/protobuf/encoding/protowire
+google.golang.org/protobuf/internal/descfmt
+google.golang.org/protobuf/internal/descopts
+google.golang.org/protobuf/internal/detrand
+google.golang.org/protobuf/internal/encoding/defval
+google.golang.org/protobuf/internal/encoding/messageset
+google.golang.org/protobuf/internal/encoding/tag
+google.golang.org/protobuf/internal/encoding/text
+google.golang.org/protobuf/internal/errors
+google.golang.org/protobuf/internal/filedesc
+google.golang.org/protobuf/internal/filetype
+google.golang.org/protobuf/internal/flags
+google.golang.org/protobuf/internal/genid
+google.golang.org/protobuf/internal/impl
+google.golang.org/protobuf/internal/order
+google.golang.org/protobuf/internal/pragma
+google.golang.org/protobuf/internal/set
+google.golang.org/protobuf/internal/strs
+google.golang.org/protobuf/internal/version
+google.golang.org/protobuf/proto
+google.golang.org/protobuf/reflect/protoreflect
+google.golang.org/protobuf/reflect/protoregistry
+google.golang.org/protobuf/runtime/protoiface
+google.golang.org/protobuf/runtime/protoimpl
