@@ -23,6 +23,10 @@ func makeTestLogWriter() *testLogWriter {
 	return &logWriter
 }
 
+func int64Ptr(i int64) *int64 {
+	return &i
+}
+
 func strPtr(s string) *string {
 	return &s
 }

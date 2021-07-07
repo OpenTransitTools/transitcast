@@ -33,7 +33,7 @@ func (s *stopTimeRowReader) flush(dsTx *gtfs.DataSetTransaction) error {
 		return nil
 	}
 
-	err := gtfs.RecordStopTime(s.batchedStopTimes, dsTx)
+	err := gtfs.RecordStopTimes(s.batchedStopTimes, dsTx)
 	if err != nil {
 		return err
 	}

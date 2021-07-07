@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"reflect"
 
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -158,7 +157,6 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			want: want{
 				stopTimes: []gtfs.ObservedStopTime{
 					{
-						Id:                 0,
 						RouteId:            "100",
 						StopId:             "9848",
 						ObservedAtStop:     true,
@@ -166,6 +164,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Unix(int64(1576083658), 0),
 						TravelSeconds:      int64(1576083658 - 1576083565),
+						ScheduledSeconds:   int64Ptr(105),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -210,6 +209,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Unix(int64(1576084167), 0),
 						TravelSeconds:      int64(1576084167 - 1576084075),
+						ScheduledSeconds:   int64Ptr(115),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -238,6 +238,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Unix(int64(1576090054), 0),
 						TravelSeconds:      int64(1576090054 - 1576089931),
+						ScheduledSeconds:   int64Ptr(135),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -270,6 +271,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2019, 12, 11, 10, 59, 33, 0, location),
 						TravelSeconds:      int64(71), //twice scheduled time due to delay
+						ScheduledSeconds:   int64Ptr(135),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -281,6 +283,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 11, 0, 23, 0, location),
 						TravelSeconds:      int64(50), //twice scheduled time due to delay
+						ScheduledSeconds:   int64Ptr(90),
 						VehicleId:          "102",
 						TripId:             "9530573",
 					},
@@ -341,6 +344,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 10, 47, 4, 0, location),
 						TravelSeconds:      int64(83),
+						ScheduledSeconds:   int64Ptr(135),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -368,6 +372,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 10, 47, 4, 0, location),
 						TravelSeconds:      int64(93),
+						ScheduledSeconds:   int64Ptr(135),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -394,6 +399,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Unix(int64(1576083658), 0),
 						TravelSeconds:      int64(62),
+						ScheduledSeconds:   int64Ptr(105),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -422,6 +428,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 0, 55, 0, location),
 						TravelSeconds:      int64(105),
+						ScheduledSeconds:   int64Ptr(105),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -450,6 +457,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 1, 0, 0, location),
 						TravelSeconds:      int64(110),
+						ScheduledSeconds:   int64Ptr(105),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -478,6 +486,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 0, 55, 0, location),
 						TravelSeconds:      int64(105),
+						ScheduledSeconds:   int64Ptr(105),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -489,6 +498,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 2, 30, 0, location),
 						TravelSeconds:      int64(95),
+						ScheduledSeconds:   int64Ptr(95),
 						VehicleId:          "102",
 						TripId:             "9529801",
 					},
@@ -595,11 +605,15 @@ func observedStopTimesSame(got []gtfs.ObservedStopTime, want []gtfs.ObservedStop
 		if s1.TripId != s2.TripId {
 			return false, fmt.Sprintf("row %v, TripId %v != %v", i, s1.TripId, s2.TripId)
 		}
+		if !reflect.DeepEqual(s1.ScheduledSeconds, s2.ScheduledSeconds) {
+			return false, fmt.Sprintf("row %v, ScheduledSeconds %v != %v", i, s1.ScheduledSeconds, s2.ScheduledSeconds)
+		}
 
 	}
 	return true, ""
 }
 
+//printObservedStopTimesRows format errors in a way that is easy to scan
 func printObservedStopTimesRows(stopTimes []gtfs.ObservedStopTime) string {
 	if stopTimes == nil {
 		return "nil"
@@ -607,18 +621,24 @@ func printObservedStopTimesRows(stopTimes []gtfs.ObservedStopTime) string {
 	all := make([]string, 0)
 
 	for i, st := range stopTimes {
-		row := []string{"row", strconv.FormatInt(int64(i), 10),
-			"routeId", st.RouteId,
-			"stopId", st.StopId,
-			"ObservedAtStop", strconv.FormatBool(st.ObservedAtStop),
-			"NextStopId", st.NextStopId,
-			"ObservedAtNextStop", strconv.FormatBool(st.ObservedAtNextStop),
-			"ObservedTime", st.ObservedTime.Format("2006-01-02 15:04:05"),
-			"TravelSeconds", strconv.FormatInt(st.TravelSeconds, 10),
-			"vehicleId", st.VehicleId,
-			"TripId", st.TripId,
+		scheduleSeconds := "<nil>"
+		if st.ScheduledSeconds != nil {
+			scheduleSeconds = fmt.Sprintf("%d", *st.ScheduledSeconds)
 		}
-		all = append(all, strings.Join(row, " "))
+		row := fmt.Sprintf("row:%d ObservedTime:%s, RouteId:%v StopId:%v ObservedAtStop:%v NextStopId:%v "+
+			"ObservedAtNextStop:%v TravelSeconds:%d ScheduledSeconds:%s VehicleId:%s, TripId:%s",
+			i,
+			st.ObservedTime.Format("2006-01-02 15:04:05"),
+			st.RouteId,
+			st.StopId,
+			st.ObservedAtStop,
+			st.NextStopId,
+			st.ObservedAtNextStop,
+			st.TravelSeconds,
+			scheduleSeconds,
+			st.VehicleId,
+			st.TripId)
+		all = append(all, row)
 
 	}
 	return strings.Join(all, "\n")

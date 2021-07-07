@@ -17,8 +17,8 @@ type StopTime struct {
 	ShapeDistTraveled *float64 `db:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
-// RecordStopTime saves stopTimes to database in batch
-func RecordStopTime(stopTimes []*StopTime, dsTx *DataSetTransaction) error {
+// RecordStopTimes saves stopTimes to database in batch
+func RecordStopTimes(stopTimes []*StopTime, dsTx *DataSetTransaction) error {
 	for _, stopTime := range stopTimes {
 		stopTime.DataSetId = dsTx.DS.Id
 	}

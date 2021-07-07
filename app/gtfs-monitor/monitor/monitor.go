@@ -147,6 +147,8 @@ func updateVehiclePositions(log *log.Logger,
 	loadedTripInstancesByTripId map[string]*gtfs.TripInstance,
 	monitorCollection *vehicleMonitorCollection) {
 
+	countSavedObservations := 0
+
 	for _, position := range positions {
 		vm := monitorCollection.getOrMakeVehicle(position.Id)
 		var trip *gtfs.TripInstance
@@ -157,11 +159,23 @@ func updateVehiclePositions(log *log.Logger,
 
 		// for now we just log it until the database is ready
 		for _, observation := range observations {
+
 			log.Printf("Vehicle %s on route %s moved from %s to %s in %d\n", observation.VehicleId,
 				observation.RouteId, observation.StopId, observation.NextStopId, observation.TravelSeconds)
+			err := gtfs.RecordObservedStopTime(&observation, db)
+			if err != nil {
+				log.Printf("Error saving stop time observation %+v. error: %v", observation, err)
+			} else {
+				countSavedObservations++
+			}
 		}
+
 	}
 
+	if countSavedObservations > 0 {
+		log.Printf("Saved %d stop time observations", countSavedObservations)
+
+	}
 }
 
 //fmtDuration returns a string presentation of time.Duration for logging
