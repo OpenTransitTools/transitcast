@@ -40,14 +40,17 @@ func run(log *logger.Logger) error {
 	}
 	cfg.Version.SVN = build
 	cfg.Version.Desc = "Maintain gtfs schedule instances in database"
+
 	const prefix = "LOADER"
+
+	usage, err := conf.Usage(prefix, &cfg)
+	if err != nil {
+		return fmt.Errorf("generating config usage: %w", err)
+	}
+
 	if err := conf.Parse(os.Args[1:], prefix, &cfg); err != nil {
 		switch err {
 		case conf.ErrHelpWanted:
-			usage, err := conf.Usage(prefix, &cfg)
-			if err != nil {
-				return fmt.Errorf("generating config usage: %w", err)
-			}
 			printUsage(usage)
 			return nil
 		case conf.ErrVersionWanted:
@@ -117,12 +120,16 @@ func run(log *logger.Logger) error {
 
 	case "list":
 		return gtfsmanager.ListGTFSSchedules(db)
+	case "exportTrip":
+		exportCmd, err := parseTripExportCmd(cfg.Args)
+		if err != nil {
+			log.Printf("error parsing exportTrip command: %v", err)
+			printUsage(usage)
+			return err
+		}
+		return gtfsmanager.ExportTripToJson(log, db, exportCmd.date, exportCmd.tripId, exportCmd.destinationFile)
 
 	default:
-		usage, err := conf.Usage("GTFS_LOADER", &cfg)
-		if err != nil {
-			return fmt.Errorf("generating config usage: %w", err)
-		}
 		printUsage(usage)
 		return nil
 	}
@@ -132,7 +139,8 @@ func printUsage(confUsage string) {
 	fmt.Println(confUsage)
 	fmt.Println("commands:")
 	fmt.Println("load: download and update (if needed) latest gtfs data set")
-	fmt.Println("delete <ID>: remove a gtfs data set from the database with <ID>")
+	fmt.Println("delete <dataSetID>: remove a gtfs data set from the database with <dataSetID>")
 	fmt.Println("list: list all gtfs data sets in the database")
-
+	fmt.Println("exportTrip <tripID> <date in yyyy-MM-ddTHH:mm:ssZ> " +
+		"(where Z is local time minus UTC, example -0700 for 7 hours) <destination>: export trip instance in json format to destination file")
 }

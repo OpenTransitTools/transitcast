@@ -3,11 +3,13 @@ package gtfsmanager
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
 	"gitlab.trimet.org/transittracker/transitmon/foundation/httpclient"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -152,7 +154,7 @@ func shouldUpdateGTFSSchedule(log *log.Logger, db *sqlx.DB, url string) bool {
 		return false
 
 	}
-	//if last modified timestamp is zero, do load load
+	//if last modified timestamp is zero, do load
 	if remoteFileInfo.LastModifiedTimestamp == 0 {
 		log.Printf("Unable to determine remote file timestamp or eTag, can't not determine if dataset should be reloaded")
 		return false
@@ -216,6 +218,33 @@ func loadGTFSScheduleFromFile(log *log.Logger,
 	})
 
 	return &ds, err
+}
+
+//ExportTripToJson attempts to load tripId effective "at" a point in time and writes to destinationFile in Json format
+func ExportTripToJson(log *log.Logger,
+	db *sqlx.DB,
+	at time.Time,
+	tripId string,
+	destinationFile string) error {
+
+	const tripSearchRangeSeconds = 60 * 60 * 8
+	start := at.Add(time.Duration(-tripSearchRangeSeconds) * time.Second)
+	end := at.Add(time.Duration(tripSearchRangeSeconds) * time.Second)
+
+	results, err := gtfs.GetTripInstances(db, at, start, end, []string{tripId})
+	if err != nil {
+		return err
+	}
+	trip, present := results.TripInstancesByTripId[tripId]
+	if !present {
+		return fmt.Errorf("unable to find trip %s", tripId)
+	}
+	file, err := json.MarshalIndent(trip, "", " ")
+	if err != nil {
+		return err
+	}
+	log.Printf("saving trip to %s", destinationFile)
+	return ioutil.WriteFile(destinationFile, file, 0644)
 }
 
 func makeDirectoryIfNotPresent(directory string) error {
