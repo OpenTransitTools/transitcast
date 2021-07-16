@@ -35,9 +35,12 @@ func (vc *vehicleMonitorCollection) getOrMakeVehicle(vehicleId string) *vehicleM
 //tripStopPosition is used by vehicleMonitor to keep track of vehicle movement between updated positions
 type tripStopPosition struct {
 	stopId                string
+	//seenAtStop is true when we have seen vehicle be StoppedAt at stopSequence
 	seenAtStop            bool
+	//witnessedPreviousStop indicates that we have seen the vehicle at or prior to stopSequence
 	witnessedPreviousStop bool
 	tripInstance          *gtfs.TripInstance
+	//stopSequence is the stop sequence on this trip that we are at or before
 	stopSequence          uint32
 	nextStopSequence      uint32
 	isFirstStop           bool
@@ -134,7 +137,7 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger, position *vehiclePosition
 }
 
 //witnessedPreviousStop returns true if the previous tripStopPosition is before or at the stop on tripId at stopSequence
-//indicating that the vehicle was seen at the last stop
+//indicating that the vehicle was seen at ore previous to the last stop
 func witnessedPreviousStop(tripId string, stopSequence uint32, previousTripStopPosition *tripStopPosition) bool {
 	if previousTripStopPosition == nil {
 		return false
@@ -375,10 +378,11 @@ func getStopPairsBetweenPositions(lastPosition *tripStopPosition,
 
 	currentTrip := currentPosition.tripInstance
 	fromSequence := lastPosition.stopSequence
-	if !lastPosition.witnessedPreviousStop {
+	/*if !lastPosition.witnessedPreviousStop {
 		fromSequence++
-	}
+	}*/
 	toSequence := currentPosition.stopSequence
+	//if we are at the current stop don't include it
 	if !currentPosition.seenAtStop {
 		toSequence--
 	}

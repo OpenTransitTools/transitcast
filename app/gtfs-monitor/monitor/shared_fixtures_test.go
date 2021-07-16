@@ -5,6 +5,7 @@ import (
 	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
 	"io/ioutil"
 	"log"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -70,4 +71,26 @@ func getTestTrips(serviceDate time.Time, t *testing.T) []*gtfs.TripInstance {
 		}
 	}
 	return result
+}
+
+func getTestTripsFromJson(fileName string, t *testing.T) []*gtfs.TripInstance {
+	var result []*gtfs.TripInstance
+	file, err := ioutil.ReadFile(filepath.Join("testdata", fileName))
+	if err != nil {
+		t.Errorf("unable to read test trips file: %v", err)
+	}
+	err = json.Unmarshal(file, &result)
+	if err != nil {
+		t.Errorf("unable to read test trips file: %v", err)
+	}
+	return result
+}
+
+func getFirstTestTripFromJson(fileName string, t *testing.T) *gtfs.TripInstance {
+	trips := getTestTripsFromJson(fileName, t)
+	if len(trips) < 1 {
+		t.Errorf("failed to load test trip from file %s", fileName)
+		return nil
+	}
+	return trips[0]
 }

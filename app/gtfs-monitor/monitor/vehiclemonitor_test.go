@@ -89,6 +89,10 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 
 	testTrips := getTestTrips(time.Date(2019, 12, 11, 0, 0, 0, 0, location), t)
 
+	trip10856058 := getFirstTestTripFromJson("trip_10856058_2021_07_13.json", t)
+
+	testTrips = append(testTrips, trip10856058)
+
 	if err != nil {
 		t.Errorf("Unable to get testing time zone location")
 		return
@@ -545,6 +549,37 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			},
 			want: want{
 				stopTimes: []gtfs.ObservedStopTime{},
+			},
+		},
+		{
+			name: "Transitioning from stop 7970 to 8059",
+			args: args{
+				Positions: []vehiclePosition{
+					makeVehiclePositionStopId("3934", "72 Swan Island", "10856058", uint32(13), InTransitTo,
+						time.Date(2021, 7, 13, 23, 44, 59, 0, location).Unix(), "7962"),
+					makeVehiclePositionStopId("3934", "72 Swan Island", "10856058", uint32(15), InTransitTo,
+						time.Date(2021, 7, 13, 23, 45, 29, 0, location).Unix(), "7970"),
+					makeVehiclePositionStopId("3934", "72 Swan Island", "10856058", uint32(16), InTransitTo,
+						time.Date(2021, 7, 13, 23, 45, 59, 0, location).Unix(), "7960"),
+					makeVehiclePositionStopId("3934", "72 Swan Island", "10856058", uint32(18), InTransitTo,
+						time.Date(2021, 7, 13, 23, 46, 59, 0, location).Unix(), "8059"),
+				},
+			},
+			want: want{
+				stopTimes: []gtfs.ObservedStopTime{
+					{
+						RouteId:            "72",
+						StopId:             "7970",
+						ObservedAtStop:     false,
+						NextStopId:         "7960",
+						ObservedAtNextStop: false,
+						ObservedTime:       time.Date(2021, 7, 13, 23, 45, 59, 0, location),
+						TravelSeconds:      int64(110),
+						ScheduledSeconds:   int64Ptr(30),
+						VehicleId:          "3934",
+						TripId:             "10856058",
+					},
+				},
 			},
 		},
 	}
@@ -1188,6 +1223,7 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 
 	firstTrip := getTestTrip(testTrips, strPtr("9529801"), t)
 	secondTrip := getTestTrip(testTrips, strPtr("9530573"), t)
+	trip10856058 := getFirstTestTripFromJson("trip_10856058_2021_07_13.json", t)
 
 	type args struct {
 		lastPosition    *tripStopPosition
@@ -1393,6 +1429,33 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 					*testTrips[0].StopTimeInstances[45],
 					*testTrips[0].StopTimeInstances[46],
 					testTrips[0],
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Seen before previous stop, now moved past next stop",
+			args: args{
+				lastPosition: &tripStopPosition{
+					seenAtStop:            false,
+					witnessedPreviousStop: true,
+					tripInstance:          trip10856058,
+					stopSequence:          15,
+					nextStopSequence:      16,
+				},
+				currentPosition: &tripStopPosition{
+					seenAtStop:            false,
+					witnessedPreviousStop: true,
+					tripInstance:          trip10856058,
+					stopSequence:          16,
+					nextStopSequence:      17,
+				},
+			},
+			want: []StopTimePair{
+				{
+					*trip10856058.StopTimeInstances[15],
+					*trip10856058.StopTimeInstances[16],
+					trip10856058,
 				},
 			},
 			wantErr: false,
