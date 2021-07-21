@@ -34,26 +34,27 @@ func (vc *vehicleMonitorCollection) getOrMakeVehicle(vehicleId string) *vehicleM
 
 //tripStopPosition is used by vehicleMonitor to keep track of vehicle movement between updated positions
 type tripStopPosition struct {
-	stopId                string
-	//seenAtStop is true when we have seen vehicle be StoppedAt at stopSequence
-	seenAtStop            bool
-	//witnessedPreviousStop indicates that we have seen the vehicle at or prior to stopSequence
+	previousStopId string
+	//seenAtPreviousStop is true when we have seen vehicle be StoppedAt at previousStopSequence
+	seenAtPreviousStop bool
+	//witnessedPreviousStop indicates that we have seen the vehicle at or prior to previousStopSequence
 	witnessedPreviousStop bool
 	tripInstance          *gtfs.TripInstance
-	//stopSequence is the stop sequence on this trip that we are at or before
-	stopSequence          uint32
-	nextStopSequence      uint32
-	isFirstStop           bool
-	lastTimestamp         int64
+	//previousStopSequence is the stop sequence on this trip that we are at or before
+	previousStopSequence uint32
+	nextStopSequence     uint32
+	//isFirstStop is true when previousStopSequence is the first stop of trip
+	isFirstStop   bool
+	lastTimestamp int64
 }
 
 //isSamePosition returns true if other tripStopPosition is equivalent to the t tripStopPosition receiver
 func (t *tripStopPosition) isSamePosition(other *tripStopPosition) bool {
-	return t.stopId == other.stopId &&
-		t.seenAtStop == other.seenAtStop &&
+	return t.previousStopId == other.previousStopId &&
+		t.seenAtPreviousStop == other.seenAtPreviousStop &&
 		t.witnessedPreviousStop == other.witnessedPreviousStop &&
 		t.tripInstance.TripId == other.tripInstance.TripId &&
-		t.stopSequence == other.stopSequence &&
+		t.previousStopSequence == other.previousStopSequence &&
 		t.nextStopSequence == other.nextStopSequence
 }
 
@@ -136,7 +137,7 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger, position *vehiclePosition
 	return results
 }
 
-//witnessedPreviousStop returns true if the previous tripStopPosition is before or at the stop on tripId at stopSequence
+//witnessedPreviousStop returns true if the previous tripStopPosition is before or at the stop on tripId at previousStopSequence
 //indicating that the vehicle was seen at ore previous to the last stop
 func witnessedPreviousStop(tripId string, stopSequence uint32, previousTripStopPosition *tripStopPosition) bool {
 	if previousTripStopPosition == nil {
@@ -145,10 +146,10 @@ func witnessedPreviousStop(tripId string, stopSequence uint32, previousTripStopP
 	if previousTripStopPosition.tripInstance.TripId != tripId {
 		return true
 	}
-	if previousTripStopPosition.stopSequence < stopSequence {
+	if previousTripStopPosition.previousStopSequence < stopSequence {
 		return true
 	}
-	if previousTripStopPosition.stopSequence == stopSequence && previousTripStopPosition.seenAtStop {
+	if previousTripStopPosition.previousStopSequence == stopSequence && previousTripStopPosition.seenAtPreviousStop {
 		return true
 	}
 	return false
@@ -158,25 +159,34 @@ func witnessedPreviousStop(tripId string, stopSequence uint32, previousTripStopP
 func getTripStopPosition(trip *gtfs.TripInstance, previousTripStopPosition *tripStopPosition, position *vehiclePosition) (*tripStopPosition, error) {
 
 	witnessedPrevious := witnessedPreviousStop(trip.TripId, *position.StopSequence, previousTripStopPosition)
+	var previousIndex int
+	var previousSST *gtfs.StopTimeInstance
 	for index, sst := range trip.StopTimeInstances {
 		if sst.StopSequence == *position.StopSequence {
+			//move backwards one if its still in transit to the stop
+			if position.VehicleStopStatus == InTransitTo && previousSST != nil {
+				index = previousIndex
+				sst = previousSST
+			}
 			nextStopSequence := sst.StopSequence
 			if index+1 < len(trip.StopTimeInstances) {
 				nextStopSequence = trip.StopTimeInstances[index+1].StopSequence
 			}
 			return &tripStopPosition{
-				stopId:                sst.StopId,
-				seenAtStop:            position.VehicleStopStatus == StoppedAt,
+				previousStopId:        sst.StopId,
+				seenAtPreviousStop:    position.VehicleStopStatus == StoppedAt,
 				witnessedPreviousStop: witnessedPrevious || position.VehicleStopStatus == StoppedAt,
 				tripInstance:          trip,
-				stopSequence:          sst.StopSequence,
+				previousStopSequence:  sst.StopSequence,
 				nextStopSequence:      nextStopSequence,
 				isFirstStop:           index == 0,
 				lastTimestamp:         position.Timestamp,
 			}, nil
 		}
+		previousIndex = index
+		previousSST = sst
 	}
-	return nil, fmt.Errorf("missing stop at tripId:%s stopSequence:%d", *position.TripId, *position.StopSequence)
+	return nil, fmt.Errorf("missing stop at tripId:%s previousStopSequence:%d", *position.TripId, *position.StopSequence)
 }
 
 //shouldUseToMoveForward  returns true if the newPosition indicates movement from previousTripStopPosition
@@ -184,9 +194,9 @@ func shouldUseToMoveForward(previousTripStopPosition *tripStopPosition, newPosit
 	if previousTripStopPosition.tripInstance.TripId != newPosition.tripInstance.TripId {
 		return true
 	}
-	if newPosition.stopSequence > previousTripStopPosition.stopSequence {
-		if newPosition.stopSequence == previousTripStopPosition.nextStopSequence { //its the next stop
-			if previousTripStopPosition.seenAtStop && !newPosition.seenAtStop {
+	if newPosition.previousStopSequence > previousTripStopPosition.previousStopSequence {
+		if newPosition.previousStopSequence == previousTripStopPosition.nextStopSequence { //its the next stop
+			if previousTripStopPosition.seenAtPreviousStop && !newPosition.seenAtPreviousStop {
 				//its only incoming to the next stop and isn't there yet
 				return false
 			}
@@ -194,8 +204,8 @@ func shouldUseToMoveForward(previousTripStopPosition *tripStopPosition, newPosit
 		}
 		return true
 	}
-	if previousTripStopPosition.stopSequence == newPosition.stopSequence {
-		if !previousTripStopPosition.seenAtStop && newPosition.seenAtStop {
+	if previousTripStopPosition.previousStopSequence == newPosition.previousStopSequence {
+		if !previousTripStopPosition.seenAtPreviousStop && newPosition.seenAtPreviousStop {
 			return true
 		}
 	}
@@ -207,8 +217,8 @@ func shouldUseToMoveForward(previousTripStopPosition *tripStopPosition, newPosit
 //and returns true if the new position should cause an update to the monitored vehicle position
 //Currently new positions at the first stop of the trip is considered new and usable, others are not
 func updateStoppedAtPosition(previousTripStopPosition *tripStopPosition, newPosition *tripStopPosition) bool {
-	if previousTripStopPosition.stopSequence == newPosition.stopSequence {
-		if newPosition.seenAtStop {
+	if previousTripStopPosition.previousStopSequence == newPosition.previousStopSequence {
+		if newPosition.seenAtPreviousStop {
 			return newPosition.isFirstStop
 		}
 	}
@@ -221,13 +231,13 @@ func (vm *vehicleMonitor) isCurrentPositionExpired(currentTimestamp int64) bool 
 	return diff > vm.expirePositionSeconds
 }
 
-//getObservedAtPositions convenience function returns the tripStopPosition arguments that have had their seenAtStop flag set
+//getObservedAtPositions convenience function returns the tripStopPosition arguments that have had their seenAtPreviousStop flag set
 func getObservedAtPositions(position1 *tripStopPosition, position2 *tripStopPosition) []tripStopPosition {
 	result := make([]tripStopPosition, 0)
-	if position1.seenAtStop {
+	if position1.seenAtPreviousStop {
 		result = append(result, *position1)
 	}
-	if position2.seenAtStop {
+	if position2.seenAtPreviousStop {
 		result = append(result, *position2)
 	}
 	return result
@@ -353,7 +363,7 @@ func containsFirstStopOfTrip(tripId string, stopPairs []StopTimePair) bool {
 func stopTimeInstancePresent(stopTimeInstance gtfs.StopTimeInstance, positions []tripStopPosition) bool {
 	for _, position := range positions {
 		if stopTimeInstance.TripId == position.tripInstance.TripId &&
-			stopTimeInstance.StopSequence == position.stopSequence {
+			stopTimeInstance.StopSequence == position.previousStopSequence {
 			return true
 		}
 	}
@@ -377,22 +387,16 @@ func getStopPairsBetweenPositions(lastPosition *tripStopPosition,
 	currentPosition *tripStopPosition) ([]StopTimePair, error) {
 
 	currentTrip := currentPosition.tripInstance
-	fromSequence := lastPosition.stopSequence
-	/*if !lastPosition.witnessedPreviousStop {
+	fromSequence := lastPosition.previousStopSequence
+	toSequence := currentPosition.previousStopSequence
+
+	//ignore the previous stop if we do not have information about the vehicle's position from that stop
+	if !lastPosition.witnessedPreviousStop {
 		fromSequence++
-	}*/
-	toSequence := currentPosition.stopSequence
-	//if we are at the current stop don't include it
-	if !currentPosition.seenAtStop {
-		toSequence--
 	}
 
 	//check if we are on the same trip
 	if lastPosition.tripInstance.TripId == currentPosition.tripInstance.TripId {
-		//if we saw the vehicle pass a previous stop, we should get at least one stop sequence
-		if currentPosition.witnessedPreviousStop && fromSequence >= toSequence {
-			fromSequence--
-		}
 		return getStopPairsBetweenSequences(currentTrip, fromSequence, toSequence), nil
 	}
 
@@ -403,7 +407,7 @@ func getStopPairsBetweenPositions(lastPosition *tripStopPosition,
 	return combined, nil
 }
 
-//getLastStopTimeSequenceOnTrip returns the final stopSequence on trip
+//getLastStopTimeSequenceOnTrip returns the final previousStopSequence on trip
 func getLastStopTimeSequenceOnTrip(trip *gtfs.TripInstance) uint32 {
 	if trip == nil {
 		return 0

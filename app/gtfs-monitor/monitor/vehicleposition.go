@@ -50,7 +50,7 @@ func (v *vehiclePosition) String() string {
 	} else {
 		buffer.WriteString(*v.TripId)
 	}
-	buffer.WriteString(", stopSequence:")
+	buffer.WriteString(", previousStopSequence:")
 	if v.StopSequence == nil {
 		buffer.WriteString("unknown")
 	} else {

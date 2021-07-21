@@ -573,9 +573,21 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedAtStop:     false,
 						NextStopId:         "7960",
 						ObservedAtNextStop: false,
-						ObservedTime:       time.Date(2021, 7, 13, 23, 45, 59, 0, location),
-						TravelSeconds:      int64(110),
+						ObservedTime:       time.Date(2021, 7, 13, 23, 46, 30, 0, location),
+						TravelSeconds:      int64(15),
 						ScheduledSeconds:   int64Ptr(30),
+						VehicleId:          "3934",
+						TripId:             "10856058",
+					},
+					{
+						RouteId:            "72",
+						StopId:             "7960",
+						ObservedAtStop:     false,
+						NextStopId:         "8057",
+						ObservedAtNextStop: false,
+						ObservedTime:       time.Date(2021, 7, 13, 23, 46, 59, 0, location),
+						TravelSeconds:      int64(29),
+						ScheduledSeconds:   int64Ptr(29),
 						VehicleId:          "3934",
 						TripId:             "10856058",
 					},
@@ -617,7 +629,7 @@ func observedStopTimesSame(got []gtfs.ObservedStopTime, want []gtfs.ObservedStop
 			return false, fmt.Sprintf("row %v, routeId %v != %v", i, s1.RouteId, s2.RouteId)
 		}
 		if s1.StopId != s2.StopId {
-			return false, fmt.Sprintf("row %v, stopId %v != %v", i, s1.StopId, s2.StopId)
+			return false, fmt.Sprintf("row %v, previousStopId %v != %v", i, s1.StopId, s2.StopId)
 		}
 		if s1.ObservedAtStop != s2.ObservedAtStop {
 			return false, fmt.Sprintf("row %v, ObservedAtStop %v != %v", i, s1.ObservedAtStop, s2.ObservedAtStop)
@@ -708,19 +720,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Update when moved passed stop",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "2",
-					seenAtStop:            false,
+					previousStopId:        "2",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
@@ -730,19 +742,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Update when arrived at stop",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 			},
@@ -752,19 +764,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Update when arrived at stop",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 			},
@@ -774,19 +786,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Don't update when at stop and new position between previous stop and next stop",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          testTripOne,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
@@ -796,19 +808,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Do update when at stop and new position at the next stop",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          testTripOne,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
@@ -818,19 +830,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Don't update when at stop and new position at the same stop",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 			},
@@ -840,19 +852,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Dont update when two positions between same stops",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 			},
@@ -862,19 +874,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Do update when moving between stops",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
@@ -884,19 +896,19 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 			name: "Do update when different trip",
 			args: args{
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          12,
+					previousStopSequence:  12,
 					nextStopSequence:      33,
 				},
 				newPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripTwo,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 			},
@@ -919,6 +931,7 @@ func Test_getStopTransition(t *testing.T) {
 	}
 	testTrips := getTestTrips(time.Date(2019, 12, 11, 16, 0, 0, 0, location), t)
 	testTrip := getTestTrip(testTrips, strPtr("9529801"), t)
+	trip10856058 := getFirstTestTripFromJson("trip_10856058_2021_07_13.json", t)
 
 	type args struct {
 		trip                     *gtfs.TripInstance
@@ -940,11 +953,11 @@ func Test_getStopTransition(t *testing.T) {
 				status:                   StoppedAt,
 			},
 			want: &tripStopPosition{
-				stopId:                "9848",
-				seenAtStop:            true,
+				previousStopId:        "9848",
+				seenAtPreviousStop:    true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
-				stopSequence:          1,
+				previousStopSequence:  1,
 				nextStopSequence:      2,
 				isFirstStop:           true,
 			},
@@ -954,48 +967,49 @@ func Test_getStopTransition(t *testing.T) {
 			args: args{
 				trip: testTrips[0],
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "9848",
-					seenAtStop:            true,
+					previousStopId:        "9848",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          testTrip,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 				stopSequence: 1,
 				status:       StoppedAt,
 			},
 			want: &tripStopPosition{
-				stopId:                "9848",
-				seenAtStop:            true,
+				previousStopId:        "9848",
+				seenAtPreviousStop:    true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
-				stopSequence:          1,
+				previousStopSequence:  1,
 				nextStopSequence:      2,
 				isFirstStop:           true,
 			},
 		},
 		{
-			name: "Moved from being at first stop",
+			name: "Moved from being at at first stop to in transit to second",
 			args: args{
 				trip: testTrips[0],
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "9848",
-					seenAtStop:            true,
+					previousStopId:        "9848",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          testTrip,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 				stopSequence: 2,
 				status:       InTransitTo,
 			},
 			want: &tripStopPosition{
-				stopId:                "9846",
-				seenAtStop:            false,
+				previousStopId:        "9848",
+				seenAtPreviousStop:    false,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
-				stopSequence:          2,
-				nextStopSequence:      3,
+				previousStopSequence:  1,
+				nextStopSequence:      2,
+				isFirstStop:           true,
 			},
 		},
 		{
@@ -1007,11 +1021,11 @@ func Test_getStopTransition(t *testing.T) {
 				status:                   StoppedAt,
 			},
 			want: &tripStopPosition{
-				stopId:                "9846",
-				seenAtStop:            true,
+				previousStopId:        "9846",
+				seenAtPreviousStop:    true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
-				stopSequence:          2,
+				previousStopSequence:  2,
 				nextStopSequence:      3,
 			},
 		},
@@ -1024,36 +1038,37 @@ func Test_getStopTransition(t *testing.T) {
 				status:                   InTransitTo,
 			},
 			want: &tripStopPosition{
-				stopId:                "9846",
-				seenAtStop:            false,
+				previousStopId:        "9848",
+				seenAtPreviousStop:    false,
 				witnessedPreviousStop: false,
 				tripInstance:          testTrip,
-				stopSequence:          2,
-				nextStopSequence:      3,
+				previousStopSequence:  1,
+				nextStopSequence:      2,
+				isFirstStop:           true,
 			},
 		},
 		{
-			name: "Between stop 3 and 4, see between stop 2 and 3",
+			name: "Between stop 3 and 4, last seen between stop 2 and 3",
 			args: args{
 				trip: testTrips[0],
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "9846",
-					seenAtStop:            false,
+					previousStopId:        "9846",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTrip,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 				stopSequence: 4,
 				status:       InTransitTo,
 			},
 			want: &tripStopPosition{
-				stopId:                "9841",
-				seenAtStop:            false,
+				previousStopId:        "9843",
+				seenAtPreviousStop:    false,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
-				stopSequence:          4,
-				nextStopSequence:      5,
+				previousStopSequence:  3,
+				nextStopSequence:      4,
 			},
 		},
 		{
@@ -1065,11 +1080,11 @@ func Test_getStopTransition(t *testing.T) {
 				status:                   StoppedAt,
 			},
 			want: &tripStopPosition{
-				stopId:                "8359",
-				seenAtStop:            true,
+				previousStopId:        "8359",
+				seenAtPreviousStop:    true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
-				stopSequence:          47,
+				previousStopSequence:  47,
 				nextStopSequence:      47, //same stop sequence because this is the last stop
 			},
 		},
@@ -1078,23 +1093,47 @@ func Test_getStopTransition(t *testing.T) {
 			args: args{
 				trip: testTrips[0],
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "8357",
-					seenAtStop:            false,
+					previousStopId:        "8357",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          testTrip,
-					stopSequence:          46,
+					previousStopSequence:  46,
 					nextStopSequence:      47,
 				},
 				stopSequence: 47,
 				status:       StoppedAt,
 			},
 			want: &tripStopPosition{
-				stopId:                "8359",
-				seenAtStop:            true,
+				previousStopId:        "8359",
+				seenAtPreviousStop:    true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
-				stopSequence:          47,
+				previousStopSequence:  47,
 				nextStopSequence:      47, //same stop sequence because this is the last stop
+			},
+		},
+		{
+			name: "Seen before next stop sequence (15), next seen past but before next stop sequence (16)",
+			args: args{
+				trip: trip10856058,
+				previousTripStopPosition: &tripStopPosition{
+					previousStopId:        "7970",
+					seenAtPreviousStop:    false,
+					witnessedPreviousStop: true,
+					tripInstance:          trip10856058,
+					previousStopSequence:  15,
+					nextStopSequence:      16,
+				},
+				stopSequence: 16,
+				status:       InTransitTo,
+			},
+			want: &tripStopPosition{
+				previousStopId:        "7970",
+				seenAtPreviousStop:    false,
+				witnessedPreviousStop: true,
+				tripInstance:          trip10856058,
+				previousStopSequence:  15,
+				nextStopSequence:      16,
 			},
 		},
 	}
@@ -1106,7 +1145,7 @@ func Test_getStopTransition(t *testing.T) {
 			}
 			got, _ := getTripStopPosition(tt.args.trip, tt.args.previousTripStopPosition, &position)
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getTripStopPosition() = %+v, want %+v", got, tt.want)
+				t.Errorf("getTripStopPosition() = \n%+v, want \n%+v", got, tt.want)
 			}
 		})
 	}
@@ -1146,11 +1185,11 @@ func Test_witnessedPreviousStop(t *testing.T) {
 				tripId:       "1",
 				stopSequence: 3,
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
@@ -1162,11 +1201,11 @@ func Test_witnessedPreviousStop(t *testing.T) {
 				tripId:       "1",
 				stopSequence: 3,
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            false,
+					previousStopId:        "1",
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 			},
@@ -1178,11 +1217,11 @@ func Test_witnessedPreviousStop(t *testing.T) {
 				tripId:       "1",
 				stopSequence: 3,
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          testTripOne,
-					stopSequence:          4,
+					previousStopSequence:  4,
 					nextStopSequence:      5,
 				},
 			},
@@ -1194,11 +1233,11 @@ func Test_witnessedPreviousStop(t *testing.T) {
 				tripId:       "1",
 				stopSequence: 3,
 				previousTripStopPosition: &tripStopPosition{
-					stopId:                "1",
-					seenAtStop:            true,
+					previousStopId:        "1",
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          testTripOne,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
@@ -1239,17 +1278,17 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 			name: "Still at first stop",
 			args: args{
 				lastPosition: &tripStopPosition{
-					seenAtStop:            true,
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          firstTrip,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 				currentPosition: &tripStopPosition{
-					seenAtStop:            true,
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: false,
 					tripInstance:          firstTrip,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 			},
@@ -1260,17 +1299,17 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 			name: "At first stop then at second stop",
 			args: args{
 				lastPosition: &tripStopPosition{
-					seenAtStop:            true,
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 				currentPosition: &tripStopPosition{
-					seenAtStop:            true,
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          2,
+					previousStopSequence:  2,
 					nextStopSequence:      3,
 				},
 			},
@@ -1287,17 +1326,17 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 			name: "At first stop, then between second and third stop",
 			args: args{
 				lastPosition: &tripStopPosition{
-					seenAtStop:            true,
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 				currentPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
@@ -1305,6 +1344,11 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 				{
 					*testTrips[0].StopTimeInstances[0],
 					*testTrips[0].StopTimeInstances[1],
+					testTrips[0],
+				},
+				{
+					*testTrips[0].StopTimeInstances[1],
+					*testTrips[0].StopTimeInstances[2],
 					testTrips[0],
 				},
 			},
@@ -1314,24 +1358,24 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 			name: "between first and second (without being seen at stop), then between second and third stop",
 			args: args{
 				lastPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          firstTrip,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 				currentPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
 			want: []StopTimePair{
 				{
-					*testTrips[0].StopTimeInstances[0],
 					*testTrips[0].StopTimeInstances[1],
+					*testTrips[0].StopTimeInstances[2],
 					testTrips[0],
 				},
 			},
@@ -1341,17 +1385,17 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 			name: "Near end of first trip, into second trip",
 			args: args{
 				lastPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          45,
+					previousStopSequence:  45,
 					nextStopSequence:      46,
 				},
 				currentPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: false,
 					tripInstance:          secondTrip,
-					stopSequence:          3,
+					previousStopSequence:  3,
 					nextStopSequence:      4,
 				},
 			},
@@ -1371,6 +1415,11 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 					*testTrips[1].StopTimeInstances[1],
 					testTrips[1],
 				},
+				{
+					*testTrips[1].StopTimeInstances[1],
+					*testTrips[1].StopTimeInstances[2],
+					testTrips[1],
+				},
 			},
 			wantErr: false,
 		},
@@ -1378,17 +1427,17 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 			name: "Witnessed at previous stop now two stops beyond it",
 			args: args{
 				lastPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          6,
+					previousStopSequence:  6,
 					nextStopSequence:      7,
 				},
 				currentPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          9,
+					previousStopSequence:  9,
 					nextStopSequence:      10,
 				},
 			},
@@ -1403,6 +1452,11 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 					*testTrips[0].StopTimeInstances[7],
 					testTrips[0],
 				},
+				{
+					*testTrips[0].StopTimeInstances[7],
+					*testTrips[0].StopTimeInstances[8],
+					testTrips[0],
+				},
 			},
 			wantErr: false,
 		},
@@ -1410,17 +1464,17 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 			name: "At second to last stop, then at first stop of next trip",
 			args: args{
 				lastPosition: &tripStopPosition{
-					seenAtStop:            true,
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          firstTrip,
-					stopSequence:          46,
+					previousStopSequence:  46,
 					nextStopSequence:      47,
 				},
 				currentPosition: &tripStopPosition{
-					seenAtStop:            true,
+					seenAtPreviousStop:    true,
 					witnessedPreviousStop: true,
 					tripInstance:          secondTrip,
-					stopSequence:          1,
+					previousStopSequence:  1,
 					nextStopSequence:      2,
 				},
 			},
@@ -1437,24 +1491,24 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 			name: "Seen before previous stop, now moved past next stop",
 			args: args{
 				lastPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          trip10856058,
-					stopSequence:          15,
+					previousStopSequence:  15,
 					nextStopSequence:      16,
 				},
 				currentPosition: &tripStopPosition{
-					seenAtStop:            false,
+					seenAtPreviousStop:    false,
 					witnessedPreviousStop: true,
 					tripInstance:          trip10856058,
-					stopSequence:          16,
+					previousStopSequence:  16,
 					nextStopSequence:      17,
 				},
 			},
 			want: []StopTimePair{
 				{
+					*trip10856058.StopTimeInstances[14], //14th instance is stop sequence 15
 					*trip10856058.StopTimeInstances[15],
-					*trip10856058.StopTimeInstances[16],
 					trip10856058,
 				},
 			},
@@ -1470,7 +1524,7 @@ func Test_getStopPairsBetweenPositions(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getStopPairsBetweenPositions() got = %+v, want %+v", got, tt.want)
+				t.Errorf("getStopPairsBetweenPositions() got = \n%+v,\nwant = \n%+v", got, tt.want)
 			}
 		})
 	}
