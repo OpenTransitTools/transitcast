@@ -414,6 +414,8 @@ func getGTFSRowReader(fileName string) gtfsRowReader {
 		return &tripRowReader{}
 	case "stop_times.txt":
 		return &stopTimeRowReader{}
+	case "shapes.txt":
+		return &shapeRowReader{}
 	}
 	return nil
 }

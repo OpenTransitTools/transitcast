@@ -43,6 +43,10 @@ func DeleteGTFSSchedule(log *log.Logger,
 				query: "delete from trip where data_set_id = ?",
 			},
 			{
+				name:  "shape",
+				query: "delete from shape where data_set_id = ?",
+			},
+			{
 				name:  "calendar",
 				query: "delete from calendar where data_set_id = ?",
 			},

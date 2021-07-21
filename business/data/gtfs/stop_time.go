@@ -68,7 +68,8 @@ func GetStopTimeInstances(db *sqlx.DB,
 	missingTripIds := make([]string, 0)
 	invalidTimeSliceTripIds := make([]string, 0)
 
-	statementString := "select * from stop_time where data_set_id = :data_set_id and trip_id in (:trip_ids)"
+	statementString := "select * from stop_time where data_set_id = :data_set_id and trip_id in (:trip_ids) " +
+		"order by trip_id, stop_sequence"
 	rows, err := prepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
 		"data_set_id": dataSetId,
 		"trip_ids":    tripIds,

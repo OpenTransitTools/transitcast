@@ -1,5 +1,6 @@
 # Binaries
-app/gtfs-loader/gtfs-loader
+/gtfs-loader
+/gtfs-monitor
 
 # temp file download location
 
@@ -37,8 +38,6 @@ _cgo_export.*
 
 _testmain.go
 
-gtfs-loader
-gtfs-monitor
 *.exe
 /*.test
 .vscode/tasks.json
