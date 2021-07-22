@@ -143,7 +143,10 @@ func GetDataSetAt(db *sqlx.DB, at time.Time) (*DataSet, error) {
 		"where $1 between saved_at and replaced_at order by saved_at desc limit 1"
 	ds := DataSet{}
 	err := db.Get(&ds, db.Rebind(query), at)
-	return &ds, err
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve DataSet at %v, error: %w", at, err)
+	}
+	return &ds, nil
 }
 
 // GetAllDataSets retrieves all DataSets currently loaded
@@ -151,7 +154,10 @@ func GetAllDataSets(db *sqlx.DB) ([]DataSet, error) {
 	query := "select * from data_set"
 	var results []DataSet
 	err := db.Select(&results, query)
-	return results, err
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve all DataSets. error: %w", err)
+	}
+	return results, nil
 }
 
 // prepareNamedQueryRowsFromMap wraps boilerplate sqlx to prepare named query from map of sql parameters
