@@ -14,6 +14,7 @@ type Trip struct {
 	TripHeadsign  *string `db:"trip_headsign" json:"trip_headsign"`
 	TripShortName *string `db:"trip_short_name" json:"trip_short_name"`
 	BlockId       *string `db:"block_id" json:"block_id"`
+	ShapeId       *string `db:"shape_id" json:"shape_id"`
 }
 
 // RecordTrips saves trips to database in batch
@@ -28,15 +29,17 @@ func RecordTrips(trips []*Trip, dsTx *DataSetTransaction) error {
 		"service_id, " +
 		"trip_headsign, " +
 		"trip_short_name, " +
-		"block_id) " +
+		"block_id, " +
+		"shape_id) " +
 		"values (" +
 		":data_set_id, " +
 		":trip_id, " +
 		":route_id, " +
 		":service_id, " +
 		":trip_headsign, " +
-		":trip_short_name," +
-		":block_id)"
+		":trip_short_name, " +
+		":block_id, " +
+		":shape_id)"
 	statementString = dsTx.Tx.Rebind(statementString)
 	_, err := dsTx.Tx.NamedExec(statementString, trips)
 	return err
@@ -49,6 +52,7 @@ type TripInstanceBatchQueryResults struct {
 	TripInstancesByTripId   map[string]*TripInstance
 	MissingTripIds          []string
 	ScheduleSliceOutOfRange []string
+	MissingShapeIds         []string
 }
 
 func makeTripInstanceBatchQueryResults() *TripInstanceBatchQueryResults {
@@ -60,6 +64,7 @@ func makeTripInstanceBatchQueryResults() *TripInstanceBatchQueryResults {
 type TripInstance struct {
 	Trip
 	StopTimeInstances []*StopTimeInstance `json:"stop_time_instances"`
+	Shapes            []*Shape            `json:"shapes"`
 }
 
 func GetTripInstances(db *sqlx.DB,
@@ -94,12 +99,18 @@ func GetTripInstances(db *sqlx.DB,
 		return nil, err
 	}
 
+	shapeIds := make([]string, 0)
+
 	// iterate over each row
 	for rows.Next() {
 		tripInstance := TripInstance{}
 		err = rows.StructScan(&tripInstance)
 		if err != nil {
 			return nil, err
+		}
+		//collect shapeIds we need
+		if tripInstance.ShapeId != nil {
+			shapeIds = append(shapeIds, *tripInstance.ShapeId)
 		}
 		if stopTimes, present := stopTimeMap[tripInstance.TripId]; present {
 			tripInstance.StopTimeInstances = stopTimes
@@ -112,6 +123,22 @@ func GetTripInstances(db *sqlx.DB,
 	if err != nil {
 		return nil, err
 	}
+
+	//load shapes
+	mappedShapes, missingShapeIds, err := GetShapes(db, dataSet.Id, shapeIds)
+	if err != nil {
+		return nil, err
+	}
+
+	//load any shape lists available into trips
+	for _, tripInstance := range results.TripInstancesByTripId {
+		if tripInstance.ShapeId != nil {
+			if shapes, present := mappedShapes[*tripInstance.ShapeId]; present {
+				tripInstance.Shapes = shapes
+			}
+		}
+	}
+	results.MissingShapeIds = missingShapeIds
 
 	return results, err
 

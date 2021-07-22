@@ -50,6 +50,7 @@ func buildTrip(parser *gtfsFileParser) (*gtfs.Trip, error) {
 		TripHeadsign:  parser.getStringPointer("trip_headsign", true),
 		TripShortName: parser.getStringPointer("trip_short_name", true),
 		BlockId:       parser.getStringPointer("block_id", true),
+		ShapeId:       parser.getStringPointer("shape_id", true),
 	}
 	return &trip, parser.getError()
 }
