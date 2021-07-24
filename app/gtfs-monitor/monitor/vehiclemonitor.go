@@ -46,6 +46,8 @@ type tripStopPosition struct {
 	//isFirstStop is true when previousStopSequence is the first stop of trip
 	isFirstStop   bool
 	lastTimestamp int64
+	tripDistance *float64
+	previousStopDistance *float64
 }
 
 //isSamePosition returns true if other tripStopPosition is equivalent to the t tripStopPosition receiver
@@ -132,7 +134,7 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger, position *vehiclePosition
 	}
 
 	results = makeObservedStopTimes(vm.Id, lastPositionTimestamp, position.Timestamp,
-		getObservedAtPositions(lastTripStopPosition, newTripStopPosition), stopTimePairs)
+		lastTripStopPosition, newTripStopPosition, stopTimePairs)
 
 	return results
 }
@@ -294,7 +296,8 @@ func makeObservedStopTimes(
 	vehicleId string,
 	startTimestamp int64,
 	endTimestamp int64,
-	observedAtTripStopPositions []tripStopPosition,
+	lastTripStopPosition *tripStopPosition,
+	newTripStopPosition *tripStopPosition,
 	stopPairs []StopTimePair) []gtfs.ObservedStopTime {
 
 	results := make([]gtfs.ObservedStopTime, 0)
@@ -303,6 +306,7 @@ func makeObservedStopTimes(
 		return results
 	}
 
+	observedAtTripStopPositions := getObservedAtPositions(lastTripStopPosition, newTripStopPosition)
 	firstScheduleSeconds := stopPairs[0].from.ArrivalTime
 	lastScheduleSeconds := stopPairs[lastStopTimePairIndex].to.ArrivalTime
 	totalScheduledLength := int64(lastScheduleSeconds - firstScheduleSeconds)
