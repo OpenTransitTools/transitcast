@@ -83,6 +83,11 @@ var spacedStopSequenceTrip = &gtfs.TripInstance{
 	},
 }
 
+func testDate(dateString string) time.Time {
+	t, _ := time.Parse("2006-01-02T15:04:05-07:00", dateString)
+	return t
+}
+
 func TestVehicleMonitor_NewPosition(t *testing.T) {
 	location, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
@@ -1875,6 +1880,174 @@ func Test_isMovementBelievable(t *testing.T) {
 			got, _, _ := isMovementBelievable(tt.args.stopTimePairs, tt.args.fromTimestamp, tt.args.toTimestamp, tt.args.earlyTolerance)
 			if got != tt.want {
 				t.Errorf("isMovementBelievable() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_calculateTravelBetweenStops(t *testing.T) {
+	testTripOne := getFirstTestTripFromJson("trip_10900607_2021_07_22.json", t)
+
+	type args struct {
+		previousTripStopPosition *tripStopPosition
+		position                 *tripStopPosition
+	}
+
+	tests := []struct {
+		name  string
+		args  args
+		want1 int
+		want2 int
+	}{
+		{
+			name: "no previousStopPosition produces no results",
+			args: args{
+				previousTripStopPosition: nil,
+				position: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[1],
+					nextSTI:              testTripOne.StopTimeInstances[2],
+					lastTimestamp:        testDate("2021-07-22T16:29:47-07:00").Unix(),
+					tripDistancePosition: float64Ptr(1012.9),
+				},
+			},
+			want1: 0,
+			want2: 0,
+		},
+		{
+			name: "no tripDistancePosition produces no results",
+			args: args{
+				previousTripStopPosition: &tripStopPosition{
+					tripInstance:  testTripOne,
+					previousSTI:   testTripOne.StopTimeInstances[0],
+					nextSTI:       testTripOne.StopTimeInstances[1],
+					lastTimestamp: testDate("2021-07-22T16:29:27-07:00").Unix(),
+				},
+				position: &tripStopPosition{
+					tripInstance:  testTripOne,
+					previousSTI:   testTripOne.StopTimeInstances[1],
+					nextSTI:       testTripOne.StopTimeInstances[2],
+					lastTimestamp: testDate("2021-07-22T16:29:47-07:00").Unix(),
+				},
+			},
+			want1: 0,
+			want2: 0,
+		},
+		{
+			name: "perfect schedule while half way between stops",
+			args: args{
+				previousTripStopPosition: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[0],
+					nextSTI:              testTripOne.StopTimeInstances[1],
+					lastTimestamp:        testDate("2021-07-22T16:28:00-07:00").Unix(),
+					tripDistancePosition: float64Ptr(0),
+				},
+				position: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[1],
+					nextSTI:              testTripOne.StopTimeInstances[2],
+					lastTimestamp:        testDate("2021-07-22T16:29:11-07:00").Unix(),
+					tripDistancePosition: float64Ptr(2059.2),
+				},
+			},
+			want1: 36,
+			want2: 36,
+		},
+		{
+			name: "Took twice as long as schedule and half way between stops",
+			args: args{
+				previousTripStopPosition: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[0],
+					nextSTI:              testTripOne.StopTimeInstances[1],
+					lastTimestamp:        testDate("2021-07-22T16:28:00-07:00").Unix(),
+					tripDistancePosition: float64Ptr(0),
+				},
+				position: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[1],
+					nextSTI:              testTripOne.StopTimeInstances[2],
+					lastTimestamp:        testDate("2021-07-22T16:30:24-07:00").Unix(), //144 seconds past
+					tripDistancePosition: float64Ptr(2059.2),
+				},
+			},
+			want1: 36,
+			want2: 73,
+		},
+		{
+			name: "Moved almost to the next stop",
+			args: args{
+				previousTripStopPosition: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[0],
+					nextSTI:              testTripOne.StopTimeInstances[1],
+					lastTimestamp:        testDate("2021-07-22T16:28:00-07:00").Unix(),
+					tripDistancePosition: float64Ptr(0),
+				},
+				position: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[1],
+					nextSTI:              testTripOne.StopTimeInstances[2],
+					lastTimestamp:        testDate("2021-07-22T16:29:47-07:00").Unix(), //exactly the schedule time of next stop
+					tripDistancePosition: float64Ptr(3105.3),                           //.2 away from the stop
+
+				},
+			},
+			want1: 72,
+			want2: 72,
+		},
+		{
+			name: "Barely past the last stop",
+			args: args{
+				previousTripStopPosition: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[0],
+					nextSTI:              testTripOne.StopTimeInstances[1],
+					lastTimestamp:        testDate("2021-07-22T16:28:00-07:00").Unix(),
+					tripDistancePosition: float64Ptr(0),
+				},
+				position: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[1],
+					nextSTI:              testTripOne.StopTimeInstances[2],
+					lastTimestamp:        testDate("2021-07-22T16:28:35-07:00").Unix(), //exactly the schedule time of the previous stop
+					tripDistancePosition: float64Ptr(1013),                             //.1 past previous stop
+
+				},
+			},
+			want1: 0,
+			want2: 0,
+		},
+		{
+			name: "previous positions travel time reduces length of scheduled travel",
+			args: args{
+				previousTripStopPosition: &tripStopPosition{
+					tripInstance:                 testTripOne,
+					previousSTI:                  testTripOne.StopTimeInstances[0],
+					nextSTI:                      testTripOne.StopTimeInstances[1],
+					lastTimestamp:                testDate("2021-07-22T16:28:00-07:00").Unix(),
+					tripDistancePosition:         float64Ptr(0),
+					scheduledSecondsFromLastStop: 35,
+				},
+				position: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[1],
+					nextSTI:              testTripOne.StopTimeInstances[2],
+					lastTimestamp:        testDate("2021-07-22T16:29:11-07:00").Unix(),
+					tripDistancePosition: float64Ptr(2059.2),
+				},
+			},
+			want1: 36,
+			want2: 71,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got1, got2 := calculateTravelBetweenStops(tt.args.previousTripStopPosition, tt.args.position)
+			if got1 != tt.want1 || got2 != tt.want2 {
+				t.Errorf("calculateTravelBetweenStops() = %d, %d want %d, %d", got1, got2, tt.want1, tt.want2)
 			}
 		})
 	}

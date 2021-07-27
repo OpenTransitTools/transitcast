@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
 	"log"
-
+	"math"
 	"time"
 )
 
@@ -39,13 +39,16 @@ type tripStopPosition struct {
 	//witnessedPreviousStop indicates that we have seen the vehicle at or prior to previousStopSequence
 	witnessedPreviousStop bool
 	tripInstance          *gtfs.TripInstance
-	//previousStopSequence is the stop sequence on this trip that we are at or before
-	previousSTI               *gtfs.StopTimeInstance
-	nextSTI                   *gtfs.StopTimeInstance
-	lastTimestamp             int64
-	tripDistancePosition      *float64
-	previousStopDistance      *float64
-	scheduledTimeFromLastStop *int
+	//previousSTI is the stop this trip that we are at or just passed
+	previousSTI *gtfs.StopTimeInstance
+	//nextSTI is the stop this trip that we are headed towards (or at in the case where we are at the last stop of the trip)
+	nextSTI *gtfs.StopTimeInstance
+
+	lastTimestamp int64
+
+	tripDistancePosition              *float64
+	scheduledSecondsFromLastStop      int
+	observedSecondsToTravelToPosition int
 }
 
 //vehicleMonitor generates gtfs.ObservedStopTime records by watching subsequent vehiclePosition records from gtfs
@@ -165,19 +168,66 @@ func getTripStopPosition(trip *gtfs.TripInstance, previousTripStopPosition *trip
 			if index+1 < len(trip.StopTimeInstances) {
 				nextSTI = trip.StopTimeInstances[index+1]
 			}
-			return &tripStopPosition{
+			result := tripStopPosition{
 				seenAtPreviousStop:    position.VehicleStopStatus == StoppedAt,
 				witnessedPreviousStop: witnessedPrevious || position.VehicleStopStatus == StoppedAt,
 				tripInstance:          trip,
 				previousSTI:           sst,
 				nextSTI:               nextSTI,
 				lastTimestamp:         position.Timestamp,
-			}, nil
+			}
+			result.scheduledSecondsFromLastStop, result.observedSecondsToTravelToPosition =
+				calculateTravelBetweenStops(previousTripStopPosition, &result)
+			return &result, nil
 		}
 		previousIndex = index
 		previousSST = sst
 	}
 	return nil, fmt.Errorf("missing stop at tripId:%s previousStopSequence:%d", *position.TripId, *position.StopSequence)
+}
+
+//calculateTravelBetweenStops calculates the time a vehicle may have took to travel from previousTripStopPosition
+//to its new location between position.previousSTI and position.nextSTI
+//returns:
+//scheduledSecondsFromLastStop - the amount of schedule seconds the vehicle was given to travel to its position between stops
+//observedSecondsToTravelToPosition - the amount of time the vehicle may have spent traveling to this position given
+// how much time it spent traveling from its previous tripStopPosition
+func calculateTravelBetweenStops(previousTripStopPosition *tripStopPosition, position *tripStopPosition) (int, int) {
+	//don't perform calculation if previousTripStopPosition is nil
+	//or position.tripDistancePosition is nil,
+	//or either StopTimeInstance.ShapeDistTraveled are null
+	if previousTripStopPosition == nil ||
+		position.tripDistancePosition == nil ||
+		position.previousSTI.ShapeDistTraveled == nil ||
+		position.nextSTI.ShapeDistTraveled == nil {
+		return 0, 0
+	}
+	firstScheduleSeconds := previousTripStopPosition.previousSTI.ArrivalTime + previousTripStopPosition.scheduledSecondsFromLastStop
+	lastScheduleSeconds := position.previousSTI.ArrivalTime
+	totalScheduledLengthTraveled := lastScheduleSeconds - firstScheduleSeconds
+	totalTimeOfTravel := int(position.lastTimestamp - previousTripStopPosition.lastTimestamp)
+
+	distanceFromPreviousStop := *position.tripDistancePosition - *position.previousSTI.ShapeDistTraveled
+	distanceBetweenStops := *position.nextSTI.ShapeDistTraveled - *position.previousSTI.ShapeDistTraveled
+	//don't proceed if the data doesn't make sense
+	if distanceBetweenStops <= 0 {
+		return 0, 0
+	}
+	percentBetweenStops := distanceFromPreviousStop / distanceBetweenStops
+	//scheduleTimeBetweenStops = nextStop.scheduledArrivalTime - previousStop.scheduledDepartureTime
+	scheduleTimeBetweenStops := position.nextSTI.ArrivalTime - position.previousSTI.DepartureTime
+
+	scheduledSecondsFromLastStop := int(math.Round(float64(scheduleTimeBetweenStops) * percentBetweenStops))
+
+	//add how far the vehicle moved past the stop to the total scheduled length traveled
+	totalScheduledLengthTraveled += scheduledSecondsFromLastStop
+
+	if totalScheduledLengthTraveled <= 0 {
+		return 0, 0
+	}
+	percentSpentOnTravelPastStop := float64(scheduledSecondsFromLastStop) / float64(totalScheduledLengthTraveled)
+	return scheduledSecondsFromLastStop, int(math.Round(float64(totalTimeOfTravel) * percentSpentOnTravelPastStop))
+
 }
 
 //shouldUseToMoveForward  returns true if the newPosition indicates movement from previousTripStopPosition
@@ -299,6 +349,7 @@ func makeObservedStopTimes(
 	firstScheduleSeconds := stopPairs[0].from.ArrivalTime
 	lastScheduleSeconds := stopPairs[lastStopTimePairIndex].to.ArrivalTime
 	totalScheduledLength := int64(lastScheduleSeconds - firstScheduleSeconds)
+
 	observedTime := endTimestamp
 
 	for i := lastStopTimePairIndex; i >= 0; i-- {
