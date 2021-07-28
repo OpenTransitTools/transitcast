@@ -10,6 +10,7 @@
     "stop_time_instances": [
       {
         "stop_sequence": 1,
+        "trip_id": "10900607",
         "stop_id": "13888",
         "arrival_time": 59280,
         "departure_time": 59280,
@@ -20,6 +21,7 @@
       },
       {
         "stop_sequence": 2,
+        "trip_id": "10900607",
         "stop_id": "13889",
         "arrival_time": 59315,
         "departure_time": 59315,
@@ -31,12 +33,24 @@
       {
         "stop_sequence": 3,
         "stop_id": "13890",
+        "trip_id": "10900607",
         "arrival_time": 59387,
         "departure_time": 59387,
         "shape_dist_traveled": 3105.5,
         "first_stop": false,
         "ArrivalDateTime": "2021-07-22T16:29:47-07:00",
         "DepartureDateTime": "2021-07-22T16:29:47-07:00"
+      },
+      {
+        "stop_sequence": 4,
+        "stop_id": "12902",
+        "trip_id": "10900607",
+        "arrival_time": 59423,
+        "departure_time": 59423,
+        "shape_dist_traveled": 4132.7,
+        "first_stop": false,
+        "ArrivalDateTime": "2021-07-22T16:30:23-07:00",
+        "DepartureDateTime": "2021-07-22T16:30:23-07:00"
       }
     ],
     "shapes": [
@@ -249,6 +263,42 @@
         "shape_pt_lon": -122.497338,
         "shape_pt_sequence": 35,
         "shape_dist_traveled": 3105.5
+      },
+      {
+        "shape_pt_lat": 45.426994,
+        "shape_pt_lon": -122.497878,
+        "shape_pt_sequence": 36,
+        "shape_dist_traveled": 3244.6
+      },
+      {
+        "shape_pt_lat": 45.426973,
+        "shape_pt_lon": -122.498351,
+        "shape_pt_sequence": 37,
+        "shape_dist_traveled": 3366.3
+      },
+      {
+        "shape_pt_lat": 45.426967,
+        "shape_pt_lon": -122.498432,
+        "shape_pt_sequence": 38,
+        "shape_dist_traveled": 3387.2
+      },
+      {
+        "shape_pt_lat": 45.426935,
+        "shape_pt_lon": -122.499368,
+        "shape_pt_sequence": 39,
+        "shape_dist_traveled": 3627.8
+      },
+      {
+        "shape_pt_lat": 45.426892,
+        "shape_pt_lon": -122.500909,
+        "shape_pt_sequence": 40,
+        "shape_dist_traveled": 4023.8
+      },
+      {
+        "shape_pt_lat": 45.426879,
+        "shape_pt_lon": -122.501333,
+        "shape_pt_sequence": 41,
+        "shape_dist_traveled": 4132.7
       }
     ]
   }

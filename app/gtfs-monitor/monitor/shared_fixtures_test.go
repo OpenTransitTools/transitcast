@@ -24,7 +24,7 @@ func makeTestLogWriter() *testLogWriter {
 	return &logWriter
 }
 
-func int64Ptr(i int64) *int64 {
+func intPtr(i int) *int {
 	return &i
 }
 

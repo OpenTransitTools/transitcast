@@ -1,7 +1,6 @@
 package monitor
 
 import (
-	"fmt"
 	"math"
 	"testing"
 )
@@ -93,6 +92,32 @@ func Test_findTripDistanceOfVehicleFromPosition(t *testing.T) {
 			},
 			want: nil,
 		},
+		{
+			name: "vehicle beyond end of pattern is no further away than last position on pattern",
+			position: tripStopPosition{
+				atPreviousStop: false,
+				tripInstance:   testTripOne,
+				previousSTI:    stopTwo,
+				nextSTI:        stopThree,
+				latitude:       float32Ptr(45.426990), //same values as first shape
+				longitude:      float32Ptr(-122.499481),
+			},
+			want:      float64Ptr(3105.5),
+			tolerance: 0.1,
+		},
+		{
+			name: "approximately in the middle of stops",
+			position: tripStopPosition{
+				atPreviousStop: false,
+				tripInstance:   testTripOne,
+				previousSTI:    stopTwo,
+				nextSTI:        stopThree,
+				latitude:       float32Ptr(45.427385),
+				longitude:      float32Ptr(-122.493237),
+			},
+			want:      float64Ptr(2050),
+			tolerance: 5,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -108,7 +133,6 @@ func Test_findTripDistanceOfVehicleFromPosition(t *testing.T) {
 				if math.Abs(diff) > tt.tolerance {
 					t.Errorf("expected difference to be less than %f away from %f, got %f which is %f away", tt.tolerance, *tt.want, *got, diff)
 				}
-				fmt.Printf("%s wanted %f, got %f\n", tt.name, *tt.want, *got)
 			}
 
 		})

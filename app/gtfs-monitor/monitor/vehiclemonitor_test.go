@@ -12,16 +12,31 @@ import (
 	"time"
 )
 
-func makeVehiclePositionStopId(id string, label string, tripId string, stopSequence uint32,
+func makeVehiclePositionStopId(tripId string, stopSequence uint32,
 	stopPosition VehicleStopStatus, timeStamp int64, stopId string) vehiclePosition {
 	return vehiclePosition{
-		Id:                id,
-		Label:             label,
+		Id:                "1",
+		Label:             "test",
 		Timestamp:         timeStamp,
 		TripId:            &tripId,
 		VehicleStopStatus: stopPosition,
 		StopSequence:      &stopSequence,
 		StopId:            &stopId,
+	}
+}
+
+func makeVehiclePositionStopIdLL(tripId string, stopSequence uint32,
+	stopPosition VehicleStopStatus, timeStamp int64, stopId string, lat float32, lon float32) vehiclePosition {
+	return vehiclePosition{
+		Id:                "1",
+		Label:             "test",
+		Timestamp:         timeStamp,
+		TripId:            &tripId,
+		VehicleStopStatus: stopPosition,
+		StopSequence:      &stopSequence,
+		StopId:            &stopId,
+		Latitude:          &lat,
+		Longitude:         &lon,
 	}
 }
 
@@ -94,8 +109,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 	testTrips := getTestTrips(time.Date(2019, 12, 11, 0, 0, 0, 0, location), t)
 
 	trip10856058 := getFirstTestTripFromJson("trip_10856058_2021_07_13.json", t)
+	trip10900607 := getFirstTestTripFromJson("trip_10900607_2021_07_22.json", t)
 
-	testTrips = append(testTrips, trip10856058)
+	testTrips = append(testTrips, trip10856058, trip10900607)
 
 	type args struct {
 		Positions []vehiclePosition
@@ -112,7 +128,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Initial position",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt,
 						time.Date(2019, 12, 11, 8, 59, 25, 0, location).Unix(), "9848"),
 				},
 			},
@@ -124,8 +140,8 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Revert to unknown position",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt, 1576083565, "9848"),
-					{Id: "102", Label: "", Timestamp: 1576083575},
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt, 1576083565, "9848"),
+					{Id: "1", Label: "", Timestamp: 1576083575},
 				},
 			},
 			want: want{
@@ -136,10 +152,10 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Have not moved to next stop",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt,
 						time.Date(2019, 12, 11, 8, 59, 25, 0, location).Unix(), "9848"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo, 1576083596, "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo, 1576083596, "9846"),
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo,
 						time.Date(2019, 12, 11, 9, 0, 27, 0, location).Unix(), "9846"),
 				},
 			},
@@ -151,10 +167,10 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Moved to next stop",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt, 1576083565, "9848"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo, 1576083596, "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo, 1576083627, "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt, 1576083565, "9848"),
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo, 1576083596, "9846"),
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo, 1576083627, "9846"),
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 0, 58, 0, location).Unix(), "9846"),
 				},
 			},
@@ -167,9 +183,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9846",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Unix(int64(1576083658), 0),
-						TravelSeconds:      int64(1576083658 - 1576083565),
-						ScheduledSeconds:   int64Ptr(105),
-						VehicleId:          "102",
+						TravelSeconds:      1576083658 - 1576083565,
+						ScheduledSeconds:   intPtr(105),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -179,11 +195,11 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Don't update from an older position",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo,
 						time.Date(2019, 12, 11, 9, 1, 10, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 1, 17, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 0, 58, 0, location).Unix(), "9846"), //older position
 				},
 			},
@@ -195,11 +211,11 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Start tracking movement between stops, produce stop time when between another two stops",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(5), InTransitTo, 1576083922, "9838"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(5), InTransitTo, 1576083953, "9838"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(5), InTransitTo, 1576083983, "9838"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(6), InTransitTo, 1576084075, "9839"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(7), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(5), InTransitTo, 1576083922, "9838"),
+					makeVehiclePositionStopId("9529801", uint32(5), InTransitTo, 1576083953, "9838"),
+					makeVehiclePositionStopId("9529801", uint32(5), InTransitTo, 1576083983, "9838"),
+					makeVehiclePositionStopId("9529801", uint32(6), InTransitTo, 1576084075, "9839"),
+					makeVehiclePositionStopId("9529801", uint32(7), InTransitTo,
 						time.Date(2019, 12, 11, 9, 9, 27, 0, location).Unix(), "9835"),
 				},
 			},
@@ -212,9 +228,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9839",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Unix(int64(1576084167), 0),
-						TravelSeconds:      int64(1576084167 - 1576084075),
-						ScheduledSeconds:   int64Ptr(115),
-						VehicleId:          "102",
+						TravelSeconds:      1576084167 - 1576084075,
+						ScheduledSeconds:   intPtr(115),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -224,11 +240,11 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Start tracking movement near end of trip, next position at beginning of next trip",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(46), StoppedAt, 1576089931, "8357"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo, 1576089962, "8359"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo, 1576089993, "8359"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo, 1576090024, "8359"),
-					makeVehiclePositionStopId("102", "Blue to Hillsboro", "9530573", uint32(1), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(46), StoppedAt, 1576089931, "8357"),
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo, 1576089962, "8359"),
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo, 1576089993, "8359"),
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo, 1576090024, "8359"),
+					makeVehiclePositionStopId("9530573", uint32(1), StoppedAt,
 						time.Date(2019, 12, 11, 10, 47, 34, 0, location).Unix(), "8359"),
 				},
 			},
@@ -241,9 +257,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "8359",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Unix(int64(1576090054), 0),
-						TravelSeconds:      int64(1576090054 - 1576089931),
-						ScheduledSeconds:   int64Ptr(135),
-						VehicleId:          "102",
+						TravelSeconds:      1576090054 - 1576089931,
+						ScheduledSeconds:   intPtr(135),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -253,15 +269,15 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Start tracking movement near end of trip, next position at second stop of next trip",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(46), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(46), StoppedAt,
 						time.Date(2019, 12, 11, 10, 45, 31, 0, location).Unix(), "8357"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo,
 						time.Date(2019, 12, 11, 10, 46, 2, 0, location).Unix(), "8359"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo,
 						time.Date(2019, 12, 11, 10, 46, 33, 0, location).Unix(), "8359"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo,
 						time.Date(2019, 12, 11, 10, 47, 4, 0, location).Unix(), "8359"),
-					makeVehiclePositionStopId("102", "Blue to Hillsboro", "9530573", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9530573", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 11, 0, 23, 0, location).Unix(), "8360"),
 				},
 			},
@@ -274,9 +290,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "8359",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2019, 12, 11, 10, 59, 33, 0, location),
-						TravelSeconds:      int64(71), //twice scheduled time due to delay
-						ScheduledSeconds:   int64Ptr(135),
-						VehicleId:          "102",
+						TravelSeconds:      71, //twice scheduled time due to delay
+						ScheduledSeconds:   intPtr(135),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 					{
@@ -286,9 +302,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "8360",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 11, 0, 23, 0, location),
-						TravelSeconds:      int64(50), //twice scheduled time due to delay
-						ScheduledSeconds:   int64Ptr(90),
-						VehicleId:          "102",
+						TravelSeconds:      50, //twice scheduled time due to delay
+						ScheduledSeconds:   intPtr(90),
+						VehicleId:          "1",
 						TripId:             "9530573",
 					},
 				},
@@ -298,12 +314,12 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Second STOPPED_AT position doesn't generate another ObservedStopTime",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt, 1576083565, "9848"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo, 1576083596, "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo, 1576083627, "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt, 1576083565, "9848"),
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo, 1576083596, "9846"),
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo, 1576083627, "9846"),
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 0, 58, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 1, 17, 0, location).Unix(), "9846"),
 				},
 			},
@@ -315,12 +331,12 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Erroneous trip movement doesn't produce observed stop times",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(46), StoppedAt, 1576089931, "8357"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo, 1576089962, "8359"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo, 1576089993, "8359"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(46), StoppedAt, 1576089931, "8357"),
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo, 1576089962, "8359"),
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo, 1576089993, "8359"),
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo,
 						time.Date(2019, 12, 11, 10, 47, 4, 0, location).Unix(), "8359"),
-					makeVehiclePositionStopId("102", "Blue to Hillsboro2", "9530573", uint32(9), StoppedAt,
+					makeVehiclePositionStopId("9530573", uint32(9), StoppedAt,
 						time.Date(2019, 12, 11, 10, 50, 0, 0, location).Unix(), "8366"), //too far down the line
 				},
 			},
@@ -332,9 +348,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Do not generate arrivalDelay at stop last stop of trip",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(46), StoppedAt, 1576089941, "8357"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo, 1576089962, "8359"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(46), StoppedAt, 1576089941, "8357"),
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo, 1576089962, "8359"),
+					makeVehiclePositionStopId("9529801", uint32(47), StoppedAt,
 						time.Date(2019, 12, 11, 10, 47, 4, 0, location).Unix(), "8359"),
 				},
 			},
@@ -347,9 +363,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "8359",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 10, 47, 4, 0, location),
-						TravelSeconds:      int64(83),
-						ScheduledSeconds:   int64Ptr(135),
-						VehicleId:          "102",
+						TravelSeconds:      83,
+						ScheduledSeconds:   intPtr(135),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -359,10 +375,10 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Don't update depart time when at stop in middle of trip",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(46), StoppedAt, 1576089931, "8357"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(46), StoppedAt, 1576089941, "8357"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), InTransitTo, 1576089962, "8359"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(47), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(46), StoppedAt, 1576089931, "8357"),
+					makeVehiclePositionStopId("9529801", uint32(46), StoppedAt, 1576089941, "8357"),
+					makeVehiclePositionStopId("9529801", uint32(47), InTransitTo, 1576089962, "8359"),
+					makeVehiclePositionStopId("9529801", uint32(47), StoppedAt,
 						time.Date(2019, 12, 11, 10, 47, 4, 0, location).Unix(), "8359"),
 				},
 			},
@@ -375,9 +391,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "8359",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 10, 47, 4, 0, location),
-						TravelSeconds:      int64(93),
-						ScheduledSeconds:   int64Ptr(135),
-						VehicleId:          "102",
+						TravelSeconds:      93,
+						ScheduledSeconds:   intPtr(135),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -387,10 +403,10 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Do update depart time when at stop at beginning of trip",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt, 1576083565, "9848"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt, 1576083596, "9848"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo, 1576083627, "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt, 1576083658, "9846"),
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt, 1576083565, "9848"),
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt, 1576083596, "9848"),
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo, 1576083627, "9846"),
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt, 1576083658, "9846"),
 				},
 			},
 			want: want{
@@ -402,9 +418,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9846",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Unix(int64(1576083658), 0),
-						TravelSeconds:      int64(62),
-						ScheduledSeconds:   int64Ptr(105),
-						VehicleId:          "102",
+						TravelSeconds:      62,
+						ScheduledSeconds:   intPtr(105),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -414,11 +430,11 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "At first stop mark observed stop time as traveling at the scheduled travel time when its arrived on time",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt,
 						time.Date(2019, 12, 11, 8, 50, 0, 0, location).Unix(), "9848"), //last seen at stop about 11 minutes earlier
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo,
 						time.Date(2019, 12, 11, 8, 58, 12, 0, location).Unix(), "9846"), //scheduled depart time is 8:58:10
-					makeVehiclePositionStopId("102", "Blue to Gresham2", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 0, 55, 0, location).Unix(), "9846"), //seen at stop at scheduled arrive time
 				},
 			},
@@ -431,9 +447,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9846",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 0, 55, 0, location),
-						TravelSeconds:      int64(105),
-						ScheduledSeconds:   int64Ptr(105),
-						VehicleId:          "102",
+						TravelSeconds:      105,
+						ScheduledSeconds:   intPtr(105),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -443,11 +459,11 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "At first stop mark observed stop time as traveling at the nearer the scheduled travel time when its almost on time",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt,
 						time.Date(2019, 12, 11, 8, 50, 0, 0, location).Unix(), "9848"), //last seen at stop about 11 minutes earlier
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo,
 						time.Date(2019, 12, 11, 8, 58, 12, 0, location).Unix(), "9846"), //scheduled depart time is 8:58:10
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 1, 0, 0, location).Unix(), "9846"), //seen at stop 5 seconds after the scheduled time
 				},
 			},
@@ -460,9 +476,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9846",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 1, 0, 0, location),
-						TravelSeconds:      int64(110),
-						ScheduledSeconds:   int64Ptr(105),
-						VehicleId:          "102",
+						TravelSeconds:      110,
+						ScheduledSeconds:   intPtr(105),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -472,11 +488,11 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "When traversing two stops from start of trip mark observed stop time as traveling nearer the scheduled travel time when its almost on time",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(1), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt,
 						time.Date(2019, 12, 11, 8, 50, 0, 0, location).Unix(), "9848"), //last seen at stop about 12 minutes earlier
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), InTransitTo,
+					makeVehiclePositionStopId("9529801", uint32(2), InTransitTo,
 						time.Date(2019, 12, 11, 8, 58, 12, 0, location).Unix(), "9846"), //scheduled depart time is 8:58:10
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(3), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(3), StoppedAt,
 						time.Date(2019, 12, 11, 9, 2, 30, 0, location).Unix(), "9843"), //seen at stop at the scheduled time
 				},
 			},
@@ -489,9 +505,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9846",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 0, 55, 0, location),
-						TravelSeconds:      int64(105),
-						ScheduledSeconds:   int64Ptr(105),
-						VehicleId:          "102",
+						TravelSeconds:      105,
+						ScheduledSeconds:   intPtr(105),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 					{
@@ -501,9 +517,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9843",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 2, 30, 0, location),
-						TravelSeconds:      int64(95),
-						ScheduledSeconds:   int64Ptr(95),
-						VehicleId:          "102",
+						TravelSeconds:      95,
+						ScheduledSeconds:   intPtr(95),
+						VehicleId:          "1",
 						TripId:             "9529801",
 					},
 				},
@@ -513,23 +529,23 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "arrivalDelay remains as its getting later",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 8, 50, 0, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 8, 58, 12, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 2, 30, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 3, 30, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 4, 30, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 5, 30, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 6, 30, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 7, 30, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham2", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 8, 30, 0, location).Unix(), "9846"),
 				},
 			},
@@ -541,9 +557,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "arrivalDelay remains after less then the expiration time with just one update",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("102", "Blue to Gresham", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 8, 50, 0, 0, location).Unix(), "9846"),
-					makeVehiclePositionStopId("102", "Blue to Gresham2", "9529801", uint32(2), StoppedAt,
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
 						time.Date(2019, 12, 11, 9, 4, 30, 0, location).Unix(), "9846"),
 				},
 			},
@@ -555,13 +571,13 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			name: "Transitioning from stop 7970 to 8059",
 			args: args{
 				Positions: []vehiclePosition{
-					makeVehiclePositionStopId("3934", "72 Swan Island", "10856058", uint32(13), InTransitTo,
+					makeVehiclePositionStopId("10856058", uint32(13), InTransitTo,
 						time.Date(2021, 7, 13, 23, 44, 59, 0, location).Unix(), "7962"),
-					makeVehiclePositionStopId("3934", "72 Swan Island", "10856058", uint32(15), InTransitTo,
+					makeVehiclePositionStopId("10856058", uint32(15), InTransitTo,
 						time.Date(2021, 7, 13, 23, 45, 29, 0, location).Unix(), "7970"),
-					makeVehiclePositionStopId("3934", "72 Swan Island", "10856058", uint32(16), InTransitTo,
+					makeVehiclePositionStopId("10856058", uint32(16), InTransitTo,
 						time.Date(2021, 7, 13, 23, 45, 59, 0, location).Unix(), "7960"),
-					makeVehiclePositionStopId("3934", "72 Swan Island", "10856058", uint32(18), InTransitTo,
+					makeVehiclePositionStopId("10856058", uint32(18), InTransitTo,
 						time.Date(2021, 7, 13, 23, 46, 59, 0, location).Unix(), "8059"),
 				},
 			},
@@ -574,9 +590,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "7960",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2021, 7, 13, 23, 46, 30, 0, location),
-						TravelSeconds:      int64(15),
-						ScheduledSeconds:   int64Ptr(30),
-						VehicleId:          "3934",
+						TravelSeconds:      15,
+						ScheduledSeconds:   intPtr(30),
+						VehicleId:          "1",
 						TripId:             "10856058",
 					},
 					{
@@ -586,10 +602,108 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "8057",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2021, 7, 13, 23, 46, 59, 0, location),
-						TravelSeconds:      int64(29),
-						ScheduledSeconds:   int64Ptr(29),
-						VehicleId:          "3934",
+						TravelSeconds:      29,
+						ScheduledSeconds:   intPtr(29),
+						VehicleId:          "1",
 						TripId:             "10856058",
+					},
+				},
+			},
+		},
+		{
+			name: "Use partial progress between stops reduces calculated travel times on previous stop passage",
+			args: args{
+				Positions: []vehiclePosition{
+					//this position is the schedule time for stop one
+					makeVehiclePositionStopIdLL("10900607", uint32(1), StoppedAt,
+						testDate("2021-07-22T16:28:00-07:00").Unix(), "13888", 45.426947, -122.485885),
+					//this position is 36 schedule seconds after 2nd stop, leaving the vehicle 35 seconds to transition from stop 1 and stop 2
+					makeVehiclePositionStopIdLL("10900607", uint32(3), InTransitTo,
+						testDate("2021-07-22T16:29:11-07:00").Unix(), "13890",
+						45.427385, -122.493237), //about half way between the two stops
+				},
+			},
+			want: want{
+				stopTimes: []gtfs.ObservedStopTime{
+					{
+						RouteId:            "155",
+						StopId:             "13888",
+						ObservedAtStop:     true,
+						NextStopId:         "13889",
+						ObservedAtNextStop: false,
+						ObservedTime:       testDate("2021-07-22T16:28:35-07:00"),
+						TravelSeconds:      35,
+						ScheduledSeconds:   intPtr(35),
+						VehicleId:          "1",
+						TripId:             "10900607",
+					},
+				},
+			},
+		},
+		{
+			name: "Use partial progress between stops to increase calculated travel times on previous stop passage",
+			args: args{
+				Positions: []vehiclePosition{
+					//this position is the schedule time for stop one
+					makeVehiclePositionStopIdLL("10900607", uint32(1), StoppedAt,
+						testDate("2021-07-22T16:28:00-07:00").Unix(), "13888", 45.426947, -122.485885),
+					//this position is 36 schedule seconds after 2nd stop, leaving the vehicle
+					makeVehiclePositionStopIdLL("10900607", uint32(3), InTransitTo,
+						testDate("2021-07-22T16:29:11-07:00").Unix(), "13890",
+						45.427385, -122.493237), //about half way between the two stops
+					//position is timestamped at the scheduled time, 72 seconds of travel between these stops
+					makeVehiclePositionStopIdLL("10900607", uint32(3), StoppedAt,
+						testDate("2021-07-22T16:29:47-07:00").Unix(), "13890",
+						45.427024, -122.497338), //at the 3rd stop
+				},
+			},
+			want: want{
+				stopTimes: []gtfs.ObservedStopTime{
+					{
+						RouteId:            "155",
+						StopId:             "13889",
+						ObservedAtStop:     false,
+						NextStopId:         "13890",
+						ObservedAtNextStop: true,
+						ObservedTime:       testDate("2021-07-22T16:29:47-07:00"),
+						TravelSeconds:      72,
+						ScheduledSeconds:   intPtr(72),
+						VehicleId:          "1",
+						TripId:             "10900607",
+					},
+				},
+			},
+		},
+		{
+			name: "Use partial progress between stops to adjust calculated travel times on previous and next stop passages",
+			args: args{
+				Positions: []vehiclePosition{
+					//this position is the schedule time for stop one
+					makeVehiclePositionStopIdLL("10900607", uint32(1), StoppedAt,
+						testDate("2021-07-22T16:28:00-07:00").Unix(), "13888", 45.426947, -122.485885),
+					//this position is 36 schedule seconds after 2nd stop, leaving the vehicle
+					makeVehiclePositionStopIdLL("10900607", uint32(3), InTransitTo,
+						testDate("2021-07-22T16:29:11-07:00").Unix(), "13890",
+						45.427385, -122.493237), //about half way between the stop 2 and 3
+					//position is timestamped at the scheduled time half way between stop 3 and 4, 72 seconds of travel between these stops
+					makeVehiclePositionStopIdLL("10900607", uint32(4), InTransitTo,
+						testDate("2021-07-22T16:30:05-07:00").Unix(), "12902",
+						45.426971, -122.499320), //halfway between stop 3 and 4
+				},
+			},
+			want: want{
+				stopTimes: []gtfs.ObservedStopTime{
+					{
+						RouteId:            "155",
+						StopId:             "13889",
+						ObservedAtStop:     false,
+						NextStopId:         "13890",
+						ObservedAtNextStop: false,
+						ObservedTime:       testDate("2021-07-22T16:29:47-07:00"),
+						TravelSeconds:      72,
+						ScheduledSeconds:   intPtr(72),
+						VehicleId:          "1",
+						TripId:             "10900607",
 					},
 				},
 			},
@@ -770,26 +884,6 @@ func Test_shouldUseToMoveForward(t *testing.T) {
 				},
 			},
 			want: true,
-		},
-		{
-			name: "Don't update when at stop and new position between previous stop and next stop",
-			args: args{
-				previousTripStopPosition: &tripStopPosition{
-					atPreviousStop:        true,
-					witnessedPreviousStop: false,
-					tripInstance:          testTripOne,
-					previousSTI:           testTripOne.StopTimeInstances[1],
-					nextSTI:               testTripOne.StopTimeInstances[2],
-				},
-				newPosition: &tripStopPosition{
-					atPreviousStop:        false,
-					witnessedPreviousStop: true,
-					tripInstance:          testTripOne,
-					previousSTI:           testTripOne.StopTimeInstances[2],
-					nextSTI:               testTripOne.StopTimeInstances[3],
-				},
-			},
-			want: false,
 		},
 		{
 			name: "Do update when at stop and new position at the next stop",
@@ -1651,7 +1745,7 @@ func Test_TestVehicleMonitor_NewPositionGetsEveryStopPairOnce(t *testing.T) {
 	}
 	testTrips := getTestTrips(time.Date(2019, 12, 11, 16, 0, 0, 0, location), t)
 
-	vm := makeVehicleMonitor("102", .2, 15*60)
+	vm := makeVehicleMonitor("1", .2, 15*60)
 	t.Run("newPosition produces every stop pair once", func(t *testing.T) {
 
 		testLog := makeTestLogWriter()
@@ -1709,14 +1803,14 @@ func getTestVehiclePositions(t *testing.T) []vehiclePosition {
 
 func Test_getSegmentTravelPostulate(t *testing.T) {
 	type args struct {
-		totalTravelSeconds    int64
-		totalScheduledLength  int64
-		segmentScheduleLength int64
+		totalTravelSeconds    int
+		totalScheduledLength  int
+		segmentScheduleLength int
 	}
 	tests := []struct {
 		name string
 		args args
-		want int64
+		want int
 	}{
 		{
 			name: "50 percent",
@@ -2035,6 +2129,27 @@ func Test_calculateTravelBetweenStops(t *testing.T) {
 			},
 			want1: 36,
 			want2: 71,
+		},
+		{
+			name: "trip distance is beyond next stop, don't use more than scheduled time for the stop",
+			args: args{
+				previousTripStopPosition: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[0],
+					nextSTI:              testTripOne.StopTimeInstances[1],
+					lastTimestamp:        testDate("2021-07-22T16:28:00-07:00").Unix(),
+					tripDistancePosition: float64Ptr(0),
+				},
+				position: &tripStopPosition{
+					tripInstance:         testTripOne,
+					previousSTI:          testTripOne.StopTimeInstances[1],
+					nextSTI:              testTripOne.StopTimeInstances[2],
+					lastTimestamp:        testDate("2021-07-22T16:29:47-07:00").Unix(),
+					tripDistancePosition: float64Ptr(6105.5),
+				},
+			},
+			want1: 72,
+			want2: 72,
 		},
 	}
 

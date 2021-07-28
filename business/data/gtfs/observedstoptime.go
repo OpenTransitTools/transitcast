@@ -26,16 +26,16 @@ type ObservedStopTime struct {
 	ObservedAtNextStop bool `db:"observed_at_next_stop"`
 
 	//TravelSeconds is the number of seconds the vehicle is assumed to have taken to move between the stops
-	TravelSeconds    int64     `db:"travel_seconds"`
-	ScheduledSeconds *int64    `db:"scheduled_seconds"`
+	TravelSeconds    int       `db:"travel_seconds"`
+	ScheduledSeconds *int      `db:"scheduled_seconds"`
 	TripId           string    `db:"trip_id"`
 	CreatedAt        time.Time `db:"created_at"`
 }
 
 //AssumedDepartTime returns the time the vehicle is assumed to have departed the from stopId, this is calculated
 //based on the last time the vehicle was observed at or before the from stopId
-func (ost *ObservedStopTime) AssumedDepartTime() int64 {
-	return ost.ObservedTime.Unix() - ost.TravelSeconds
+func (ost *ObservedStopTime) AssumedDepartTime() int {
+	return int(ost.ObservedTime.Unix() - int64(ost.TravelSeconds))
 }
 
 // RecordObservedStopTime saves slice of ObservedStopTime into database in batch
