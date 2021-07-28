@@ -67,6 +67,24 @@ type TripInstance struct {
 	Shapes            []*Shape            `json:"shapes"`
 }
 
+// ShapesBetweenDistances returns slice of Shapes where Shape.ShapeDistTraveled is between start and end
+func (t *TripInstance) ShapesBetweenDistances(start float64, end float64) []*Shape {
+	results := make([]*Shape, 0)
+	for _, shape := range t.Shapes {
+		if shape.ShapeDistTraveled != nil {
+			if *shape.ShapeDistTraveled >= start {
+				if *shape.ShapeDistTraveled <= end {
+					results = append(results, shape)
+				} else {
+					//moved past the end, no need to continue
+					return results
+				}
+			}
+		}
+	}
+	return results
+}
+
 func GetTripInstances(db *sqlx.DB,
 	at time.Time,
 	relevantFrom time.Time,
