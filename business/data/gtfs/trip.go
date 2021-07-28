@@ -117,6 +117,7 @@ func GetTripInstances(db *sqlx.DB,
 		return nil, err
 	}
 
+	shapeIdMap := make(map[string]bool)
 	shapeIds := make([]string, 0)
 
 	// iterate over each row
@@ -128,7 +129,11 @@ func GetTripInstances(db *sqlx.DB,
 		}
 		//collect shapeIds we need
 		if tripInstance.ShapeId != nil {
-			shapeIds = append(shapeIds, *tripInstance.ShapeId)
+			if _, present := shapeIdMap[*tripInstance.ShapeId]; !present {
+				shapeIdMap[*tripInstance.ShapeId] = true
+				shapeIds = append(shapeIds, *tripInstance.ShapeId)
+			}
+
 		}
 		if stopTimes, present := stopTimeMap[tripInstance.TripId]; present {
 			tripInstance.StopTimeInstances = stopTimes
