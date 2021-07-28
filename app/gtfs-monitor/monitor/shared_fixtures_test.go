@@ -31,6 +31,9 @@ func int64Ptr(i int64) *int64 {
 func strPtr(s string) *string {
 	return &s
 }
+func float32Ptr(f float32) *float32 {
+	return &f
+}
 
 func float64Ptr(f float64) *float64 {
 	return &f
@@ -93,4 +96,9 @@ func getFirstTestTripFromJson(fileName string, t *testing.T) *gtfs.TripInstance 
 		return nil
 	}
 	return trips[0]
+}
+
+func testDate(dateString string) time.Time {
+	t, _ := time.Parse("2006-01-02T15:04:05-07:00", dateString)
+	return t
 }

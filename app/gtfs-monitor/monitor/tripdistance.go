@@ -1,6 +1,67 @@
 package monitor
 
-import "math"
+import (
+	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
+	"math"
+)
+
+//findTripDistanceOfVehicleFromPosition if possible find how far along the pattern a vehicle is from tripStopPosition.
+//requires that tripStopPosition contain longitude and latitude
+//and gtfs.StopTimeInstance to have ShapeDistTraveled populated
+//and gtfs.Shape to have ShapeDistTraveled populated
+func findTripDistanceOfVehicleFromPosition(position *tripStopPosition) *float64 {
+	//if coordinates are not present can't continue
+	if position.latitude == nil || position.longitude == nil {
+		return nil
+	}
+	//if distances or trip shapes are not present can't continue
+	if position.previousSTI.ShapeDistTraveled == nil ||
+		position.nextSTI.ShapeDistTraveled == nil ||
+		len(position.tripInstance.Shapes) == 0 {
+		return nil
+	}
+	//if the vehicle is at the stop no need to do a calculation using the pattern
+	if position.atPreviousStop {
+		return position.previousSTI.ShapeDistTraveled
+	}
+	shapes := position.tripInstance.ShapesBetweenDistances(*position.previousSTI.ShapeDistTraveled, *position.nextSTI.ShapeDistTraveled)
+	return findLineDistanceInFeet(float64(*position.latitude), float64(*position.longitude), shapes)
+
+}
+
+//findLineDistanceInFeet finds a location close to line segments from shapes and returns the distance
+// along the pattern that location is on the pattern
+func findLineDistanceInFeet(lat, lon float64, shapes []*gtfs.Shape) *float64 {
+	var bestStart *gtfs.Shape
+	var bestSnappedLat float64
+	var bestSnappedLon float64
+	bestLineDistance := 200.0 //don't find anything if the location is 200 meters off
+	for i, end := range shapes {
+		if i == 0 {
+			continue
+		}
+		start := shapes[i-1]
+		snappedLat, snappedLon := nearestLatLngToLineFromPoint(start.ShapePtLat, start.ShapePtLng,
+			end.ShapePtLat, end.ShapePtLng, lat, lon)
+		distance := simpleLatLngDistance(snappedLat, snappedLon, lat, lon)
+		if distance < bestLineDistance {
+			bestLineDistance = distance
+			bestStart = start
+			bestSnappedLat = snappedLat
+			bestSnappedLon = snappedLon
+		}
+	}
+	if bestStart == nil {
+		return nil
+	}
+	//take the best snapped point and measure how far from the start of the line it is
+	distanceFromPatternStart := simpleLatLngDistance(bestStart.ShapePtLat, bestStart.ShapePtLng, bestSnappedLat, bestSnappedLon)
+	//convert to feet
+	distanceFromPatternStart = distanceFromPatternStart * 3.281
+	//add distance from start to the shape distance traveled to get the distance along the pattern this point is
+	result := *bestStart.ShapeDistTraveled + distanceFromPatternStart
+	return &result
+}
 
 //simpleLatLngDistance calculates the approximate distance between two pairs of coordinates with simplistic
 //calculation of longitudinal distance based on latitudes.
@@ -35,8 +96,8 @@ func nearestLatLngToLineFromPoint(startLat, startLon, endLat, endLon, pointLat, 
 	t := 0.0
 	if startEndDiffSquared > 0 {
 		pointsDiffSquared := pointXStartLonDiff*pointEndLonDiff + pointYStartLatDiff*pointEndLatDiff
-		t = math.Min( 1, math.Max( 0, pointsDiffSquared /startEndDiffSquared) )
+		t = math.Min(1, math.Max(0, pointsDiffSquared/startEndDiffSquared))
 	}
-	return startLat + pointEndLatDiff * t, startLon + pointEndLonDiff * t
+	return startLat + pointEndLatDiff*t, startLon + pointEndLonDiff*t
 
 }

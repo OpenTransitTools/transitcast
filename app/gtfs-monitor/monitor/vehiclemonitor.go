@@ -34,9 +34,9 @@ func (vc *vehicleMonitorCollection) getOrMakeVehicle(vehicleId string) *vehicleM
 
 //tripStopPosition is used by vehicleMonitor to keep track of vehicle movement between updated positions
 type tripStopPosition struct {
-	//seenAtPreviousStop is true when we have seen vehicle be StoppedAt at previousStopSequence
-	seenAtPreviousStop bool
-	//witnessedPreviousStop indicates that we have seen the vehicle at or prior to previousStopSequence
+	//atPreviousStop is true when vehicle position was set to StoppedAt for previousSTI
+	atPreviousStop bool
+	//witnessedPreviousStop indicates that we have seen the vehicle at or prior to previousSTI
 	witnessedPreviousStop bool
 	tripInstance          *gtfs.TripInstance
 	//previousSTI is the stop this trip that we are at or just passed
@@ -45,6 +45,9 @@ type tripStopPosition struct {
 	nextSTI *gtfs.StopTimeInstance
 
 	lastTimestamp int64
+
+	latitude  *float32
+	longitude *float32
 
 	tripDistancePosition              *float64
 	scheduledSecondsFromLastStop      int
@@ -142,7 +145,7 @@ func witnessedPreviousStop(tripId string, stopSequence uint32, previousTripStopP
 	if previousTripStopPosition.previousSTI.StopSequence < stopSequence {
 		return true
 	}
-	if previousTripStopPosition.previousSTI.StopSequence == stopSequence && previousTripStopPosition.seenAtPreviousStop {
+	if previousTripStopPosition.previousSTI.StopSequence == stopSequence && previousTripStopPosition.atPreviousStop {
 		return true
 	}
 	return false
@@ -169,15 +172,15 @@ func getTripStopPosition(trip *gtfs.TripInstance, previousTripStopPosition *trip
 				nextSTI = trip.StopTimeInstances[index+1]
 			}
 			result := tripStopPosition{
-				seenAtPreviousStop:    position.VehicleStopStatus == StoppedAt,
+				atPreviousStop:        position.VehicleStopStatus == StoppedAt,
 				witnessedPreviousStop: witnessedPrevious || position.VehicleStopStatus == StoppedAt,
 				tripInstance:          trip,
 				previousSTI:           sst,
 				nextSTI:               nextSTI,
 				lastTimestamp:         position.Timestamp,
+				latitude:              position.Latitude,
+				longitude:             position.Longitude,
 			}
-			result.scheduledSecondsFromLastStop, result.observedSecondsToTravelToPosition =
-				calculateTravelBetweenStops(previousTripStopPosition, &result)
 			return &result, nil
 		}
 		previousIndex = index
@@ -237,7 +240,7 @@ func shouldUseToMoveForward(previousTripStopPosition *tripStopPosition, newPosit
 	}
 	if newPosition.previousSTI.StopSequence > previousTripStopPosition.previousSTI.StopSequence {
 		if newPosition.previousSTI.StopSequence == previousTripStopPosition.nextSTI.StopSequence { //its the next stop
-			if previousTripStopPosition.seenAtPreviousStop && !newPosition.seenAtPreviousStop {
+			if previousTripStopPosition.atPreviousStop && !newPosition.atPreviousStop {
 				//its only incoming to the next stop and isn't there yet
 				return false
 			}
@@ -246,7 +249,7 @@ func shouldUseToMoveForward(previousTripStopPosition *tripStopPosition, newPosit
 		return true
 	}
 	if previousTripStopPosition.previousSTI.StopSequence == newPosition.previousSTI.StopSequence {
-		if !previousTripStopPosition.seenAtPreviousStop && newPosition.seenAtPreviousStop {
+		if !previousTripStopPosition.atPreviousStop && newPosition.atPreviousStop {
 			return true
 		}
 	}
@@ -259,7 +262,7 @@ func shouldUseToMoveForward(previousTripStopPosition *tripStopPosition, newPosit
 //Currently new positions at the first stop of the trip is considered new and usable, others are not
 func updateStoppedAtPosition(previousTripStopPosition *tripStopPosition, newPosition *tripStopPosition) bool {
 	if previousTripStopPosition.previousSTI.StopSequence == newPosition.previousSTI.StopSequence {
-		if newPosition.seenAtPreviousStop {
+		if newPosition.atPreviousStop {
 			return newPosition.previousSTI.FirstStop
 		}
 	}
@@ -272,13 +275,13 @@ func (vm *vehicleMonitor) isCurrentPositionExpired(currentTimestamp int64) bool 
 	return diff > vm.expirePositionSeconds
 }
 
-//getObservedAtPositions convenience function returns the tripStopPosition arguments that have had their seenAtPreviousStop flag set
+//getObservedAtPositions convenience function returns the tripStopPosition arguments that have had their atPreviousStop flag set
 func getObservedAtPositions(position1 *tripStopPosition, position2 *tripStopPosition) []tripStopPosition {
 	result := make([]tripStopPosition, 0)
-	if position1.seenAtPreviousStop {
+	if position1.atPreviousStop {
 		result = append(result, *position1)
 	}
-	if position2.seenAtPreviousStop {
+	if position2.atPreviousStop {
 		result = append(result, *position2)
 	}
 	return result
@@ -310,6 +313,12 @@ func (vm *vehicleMonitor) newTripStopPosition(
 func (vm *vehicleMonitor) updateTripStopPosition(
 	newTripStopPosition *tripStopPosition,
 	positionTimestamp int64) {
+	//perform gps based calculations on new position
+	newTripStopPosition.tripDistancePosition = findTripDistanceOfVehicleFromPosition(newTripStopPosition)
+	//next populate between stop attributes of newTripStopPosition if possible
+	newTripStopPosition.scheduledSecondsFromLastStop, newTripStopPosition.observedSecondsToTravelToPosition =
+		calculateTravelBetweenStops(vm.lastTripStopPosition, newTripStopPosition)
+
 	vm.lastTripStopPosition = newTripStopPosition
 	vm.lastPositionTimestamp = positionTimestamp
 

@@ -37,7 +37,7 @@ func (v *vehiclePosition) Equal(v2 *vehiclePosition) bool {
 	return true
 }
 
-//String implements Stringer interface
+//String implements Stringer interface for vehiclePosition
 func (v *vehiclePosition) String() string {
 	var buffer bytes.Buffer
 	buffer.WriteString("vehiclePosition{ id:")
