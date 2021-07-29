@@ -61,6 +61,22 @@ type tripStopPosition struct {
 	observedSecondsToTravelToPosition int
 }
 
+func (t *tripStopPosition) logFormat() string {
+	var lat float32
+	if t.latitude != nil {
+		lat = *t.latitude
+	}
+	var lon float32
+	if t.longitude != nil {
+		lon = *t.longitude
+	}
+
+	return fmt.Sprintf("tripStopPosition{ tripId:%s, previousStop:(seq:%d id:%s secs:%d), nextStop:(seq:%d id:%s secs:%d), atPrevious:%t, latlng:%f,%f }",
+		t.tripInstance.TripId, t.previousSTI.StopSequence, t.previousSTI.StopId, t.previousSTI.ArrivalTime,
+		t.nextSTI.StopSequence, t.nextSTI.StopId, t.nextSTI.ArrivalTime,
+		t.atPreviousStop, lat, lon)
+}
+
 //vehicleMonitor generates gtfs.ObservedStopTime records by watching subsequent vehiclePosition records from gtfs
 type vehicleMonitor struct {
 	Id                    string
@@ -128,8 +144,9 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger, position *vehiclePosition
 		position.Timestamp, vm.earlyTolerance)
 	if !validMovement {
 
-		log.Printf("Discarding trip movement as it doesn't appear valid. totalScheduleTime:%d took:%d position:%v lastTripStopPosition:%+v",
-			totalScheduleTime, took, position, vm.lastTripStopPosition)
+		log.Printf("Discarding trip movement as it doesn't appear valid. vehicle:%s totalScheduleTime:%d took:%d "+
+			"last %s next %s",
+			vm.Id, totalScheduleTime, took, lastTripStopPosition.logFormat(), newTripStopPosition.logFormat())
 		vm.removeStopPosition(position.Timestamp)
 		return results
 	}

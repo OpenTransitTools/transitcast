@@ -35,7 +35,7 @@ func run(log *logger.Logger) error {
 		GTFS struct {
 			VehiclePositionsUrl   string  `conf:"default:https://developer.trimet.org/ws/V1/VehiclePositions"`
 			LoadEverySeconds      int     `conf:"default:3"`
-			EarlyTolerance        float64 `conf:"default:0.3"`
+			EarlyTolerance        float64 `conf:"default:0.1"`
 			ExpirePositionSeconds int     `conf:"default:900"`
 		}
 	}
