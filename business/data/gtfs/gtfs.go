@@ -1,4 +1,4 @@
-// Package gtfs provides gtfs related CRUD functionality
+// Package gtfs provides gtfs related CRUD functionality, including DataSet and related operations
 package gtfs
 
 import (

@@ -1,7 +1,7 @@
 package gtfsmanager
 
 import (
-	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 )
 
 // calendarRowReader implements gtfsRowReader interface for gtfs.CalendarDate

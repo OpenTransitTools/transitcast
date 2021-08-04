@@ -2,7 +2,7 @@ package monitor
 
 import (
 	"encoding/json"
-	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"io/ioutil"
 	"log"
 	"path/filepath"

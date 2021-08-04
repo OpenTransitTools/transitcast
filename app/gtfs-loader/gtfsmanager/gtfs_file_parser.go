@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"encoding/csv"
 	"fmt"
-	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"io"
 	"log"
 	"strconv"

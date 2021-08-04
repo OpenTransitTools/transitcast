@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/OpenTransitTools/transitcast/app/gtfs-monitor/monitor"
+	"github.com/OpenTransitTools/transitcast/foundation/database"
 	"github.com/ardanlabs/conf"
-	"gitlab.trimet.org/transittracker/transitmon/app/gtfs-monitor/monitor"
-	"gitlab.trimet.org/transittracker/transitmon/foundation/database"
 	logger "log"
 	"os"
 	"os/signal"

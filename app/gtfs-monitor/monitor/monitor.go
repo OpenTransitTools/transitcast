@@ -3,8 +3,8 @@ package monitor
 
 import (
 	"fmt"
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/jmoiron/sqlx"
-	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
 	"log"
 	"os"
 	"time"

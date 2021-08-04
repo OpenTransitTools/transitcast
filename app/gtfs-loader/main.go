@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"gitlab.trimet.org/transittracker/transitmon/foundation/database"
+	"github.com/OpenTransitTools/transitcast/foundation/database"
 	logger "log"
 	"os"
 	"strconv"
 
+	"github.com/OpenTransitTools/transitcast/app/gtfs-loader/gtfsmanager"
 	"github.com/ardanlabs/conf"
-	"gitlab.trimet.org/transittracker/transitmon/app/gtfs-loader/gtfsmanager"
 )
 
 var build = "develop"

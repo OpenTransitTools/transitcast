@@ -2,7 +2,7 @@ package monitor
 
 import (
 	"bytes"
-	gtfsrtproto2 "gitlab.trimet.org/transittracker/transitmon/business/data/gtfsrtproto"
+	gtfsrtproto2 "github.com/OpenTransitTools/transitcast/business/data/gtfsrtproto"
 	"google.golang.org/protobuf/proto"
 	"log"
 	"net/http"

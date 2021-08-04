@@ -1,4 +1,4 @@
-module gitlab.trimet.org/transittracker/transitmon
+module github.com/OpenTransitTools/transitcast
 
 go 1.16
 

@@ -1,7 +1,7 @@
 package monitor
 
 import (
-	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"math"
 )
 

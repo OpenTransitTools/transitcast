@@ -3,7 +3,7 @@ package monitor
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"io/ioutil"
 	"reflect"
 

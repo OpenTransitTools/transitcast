@@ -2,7 +2,7 @@ package monitor
 
 import (
 	"fmt"
-	"gitlab.trimet.org/transittracker/transitmon/business/data/gtfs"
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"log"
 	"math"
 	"time"
