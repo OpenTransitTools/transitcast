@@ -110,8 +110,9 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 
 	trip10856058 := getFirstTestTripFromJson("trip_10856058_2021_07_13.json", t)
 	trip10900607 := getFirstTestTripFromJson("trip_10900607_2021_07_22.json", t)
+	trip10958023 := getFirstTestTripFromJson("trip_10958023_2021_08_20.json", t)
 
-	testTrips = append(testTrips, trip10856058, trip10900607)
+	testTrips = append(testTrips, trip10856058, trip10900607, trip10958023)
 
 	type args struct {
 		Positions []vehiclePosition
@@ -704,6 +705,28 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ScheduledSeconds:   intPtr(72),
 						VehicleId:          "1",
 						TripId:             "10900607",
+					},
+				},
+			},
+		},
+		{
+			name: "Properly calculate partial stop progress when positions do not move vehicle forward prior to progress",
+			args: args{
+				Positions: getTestVehiclePositions(t, "testdata/vehicle_positions_with_nonupdating_locations.json"),
+			},
+			want: want{
+				stopTimes: []gtfs.ObservedStopTime{
+					{
+						RouteId:            "70",
+						StopId:             "4049",
+						ObservedAtStop:     true,
+						NextStopId:         "4045",
+						ObservedAtNextStop: false,
+						ObservedTime:       testDate("2021-08-20T06:51:34-07:00"),
+						TravelSeconds:      43,
+						ScheduledSeconds:   intPtr(37),
+						VehicleId:          "3553",
+						TripId:             "10958023",
 					},
 				},
 			},
@@ -1737,7 +1760,7 @@ func Test_getStopPairsBetweenSequences(t *testing.T) {
 }
 
 func Test_TestVehicleMonitor_NewPositionGetsEveryStopPairOnce(t *testing.T) {
-	testPositions := getTestVehiclePositions(t)
+	testPositions := getTestVehiclePositions(t, "testdata/vehicle_102_vehicle_positions.json")
 
 	location, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
@@ -1788,8 +1811,8 @@ func Test_TestVehicleMonitor_NewPositionGetsEveryStopPairOnce(t *testing.T) {
 	})
 }
 
-func getTestVehiclePositions(t *testing.T) []vehiclePosition {
-	file, err := ioutil.ReadFile("testdata/vehicle_102_vehicle_positions.json")
+func getTestVehiclePositions(t *testing.T, fileName string) []vehiclePosition {
+	file, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		t.Errorf("unable to read test file: %v", err)
 	}

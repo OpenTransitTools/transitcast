@@ -1,0 +1,55 @@
+[ {
+  "timestamp" : 1629467360,
+  "id" : "3553",
+  "stopId" : "7106",
+  "vehicleStopStatus" : 2,
+  "tripId" : "10958023",
+  "longitude" : -122.6448396,
+  "latitude" : 45.5340311,
+  "stopSequence" : 37
+}, {
+  "timestamp" : 1629467391,
+  "id" : "3553",
+  "stopId" : "13892",
+  "vehicleStopStatus" : 2,
+  "tripId" : "10958023",
+  "longitude" : -122.6448533,
+  "latitude" : 45.5316814,
+  "stopSequence" : 38
+}, {
+  "timestamp" : 1629467420,
+  "id" : "3553",
+  "stopId" : "4049",
+  "vehicleStopStatus" : 2,
+  "tripId" : "10958023",
+  "longitude" : -122.6457161,
+  "latitude" : 45.5314564,
+  "stopSequence" : 39
+}, {
+  "timestamp" : 1629467451,
+  "id" : "3553",
+  "stopId" : "4049",
+  "vehicleStopStatus" : 1,
+  "tripId" : "10958023",
+  "longitude" : -122.6492169,
+  "latitude" : 45.5314709,
+  "stopSequence" : 39
+}, {
+  "timestamp" : 1629467481,
+  "id" : "3553",
+  "stopId" : "4045",
+  "vehicleStopStatus" : 2,
+  "tripId" : "10958023",
+  "longitude" : -122.6502833,
+  "latitude" : 45.5314699,
+  "stopSequence" : 40
+}, {
+  "timestamp" : 1629467510,
+  "id" : "3553",
+  "stopId" : "10986",
+  "vehicleStopStatus" : 2,
+  "tripId" : "10958023",
+  "longitude" : -122.6535185,
+  "latitude" : 45.531485,
+  "stopSequence" : 41
+}]

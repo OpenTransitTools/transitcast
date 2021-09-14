@@ -325,8 +325,6 @@ func (vm *vehicleMonitor) newTripStopPosition(
 	movedForward := shouldUseToMoveForward(vm.lastTripStopPosition, newPosition)
 	if movedForward || updateStoppedAtPosition(vm.lastTripStopPosition, newPosition) {
 		vm.updateTripStopPosition(newPosition, positionTimestamp)
-	} else {
-		vm.updateExpirationTimestamps(positionTimestamp)
 	}
 	return movedForward
 }
@@ -343,12 +341,6 @@ func (vm *vehicleMonitor) updateTripStopPosition(
 
 	vm.lastTripStopPosition = newTripStopPosition
 	vm.lastPositionTimestamp = positionTimestamp
-
-}
-
-//updateExpirationTimestamps updates vm.lastTripStopPosition.lastTimestamp with new expiration
-func (vm *vehicleMonitor) updateExpirationTimestamps(currentTimestamp int64) {
-	vm.lastTripStopPosition.lastTimestamp = currentTimestamp + vm.expirePositionSeconds
 
 }
 
