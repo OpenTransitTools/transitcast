@@ -14,17 +14,15 @@ func findTripDistanceOfVehicleFromPosition(position *tripStopPosition) *float64 
 	if position.latitude == nil || position.longitude == nil {
 		return nil
 	}
-	//if distances or trip shapes are not present can't continue
-	if position.previousSTI.ShapeDistTraveled == nil ||
-		position.nextSTI.ShapeDistTraveled == nil ||
-		len(position.tripInstance.Shapes) == 0 {
+	//if trip shapes are not present can't continue
+	if len(position.tripInstance.Shapes) == 0 {
 		return nil
 	}
 	//if the vehicle is at the stop no need to do a calculation using the pattern
 	if position.atPreviousStop {
-		return position.previousSTI.ShapeDistTraveled
+		return &position.previousSTI.ShapeDistTraveled
 	}
-	shapes := position.tripInstance.ShapesBetweenDistances(*position.previousSTI.ShapeDistTraveled, *position.nextSTI.ShapeDistTraveled)
+	shapes := position.tripInstance.ShapesBetweenDistances(position.previousSTI.ShapeDistTraveled, position.nextSTI.ShapeDistTraveled)
 	return findLineDistanceInFeet(float64(*position.latitude), float64(*position.longitude), shapes)
 
 }

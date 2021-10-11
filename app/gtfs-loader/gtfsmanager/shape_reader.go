@@ -8,6 +8,13 @@ const batchedShapeCount = 250
 // batches inserts
 type shapeRowReader struct {
 	batchedShapeRows []*gtfs.Shape
+	shapeMaxDistMap  map[string]float64
+}
+
+func newShapeRowReader() *shapeRowReader {
+	return &shapeRowReader{
+		shapeMaxDistMap: make(map[string]float64),
+	}
 }
 
 func (s *shapeRowReader) addRow(parser *gtfsFileParser, dsTx *gtfs.DataSetTransaction) error {
@@ -16,12 +23,24 @@ func (s *shapeRowReader) addRow(parser *gtfsFileParser, dsTx *gtfs.DataSetTransa
 		return err
 	}
 	s.batchedShapeRows = append(s.batchedShapeRows, shape)
+	s.addMaxShapeDistance(shape)
 
 	//check if its time to save the batch
 	if len(s.batchedShapeRows) == batchedShapeCount {
 		return s.flush(dsTx)
 	}
 	return nil
+}
+
+//addMaxShapeDistance saves the furthest distance seen on this shapeId in shapeMaxDistMap for later use
+func (s *shapeRowReader) addMaxShapeDistance(shape *gtfs.Shape) {
+	if shape.ShapeDistTraveled == nil {
+		return
+	}
+	furthest := s.shapeMaxDistMap[shape.ShapeId]
+	if *shape.ShapeDistTraveled > furthest {
+		s.shapeMaxDistMap[shape.ShapeId] = *shape.ShapeDistTraveled
+	}
 }
 
 func (s *shapeRowReader) flush(dsTx *gtfs.DataSetTransaction) error {

@@ -84,6 +84,13 @@ same 'data set id' to identify what schedule was current at the time.
 
 gtfs-load 'delete' can be used to remove a gtfs data set and all schedule rows associated with it.
 
+Requires calendar.txt, trips.txt, stop_times.txt and shapes.txt in GTFS file. Optionally loads calendar_dates.txt if present.
+
+GTFS optional fields required by this project: 
+
+- trips.txt requires shape_id column
+- stop_times.txt requires shape_dist_traveled column
+
 #### gtfs-monitor
 
 gtfs-monitor frequently polls a gtfs-rt vehicle position feed monitoring bus transition times between stops, recording

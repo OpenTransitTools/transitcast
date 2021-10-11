@@ -37,6 +37,9 @@ create table if not exists trip
     trip_short_name text,
     block_id        text,
     shape_id        text,
+    start_time      int,
+    end_time        int,
+    trip_distance   double precision,
     constraint trip_pkey
         primary key (data_set_id, trip_id)
 );

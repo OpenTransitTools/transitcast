@@ -30,7 +30,7 @@ func Test_buildTrip(t *testing.T) {
 				TripHeadsign:  nil,
 				TripShortName: nil,
 				BlockId:       testStringPtr("169"),
-				ShapeId:       testStringPtr("460932"),
+				ShapeId:       "460932",
 			},
 			wantErr: false,
 		},

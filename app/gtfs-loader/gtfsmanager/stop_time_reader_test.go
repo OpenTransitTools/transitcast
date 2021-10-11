@@ -29,7 +29,7 @@ func Test_buildStopTime(t *testing.T) {
 				StopId:            "10491",
 				ArrivalTime:       (6 * 60 * 60) + (53 * 60) + 2,
 				DepartureTime:     (6 * 60 * 60) + (53 * 60) + 2,
-				ShapeDistTraveled: testFloat64Pointer(5543.4),
+				ShapeDistTraveled: 5543.4,
 			},
 			wantErr: false,
 		},
