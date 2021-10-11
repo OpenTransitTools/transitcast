@@ -14,7 +14,10 @@ type Trip struct {
 	TripHeadsign  *string `db:"trip_headsign" json:"trip_headsign"`
 	TripShortName *string `db:"trip_short_name" json:"trip_short_name"`
 	BlockId       *string `db:"block_id" json:"block_id"`
-	ShapeId       *string `db:"shape_id" json:"shape_id"`
+	ShapeId       string  `db:"shape_id" json:"shape_id"`
+	StartTime     int     `db:"start_time" json:"start_time"`
+	EndTime       int     `db:"end_time" json:"end_time"`
+	TripDistance  float64 `db:"trip_distance" json:"trip_distance"`
 }
 
 // RecordTrips saves trips to database in batch
@@ -30,7 +33,10 @@ func RecordTrips(trips []*Trip, dsTx *DataSetTransaction) error {
 		"trip_headsign, " +
 		"trip_short_name, " +
 		"block_id, " +
-		"shape_id) " +
+		"shape_id," +
+		"start_time, " +
+		"end_time, " +
+		"trip_distance) " +
 		"values (" +
 		":data_set_id, " +
 		":trip_id, " +
@@ -39,7 +45,10 @@ func RecordTrips(trips []*Trip, dsTx *DataSetTransaction) error {
 		":trip_headsign, " +
 		":trip_short_name, " +
 		":block_id, " +
-		":shape_id)"
+		":shape_id," +
+		":start_time, " +
+		":end_time, " +
+		":trip_distance)"
 	statementString = dsTx.Tx.Rebind(statementString)
 	_, err := dsTx.Tx.NamedExec(statementString, trips)
 	return err
@@ -128,13 +137,12 @@ func GetTripInstances(db *sqlx.DB,
 			return nil, err
 		}
 		//collect shapeIds we need
-		if tripInstance.ShapeId != nil {
-			if _, present := shapeIdMap[*tripInstance.ShapeId]; !present {
-				shapeIdMap[*tripInstance.ShapeId] = true
-				shapeIds = append(shapeIds, *tripInstance.ShapeId)
-			}
 
+		if _, present := shapeIdMap[tripInstance.ShapeId]; !present {
+			shapeIdMap[tripInstance.ShapeId] = true
+			shapeIds = append(shapeIds, tripInstance.ShapeId)
 		}
+
 		if stopTimes, present := stopTimeMap[tripInstance.TripId]; present {
 			tripInstance.StopTimeInstances = stopTimes
 			results.TripInstancesByTripId[tripInstance.TripId] = &tripInstance
@@ -155,11 +163,10 @@ func GetTripInstances(db *sqlx.DB,
 
 	//load any shape lists available into trips
 	for _, tripInstance := range results.TripInstancesByTripId {
-		if tripInstance.ShapeId != nil {
-			if shapes, present := mappedShapes[*tripInstance.ShapeId]; present {
-				tripInstance.Shapes = shapes
-			}
+		if shapes, present := mappedShapes[tripInstance.ShapeId]; present {
+			tripInstance.Shapes = shapes
 		}
+
 	}
 	results.MissingShapeIds = missingShapeIds
 

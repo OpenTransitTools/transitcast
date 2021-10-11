@@ -221,12 +221,9 @@ func getTripStopPosition(trip *gtfs.TripInstance, previousTripStopPosition *trip
 // how much time it spent traveling from its previous tripStopPosition
 func calculateTravelBetweenStops(previousTripStopPosition *tripStopPosition, position *tripStopPosition) (int, int) {
 	//don't perform calculation if previousTripStopPosition is nil
-	//or position.tripDistancePosition is nil,
-	//or either StopTimeInstance.ShapeDistTraveled are null
+	//or position.tripDistancePosition is nil
 	if previousTripStopPosition == nil ||
-		position.tripDistancePosition == nil ||
-		position.previousSTI.ShapeDistTraveled == nil ||
-		position.nextSTI.ShapeDistTraveled == nil {
+		position.tripDistancePosition == nil {
 		return 0, 0
 	}
 	firstScheduleSeconds := previousTripStopPosition.previousSTI.ArrivalTime + previousTripStopPosition.scheduledSecondsFromLastStop
@@ -235,8 +232,8 @@ func calculateTravelBetweenStops(previousTripStopPosition *tripStopPosition, pos
 
 	totalTimeOfTravel := int(position.lastTimestamp - previousTripStopPosition.lastTimestamp)
 
-	distanceFromPreviousStop := *position.tripDistancePosition - *position.previousSTI.ShapeDistTraveled
-	distanceBetweenStops := *position.nextSTI.ShapeDistTraveled - *position.previousSTI.ShapeDistTraveled
+	distanceFromPreviousStop := *position.tripDistancePosition - position.previousSTI.ShapeDistTraveled
+	distanceBetweenStops := position.nextSTI.ShapeDistTraveled - position.previousSTI.ShapeDistTraveled
 	//don't proceed if the data doesn't make sense
 	if distanceBetweenStops <= 0 {
 		return 0, 0

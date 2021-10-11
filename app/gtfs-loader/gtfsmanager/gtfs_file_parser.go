@@ -347,12 +347,11 @@ func loadGTFSRows(dsTx *gtfs.DataSetTransaction, parser *gtfsFileParser, rowRead
 // is available for the file its used to read and record the file.
 // reading halts if an error occurs and the error is returned.
 // returns list of files that have been read.
-func loadGtfsZipFile(log *log.Logger, gtfsDataSetTx *gtfs.DataSetTransaction, localGTFSFilePath string) ([]string, error) {
+func loadGtfsZipFile(log *log.Logger, gtfsDataSetTx *gtfs.DataSetTransaction, localGTFSFilePath string) error {
 
-	fileList := make([]string, 0)
 	r, err := zip.OpenReader(localGTFSFilePath)
 	if err != nil {
-		return fileList, err
+		return err
 	}
 	//close the file after we are done
 	defer func() {
@@ -362,60 +361,123 @@ func loadGtfsZipFile(log *log.Logger, gtfsDataSetTx *gtfs.DataSetTransaction, lo
 		}
 	}()
 
+	files, err := newGTFSFiles(r)
+
+	if err != nil {
+		return err
+	}
+
+	return loadGtfsFiles(files, gtfsDataSetTx)
+}
+
+// gtfsFiles holds all gtfs files that we know how to load
+type gtfsFiles struct {
+	calendarFile     *zip.File
+	calendarDateFile *zip.File
+	tripFile         *zip.File
+	stopTimeFile     *zip.File
+	shapeFile        *zip.File
+}
+
+// newGTFSFiles creates new set of gtfsRowReaders for gtfs file in zipReader
+// returns error if any files are missing
+func newGTFSFiles(zipReader *zip.ReadCloser) (*gtfsFiles, error) {
+	readers := gtfsFiles{}
 	//iterate over each file
-	for _, f := range r.File {
+	for _, f := range zipReader.File {
 		if f.FileInfo().IsDir() {
 			//ignore folders
 			continue
 		}
-		// time to log how long it took to read file
-		start := time.Now()
-		rowReader := getGTFSRowReader(f.Name)
-		if rowReader == nil {
-			//ignore
-			continue
+		switch f.Name {
+		case "calendar.txt":
+			readers.calendarFile = f
+		case "calendar_dates.txt":
+			readers.calendarDateFile = f
+		case "trips.txt":
+			readers.tripFile = f
+		case "stop_times.txt":
+			readers.stopTimeFile = f
+		case "shapes.txt":
+			readers.shapeFile = f
 		}
-
-		rc, err := f.Open()
-		if err != nil {
-			return fileList, err
-		}
-		parser, err := makeGTFSFileParser(rc, f.Name)
-		if err != nil {
-			return fileList, err
-		}
-		log.Printf("Loading %s\n", parser.Filename)
-		err = loadGTFSRows(gtfsDataSetTx, parser, rowReader)
-		if err != nil {
-			return fileList, err
-		}
-		err = rc.Close()
-		if err != nil {
-			return fileList, err
-		}
-		log.Printf("Loaded %d rows in file %s in %d seconds\n", parser.line, parser.Filename,
-			time.Now().Unix()-start.Unix())
-
-		fileList = append(fileList, f.Name)
 	}
-	return fileList, nil
-
+	missingFiles := getMissingFiles(&readers)
+	if len(missingFiles) > 0 {
+		return nil, fmt.Errorf("gtfs zip file is missing the following file(s) %s",
+			strings.Join(missingFiles, ","))
+	}
+	return &readers, nil
 }
 
-// getGTFSRowReader returns gtfsRowReader for fileName
-// returns nil if the file type is not read
-func getGTFSRowReader(fileName string) gtfsRowReader {
-	switch fileName {
-	case "calendar.txt":
-		return &calendarRowReader{}
-	case "calendar_dates.txt":
-		return &calendarDateRowReader{}
-	case "trips.txt":
-		return &tripRowReader{}
-	case "stop_times.txt":
-		return &stopTimeRowReader{}
-	case "shapes.txt":
-		return &shapeRowReader{}
+// getMissingFiles checks gtfsFiles for required files and returns string list of missing files
+func getMissingFiles(readers *gtfsFiles) []string {
+	missingFileNames := make([]string, 0)
+	if readers.calendarFile == nil {
+		missingFileNames = append(missingFileNames, "calendar.txt")
 	}
+	//ok to be missing calendar_dates.txt
+
+	if readers.tripFile == nil {
+		missingFileNames = append(missingFileNames, "trips.txt")
+	}
+
+	if readers.stopTimeFile == nil {
+		missingFileNames = append(missingFileNames, "stop_times.txt")
+	}
+
+	if readers.shapeFile == nil {
+		missingFileNames = append(missingFileNames, "shapes.txt")
+	}
+	return missingFileNames
+}
+
+//loadGtfsFiles loads gtfsFiles in order required by gtfsRowReaders
+func loadGtfsFiles(files *gtfsFiles, gtfsDataSetTx *gtfs.DataSetTransaction) error {
+	err := loadGtfsFile(gtfsDataSetTx, &calendarRowReader{}, files.calendarFile)
+	if err != nil {
+		return err
+	}
+	err = loadGtfsFile(gtfsDataSetTx, &calendarDateRowReader{}, files.calendarDateFile)
+	if err != nil {
+		return err
+	}
+	stopRR := newStopTimeRowReader()
+	err = loadGtfsFile(gtfsDataSetTx, stopRR, files.stopTimeFile)
+	if err != nil {
+		return err
+	}
+	shapeRR := newShapeRowReader()
+	err = loadGtfsFile(gtfsDataSetTx, shapeRR, files.shapeFile)
+	if err != nil {
+		return err
+	}
+	tripRR := newTripRowReader(stopRR, shapeRR)
+	err = loadGtfsFile(gtfsDataSetTx, tripRR, files.tripFile)
+	return err
+}
+
+// loadGtfsFile loads gtfs zipped file and reads with gtfsRowReader
+func loadGtfsFile(gtfsDataSetTx *gtfs.DataSetTransaction, rowReader gtfsRowReader, f *zip.File) error {
+	start := time.Now()
+	rc, err := f.Open()
+	if err != nil {
+		return err
+	}
+	parser, err := makeGTFSFileParser(rc, f.Name)
+	if err != nil {
+		return err
+	}
+	log.Printf("Loading %s\n", parser.Filename)
+	err = loadGTFSRows(gtfsDataSetTx, parser, rowReader)
+	if err != nil {
+		return err
+	}
+	err = rc.Close()
+	if err != nil {
+		return err
+	}
+	log.Printf("Loaded %d rows in file %s in %d seconds\n", parser.line, parser.Filename,
+		time.Now().Unix()-start.Unix())
 	return nil
 }

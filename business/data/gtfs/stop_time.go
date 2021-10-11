@@ -8,13 +8,13 @@ import (
 // StopTime contains a record from a gtfs stop_times.txt file
 // represents a scheduled arrival and departure at a stop.
 type StopTime struct {
-	DataSetId         int64    `db:"data_set_id" json:"data_set_id"`
-	TripId            string   `db:"trip_id" json:"trip_id"`
-	StopSequence      uint32   `db:"stop_sequence" json:"stop_sequence"`
-	StopId            string   `db:"stop_id" json:"stop_id"`
-	ArrivalTime       int      `db:"arrival_time" json:"arrival_time"`
-	DepartureTime     int      `db:"departure_time" json:"departure_time"`
-	ShapeDistTraveled *float64 `db:"shape_dist_traveled" json:"shape_dist_traveled"`
+	DataSetId         int64   `db:"data_set_id" json:"data_set_id"`
+	TripId            string  `db:"trip_id" json:"trip_id"`
+	StopSequence      uint32  `db:"stop_sequence" json:"stop_sequence"`
+	StopId            string  `db:"stop_id" json:"stop_id"`
+	ArrivalTime       int     `db:"arrival_time" json:"arrival_time"`
+	DepartureTime     int     `db:"departure_time" json:"departure_time"`
+	ShapeDistTraveled float64 `db:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
 // RecordStopTimes saves stopTimes to database in batch

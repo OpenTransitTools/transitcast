@@ -197,9 +197,9 @@ func loadGTFSScheduleFromFile(log *log.Logger,
 		DownloadedAt:          downloadedFile.DownloadedAt,
 	}
 	err := transact(log, db, func(tx *sqlx.Tx) error {
-		innerErr := gtfs.SaveDataSet(tx, &ds)
-		if innerErr != nil {
-			return innerErr
+		err := gtfs.SaveDataSet(tx, &ds)
+		if err != nil {
+			return err
 		}
 
 		// create DataSetTransaction for recording gtfs records
@@ -208,15 +208,14 @@ func loadGTFSScheduleFromFile(log *log.Logger,
 			Tx: tx,
 		}
 
-		filesLoaded, innerErr := loadGtfsZipFile(log, &dsTx, downloadedFile.LocalFilePath)
-		if innerErr != nil {
-			return innerErr
+		err = loadGtfsZipFile(log, &dsTx, downloadedFile.LocalFilePath)
+		if err != nil {
+			return err
 		}
-		log.Printf("Loaded %v", filesLoaded)
 		now := time.Now()
-		innerErr = gtfs.SaveAndTerminateReplacedDataSet(tx, &ds, now)
-		if innerErr != nil {
-			return innerErr
+		err = gtfs.SaveAndTerminateReplacedDataSet(tx, &ds, now)
+		if err != nil {
+			return err
 		}
 		return nil
 	})
