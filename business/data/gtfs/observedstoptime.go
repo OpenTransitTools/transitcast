@@ -26,10 +26,12 @@ type ObservedStopTime struct {
 	ObservedAtNextStop bool `db:"observed_at_next_stop"`
 
 	//TravelSeconds is the number of seconds the vehicle is assumed to have taken to move between the stops
-	TravelSeconds    int       `db:"travel_seconds"`
-	ScheduledSeconds *int      `db:"scheduled_seconds"`
-	TripId           string    `db:"trip_id"`
-	CreatedAt        time.Time `db:"created_at"`
+	TravelSeconds    int  `db:"travel_seconds"`
+	ScheduledSeconds *int `db:"scheduled_seconds"`
+	//DataSetId identifies the DataSet used during this ObservedStopTime
+	DataSetId int64     `db:"data_set_id" json:"data_set_id"`
+	TripId    string    `db:"trip_id"`
+	CreatedAt time.Time `db:"created_at"`
 }
 
 //AssumedDepartTime returns the time the vehicle is assumed to have departed the from stopId, this is calculated

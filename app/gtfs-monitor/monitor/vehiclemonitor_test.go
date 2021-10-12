@@ -186,6 +186,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Unix(int64(1576083658), 0),
 						TravelSeconds:      1576083658 - 1576083565,
 						ScheduledSeconds:   intPtr(105),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -231,6 +232,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Unix(int64(1576084167), 0),
 						TravelSeconds:      1576084167 - 1576084075,
 						ScheduledSeconds:   intPtr(115),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -260,6 +262,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Unix(int64(1576090054), 0),
 						TravelSeconds:      1576090054 - 1576089931,
 						ScheduledSeconds:   intPtr(135),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -293,6 +296,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Date(2019, 12, 11, 10, 59, 33, 0, location),
 						TravelSeconds:      71, //twice scheduled time due to delay
 						ScheduledSeconds:   intPtr(135),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -306,6 +310,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						TravelSeconds:      50, //twice scheduled time due to delay
 						ScheduledSeconds:   intPtr(90),
 						VehicleId:          "1",
+						DataSetId:          1,
 						TripId:             "9530573",
 					},
 				},
@@ -366,6 +371,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Date(2019, 12, 11, 10, 47, 4, 0, location),
 						TravelSeconds:      83,
 						ScheduledSeconds:   intPtr(135),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -394,6 +400,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Date(2019, 12, 11, 10, 47, 4, 0, location),
 						TravelSeconds:      93,
 						ScheduledSeconds:   intPtr(135),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -421,6 +428,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Unix(int64(1576083658), 0),
 						TravelSeconds:      62,
 						ScheduledSeconds:   intPtr(105),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -450,6 +458,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Date(2019, 12, 11, 9, 0, 55, 0, location),
 						TravelSeconds:      105,
 						ScheduledSeconds:   intPtr(105),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -479,6 +488,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Date(2019, 12, 11, 9, 1, 0, 0, location),
 						TravelSeconds:      110,
 						ScheduledSeconds:   intPtr(105),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -508,6 +518,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Date(2019, 12, 11, 9, 0, 55, 0, location),
 						TravelSeconds:      105,
 						ScheduledSeconds:   intPtr(105),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -520,6 +531,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						ObservedTime:       time.Date(2019, 12, 11, 9, 2, 30, 0, location),
 						TravelSeconds:      95,
 						ScheduledSeconds:   intPtr(95),
+						DataSetId:          1,
 						VehicleId:          "1",
 						TripId:             "9529801",
 					},
@@ -594,6 +606,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						TravelSeconds:      15,
 						ScheduledSeconds:   intPtr(30),
 						VehicleId:          "1",
+						DataSetId:          3,
 						TripId:             "10856058",
 					},
 					{
@@ -606,6 +619,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						TravelSeconds:      29,
 						ScheduledSeconds:   intPtr(29),
 						VehicleId:          "1",
+						DataSetId:          3,
 						TripId:             "10856058",
 					},
 				},
@@ -726,6 +740,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						TravelSeconds:      43,
 						ScheduledSeconds:   intPtr(37),
 						VehicleId:          "3553",
+						DataSetId:          7,
 						TripId:             "10958023",
 					},
 				},
@@ -785,6 +800,9 @@ func observedStopTimesSame(got []gtfs.ObservedStopTime, want []gtfs.ObservedStop
 		}
 		if s1.VehicleId != s2.VehicleId {
 			return false, fmt.Sprintf("row %v, vehicleId %v != %v", i, s1.VehicleId, s2.VehicleId)
+		}
+		if s1.DataSetId != s2.DataSetId {
+			return false, fmt.Sprintf("row %v, DataSetId %v != %v", i, s1.DataSetId, s2.DataSetId)
 		}
 		if s1.TripId != s2.TripId {
 			return false, fmt.Sprintf("row %v, TripId %v != %v", i, s1.TripId, s2.TripId)

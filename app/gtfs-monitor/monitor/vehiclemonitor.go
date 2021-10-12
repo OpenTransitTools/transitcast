@@ -409,6 +409,7 @@ func makeObservedStopTimes(
 			TravelSeconds:      travelSeconds,
 			ScheduledSeconds:   &segmentScheduleLength,
 			VehicleId:          vehicleId,
+			DataSetId:          stopTimeInstance1.DataSetId,
 			TripId:             stopTimeInstance1.TripId,
 		}
 		//prepend since we are moving backwards
