@@ -15,6 +15,7 @@ type StopTime struct {
 	ArrivalTime       int     `db:"arrival_time" json:"arrival_time"`
 	DepartureTime     int     `db:"departure_time" json:"departure_time"`
 	ShapeDistTraveled float64 `db:"shape_dist_traveled" json:"shape_dist_traveled"`
+	Timepoint         int     `db:"timepoint" json:"timepoint"`
 }
 
 // RecordStopTimes saves stopTimes to database in batch
@@ -30,7 +31,8 @@ func RecordStopTimes(stopTimes []*StopTime, dsTx *DataSetTransaction) error {
 		"stop_id, " +
 		"arrival_time, " +
 		"departure_time, " +
-		"shape_dist_traveled) " +
+		"shape_dist_traveled," +
+		"timepoint) " +
 		"values (" +
 		":data_set_id, " +
 		":trip_id, " +
@@ -38,7 +40,8 @@ func RecordStopTimes(stopTimes []*StopTime, dsTx *DataSetTransaction) error {
 		":stop_id, " +
 		":arrival_time, " +
 		":departure_time," +
-		":shape_dist_traveled)"
+		":shape_dist_traveled," +
+		":timepoint)"
 	statementString = dsTx.Tx.Rebind(statementString)
 	_, err := dsTx.Tx.NamedExec(statementString, stopTimes)
 	return err

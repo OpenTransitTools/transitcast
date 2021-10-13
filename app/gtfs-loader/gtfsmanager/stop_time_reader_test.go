@@ -22,7 +22,7 @@ func Test_buildStopTime(t *testing.T) {
 		{
 			name: "stop_time parsed",
 			csvContent: "trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint,continuous_drop_off,continuous_pickup" +
-				"\n10292960,06:53:02,06:53:02,10491,6,45th Ave,0,0,5543.4,0,,",
+				"\n10292960,06:53:02,06:53:02,10491,6,45th Ave,0,0,5543.4,1,,",
 			want: &gtfs.StopTime{
 				TripId:            "10292960",
 				StopSequence:      6,
@@ -30,6 +30,7 @@ func Test_buildStopTime(t *testing.T) {
 				ArrivalTime:       (6 * 60 * 60) + (53 * 60) + 2,
 				DepartureTime:     (6 * 60 * 60) + (53 * 60) + 2,
 				ShapeDistTraveled: 5543.4,
+				Timepoint:         1,
 			},
 			wantErr: false,
 		},
