@@ -53,6 +53,7 @@ create table if not exists stop_time
     arrival_time        int,
     departure_time      int,
     shape_dist_traveled double precision,
+    timepoint           int,
     constraint stop_time_pkey
         primary key (data_set_id, trip_id, stop_sequence)
 );
