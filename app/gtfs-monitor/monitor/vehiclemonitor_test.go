@@ -758,7 +758,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			for _, lastPosition := range tt.args.Positions {
 
 				trip := getTestTrip(testTrips, lastPosition.TripId, t)
-				result = vm.newPosition(testLog.log, &lastPosition, trip)
+				_, result = vm.newPosition(testLog.log, &lastPosition, trip)
 
 			}
 			same, discrepancyDescription := observedStopTimesSame(result, tt.want.stopTimes)
@@ -1050,6 +1050,7 @@ func Test_getStopTransition(t *testing.T) {
 		previousTripStopPosition *tripStopPosition
 		stopSequence             uint32
 		status                   VehicleStopStatus
+		timestamp                int64
 	}
 	tests := []struct {
 		name string
@@ -1057,12 +1058,13 @@ func Test_getStopTransition(t *testing.T) {
 		want *tripStopPosition
 	}{
 		{
-			name: "at first stop of trip",
+			name: "at first stop of trip, 10 seconds late",
 			args: args{
 				trip:                     testTrips[0],
 				previousTripStopPosition: nil,
 				stopSequence:             1,
 				status:                   StoppedAt,
+				timestamp:                testTrip.StopTimeInstances[0].ArrivalDateTime.Unix() + 10,
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        true,
@@ -1070,6 +1072,8 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[0],
 				nextSTI:               testTrip.StopTimeInstances[1],
+				lastTimestamp:         testTrip.StopTimeInstances[0].ArrivalDateTime.Unix() + 10,
+				delay:                 -10,
 			},
 		},
 		{
@@ -1085,6 +1089,7 @@ func Test_getStopTransition(t *testing.T) {
 				},
 				stopSequence: 1,
 				status:       StoppedAt,
+				timestamp:    testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        true,
@@ -1092,6 +1097,7 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[0],
 				nextSTI:               testTrip.StopTimeInstances[1],
+				lastTimestamp:         testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 		},
 		{
@@ -1107,6 +1113,7 @@ func Test_getStopTransition(t *testing.T) {
 				},
 				stopSequence: 2,
 				status:       InTransitTo,
+				timestamp:    testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        false,
@@ -1114,6 +1121,7 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[0],
 				nextSTI:               testTrip.StopTimeInstances[1],
+				lastTimestamp:         testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 		},
 		{
@@ -1123,6 +1131,7 @@ func Test_getStopTransition(t *testing.T) {
 				previousTripStopPosition: nil,
 				stopSequence:             2,
 				status:                   StoppedAt,
+				timestamp:                testTrip.StopTimeInstances[1].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        true,
@@ -1130,6 +1139,7 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[1],
 				nextSTI:               testTrip.StopTimeInstances[2],
+				lastTimestamp:         testTrip.StopTimeInstances[1].ArrivalDateTime.Unix(),
 			},
 		},
 		{
@@ -1139,6 +1149,7 @@ func Test_getStopTransition(t *testing.T) {
 				previousTripStopPosition: nil,
 				stopSequence:             2,
 				status:                   InTransitTo,
+				timestamp:                testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        false,
@@ -1146,6 +1157,7 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[0],
 				nextSTI:               testTrip.StopTimeInstances[1],
+				lastTimestamp:         testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 		},
 		{
@@ -1161,6 +1173,7 @@ func Test_getStopTransition(t *testing.T) {
 				},
 				stopSequence: 4,
 				status:       InTransitTo,
+				timestamp:    testTrip.StopTimeInstances[2].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        false,
@@ -1168,6 +1181,7 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[2],
 				nextSTI:               testTrip.StopTimeInstances[3],
+				lastTimestamp:         testTrip.StopTimeInstances[2].ArrivalDateTime.Unix(),
 			},
 		},
 		{
@@ -1177,6 +1191,7 @@ func Test_getStopTransition(t *testing.T) {
 				previousTripStopPosition: nil,
 				stopSequence:             47,
 				status:                   StoppedAt,
+				timestamp:                testTrip.StopTimeInstances[46].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        true,
@@ -1184,6 +1199,7 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[46],
 				nextSTI:               testTrip.StopTimeInstances[46], //same stop sequence because this is the last stop
+				lastTimestamp:         testTrip.StopTimeInstances[46].ArrivalDateTime.Unix(),
 			},
 		},
 		{
@@ -1199,6 +1215,7 @@ func Test_getStopTransition(t *testing.T) {
 				},
 				stopSequence: 47,
 				status:       StoppedAt,
+				timestamp:    testTrip.StopTimeInstances[46].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        true,
@@ -1206,6 +1223,7 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[46],
 				nextSTI:               testTrip.StopTimeInstances[46], //same stop sequence because this is the last stop
+				lastTimestamp:         testTrip.StopTimeInstances[46].ArrivalDateTime.Unix(),
 			},
 		},
 		{
@@ -1221,6 +1239,7 @@ func Test_getStopTransition(t *testing.T) {
 				},
 				stopSequence: 16,
 				status:       InTransitTo,
+				timestamp:    trip10856058.StopTimeInstances[14].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
 				atPreviousStop:        false,
@@ -1228,6 +1247,7 @@ func Test_getStopTransition(t *testing.T) {
 				tripInstance:          trip10856058,
 				previousSTI:           trip10856058.StopTimeInstances[14],
 				nextSTI:               trip10856058.StopTimeInstances[15],
+				lastTimestamp:         trip10856058.StopTimeInstances[14].ArrivalDateTime.Unix(),
 			},
 		},
 	}
@@ -1236,6 +1256,7 @@ func Test_getStopTransition(t *testing.T) {
 			position := vehiclePosition{
 				VehicleStopStatus: tt.args.status,
 				StopSequence:      &tt.args.stopSequence,
+				Timestamp:         tt.args.timestamp,
 			}
 			got, _ := getTripStopPosition(tt.args.trip, tt.args.previousTripStopPosition, &position)
 			if !reflect.DeepEqual(got, tt.want) {
@@ -1797,7 +1818,7 @@ func Test_TestVehicleMonitor_NewPositionGetsEveryStopPairOnce(t *testing.T) {
 
 			trip := getTestTrip(testTrips, lastPosition.TripId, t)
 
-			results := vm.newPosition(testLog.log, &lastPosition, trip)
+			_, results := vm.newPosition(testLog.log, &lastPosition, trip)
 			if results == nil {
 				continue
 			}

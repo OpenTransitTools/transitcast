@@ -1,6 +1,7 @@
 package monitor
 
 import (
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"math"
 	"testing"
 )
@@ -237,6 +238,65 @@ func Test_nearestLatLngToLineFromPoint(t *testing.T) {
 			diff := simpleLatLngDistance(tt.wantLat, tt.wantLon, gotLat, gotLon)
 			if math.Abs(diff) >= .2 {
 				t.Errorf("nearestLatLngToLineFromPoint() produced result %f away from expected result", diff)
+			}
+		})
+	}
+}
+
+func Test_calculateDelay(t *testing.T) {
+	trip10856058 := getFirstTestTripFromJson("trip_10856058_2021_07_13.json", t)
+	stopTwo := trip10856058.StopTimeInstances[1]
+	type args struct {
+		previousStop    *gtfs.StopTimeInstance
+		secondsFromStop int
+		timestamp       int64
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "10 seconds early at stop",
+			args: args{
+				previousStop:    stopTwo,
+				secondsFromStop: 0,
+				timestamp:       stopTwo.DepartureDateTime.Unix() - 10,
+			},
+			want: 10,
+		},
+		{
+			name: "20 seconds early between stops",
+			args: args{
+				previousStop:    stopTwo,
+				secondsFromStop: 10,
+				timestamp:       stopTwo.DepartureDateTime.Unix() - 10,
+			},
+			want: 20,
+		},
+		{
+			name: "10 seconds late at stop",
+			args: args{
+				previousStop:    stopTwo,
+				secondsFromStop: 0,
+				timestamp:       stopTwo.DepartureDateTime.Unix() + 10,
+			},
+			want: -10,
+		},
+		{
+			name: "20 seconds late between stops",
+			args: args{
+				previousStop:    stopTwo,
+				secondsFromStop: 10,
+				timestamp:       stopTwo.DepartureDateTime.Unix() + 30,
+			},
+			want: -20,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := calculateDelay(tt.args.previousStop, tt.args.secondsFromStop, tt.args.timestamp); got != tt.want {
+				t.Errorf("calculateDelay() = %v, want %v", got, tt.want)
 			}
 		})
 	}

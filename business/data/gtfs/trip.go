@@ -1,6 +1,7 @@
 package gtfs
 
 import (
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"time"
 )
@@ -94,6 +95,70 @@ func (t *TripInstance) ShapesBetweenDistances(start float64, end float64) []*Sha
 	return results
 }
 
+//GetScheduledTripIds returns all map of trip_ids that are scheduled between relevantFrom and relevantTo
+// at is used to retrieve the active dataSet
+func GetScheduledTripIds(db *sqlx.DB,
+	at time.Time,
+	relevantFrom time.Time,
+	relevantTo time.Time) (map[string]bool, error) {
+	scheduleSlices := GetScheduleSlices(relevantFrom, relevantTo)
+
+	dataSet, err := GetDataSetAt(db, at)
+	if err != nil {
+		return nil, err
+	}
+	tripIdMap := make(map[string]bool)
+
+	for _, slice := range scheduleSlices {
+		serviceIds, err := GetActiveServiceIds(db, dataSet, slice.ServiceDate)
+		if err != nil {
+			return nil, err
+		}
+		if len(serviceIds) > 0 {
+			tripIds, err := getScheduledTripIdsForSlice(db, dataSet, serviceIds, slice)
+			if err != nil {
+				return nil, err
+			}
+			for _, tripId := range tripIds {
+				tripIdMap[tripId] = true
+			}
+		}
+	}
+	return tripIdMap, nil
+}
+
+//getScheduledTripIdsForSlice retrieves the tripIds for dataSet for serviceIds where trip start and trip end
+//fall within the range of ScheduleSlice.StartSeconds and ScheduleSlice.EndSeconds
+func getScheduledTripIdsForSlice(
+	db *sqlx.DB,
+	dataSet *DataSet,
+	serviceIds []string,
+	slice ScheduleSlice) ([]string, error) {
+	if len(serviceIds) < 1 {
+		return nil, nil
+	}
+	query := "select trip_id from trip where data_set_id = :data_set_id and service_id in (:service_ids) " +
+		"and ((start_time between :start_seconds and :end_seconds " +
+		"or end_time between :start_seconds and :end_seconds) " +
+		"or (trip.start_time < :start_seconds and trip.end_time > :end_seconds))"
+
+	query, args, err := prepareNamedQueryFromMap(query, db, map[string]interface{}{
+		"data_set_id":   dataSet.Id,
+		"service_ids":   serviceIds,
+		"start_seconds": slice.StartSeconds,
+		"end_seconds":   slice.EndSeconds,
+	})
+
+	var tripIds []string
+	err = db.Select(&tripIds, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve trip_ids from trip table. query:%s error: %w", query, err)
+	}
+	return tripIds, nil
+}
+
+// GetTripInstances loads trip instances with tripIds.
+// Appropriate scheduleDates are selected where trip start and end times are within range of relevantFrom and relevantTo
 func GetTripInstances(db *sqlx.DB,
 	at time.Time,
 	relevantFrom time.Time,

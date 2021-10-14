@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+//RunVehicleMonitorLoop starts loop that monitors gtfs-rt feed and records results for use in ML processing.
 func RunVehicleMonitorLoop(log *log.Logger,
 	db *sqlx.DB,
 	url string,
@@ -22,7 +23,8 @@ func RunVehicleMonitorLoop(log *log.Logger,
 
 	sleepChan := make(chan bool)
 	sleep := time.Duration(0) //sleep for zero seconds the first time
-	loadedTrips := make(map[string]*gtfs.TripInstance)
+
+	relevantTripCache := makeRelevantTrips(time.Now())
 	monitorCollection := newVehicleMonitorCollection(earlyTolerance, expirePositionSeconds)
 	for {
 
@@ -39,6 +41,9 @@ func RunVehicleMonitorLoop(log *log.Logger,
 			break
 		}
 
+		//set default sleep for next loop in the event of an error after continue statements
+		sleep = loopDuration
+
 		// mark the time we start working
 		start := time.Now()
 
@@ -51,7 +56,7 @@ func RunVehicleMonitorLoop(log *log.Logger,
 
 		log.Printf("loaded %d vehicle positions\n", len(vehiclePositions))
 
-		loadedTrips, err = collectRequiredTrips(log, db, vehiclePositions, time.Now(), loadedTrips)
+		loadedTrips, err := relevantTripCache.loadRelevantTrips(log, db, start, vehiclePositions)
 
 		if err != nil {
 			log.Printf("error attempting to get required trip for vehicle positions. error:%v\n", err)
@@ -75,71 +80,6 @@ func RunVehicleMonitorLoop(log *log.Logger,
 	}
 }
 
-//collectRequiredTrips loads all trips that are required for processing list of vehiclePositions and returns as a map by tripId
-//only trips not present in loadedTripInstances are retrieved
-//any trips in loadedTripInstances that are no longer needed will not be included in the return map.
-func collectRequiredTrips(log *log.Logger,
-	db *sqlx.DB,
-	vehiclePositions []vehiclePosition,
-	now time.Time,
-	loadedTripInstancesByTripId map[string]*gtfs.TripInstance) (map[string]*gtfs.TripInstance, error) {
-
-	requiredTrips := make(map[string]*gtfs.TripInstance)
-	tripIdsNeeded := make([]string, 0)
-	uniqTripIdsNeeded := make(map[string]bool)
-
-	for _, position := range vehiclePositions {
-		if position.TripId != nil {
-			tripId := *position.TripId
-			if trip, present := loadedTripInstancesByTripId[tripId]; present {
-				requiredTrips[tripId] = trip
-			} else {
-				//only add to list if not already present
-				if _, present = uniqTripIdsNeeded[tripId]; !present {
-					uniqTripIdsNeeded[tripId] = true
-					tripIdsNeeded = append(tripIdsNeeded, tripId)
-				}
-
-			}
-
-		}
-	}
-
-	log.Printf("%d trips loaded, need %d new trips\n", len(requiredTrips), len(tripIdsNeeded))
-	if len(tripIdsNeeded) == 0 {
-		return requiredTrips, nil
-	}
-
-	startTime, endTime := getStartEndTimeToSearchForTrips(now)
-	batchResult, err := gtfs.GetTripInstances(db, now, startTime, endTime, tripIdsNeeded)
-	if err != nil {
-		return requiredTrips, err
-	}
-	log.Printf("loaded of %d of %d new trips\n", len(batchResult.TripInstancesByTripId), len(tripIdsNeeded))
-	if len(batchResult.MissingTripIds) > 0 {
-		log.Printf("unable to find tripIds %+v\n", batchResult.MissingTripIds)
-	}
-	if len(batchResult.ScheduleSliceOutOfRange) > 0 {
-		log.Printf("unable to find matching schedule slices for tripIds %+v\n", batchResult.ScheduleSliceOutOfRange)
-	}
-
-	// add all the trips loaded into the requiredTrips result
-	for _, trip := range batchResult.TripInstancesByTripId {
-		requiredTrips[trip.TripId] = trip
-	}
-
-	return requiredTrips, nil
-}
-
-//getStartEndTimeToSearchForTrips produces very wide range of time to search for valid trip schedules at a point in time
-//but still shouldn't overlap
-func getStartEndTimeToSearchForTrips(now time.Time) (start time.Time, end time.Time) {
-	const tripSearchRangeSeconds = 60 * 60 * 8
-	start = now.Add(time.Duration(-tripSearchRangeSeconds) * time.Second)
-	end = now.Add(time.Duration(tripSearchRangeSeconds) * time.Second)
-	return
-}
-
 //updateVehiclePositions runs vehiclePositions through vehicleMonitors and saves results to database
 func updateVehiclePositions(log *log.Logger,
 	db *sqlx.DB,
@@ -155,7 +95,8 @@ func updateVehiclePositions(log *log.Logger,
 		if position.TripId != nil {
 			trip = loadedTripInstancesByTripId[*position.TripId]
 		}
-		observations := vm.newPosition(log, &position, trip)
+
+		_, observations := vm.newPosition(log, &position, trip)
 
 		// for now we just log it until the database is ready
 		for _, observation := range observations {

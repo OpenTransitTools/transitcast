@@ -27,6 +27,14 @@ func findTripDistanceOfVehicleFromPosition(position *tripStopPosition) *float64 
 
 }
 
+//calculateDelay retrieves the vehicles delay (positive numbers are late, negative numbers are early)
+//previousStop is the stop the vehicle is at or most recently past,
+//secondsFromStop is how the vehicle is from that stop, as measured in schedule seconds
+func calculateDelay(previousStop *gtfs.StopTimeInstance, secondsFromStop int, timestamp int64) int {
+	schedulePosition := previousStop.ArrivalDateTime.Unix() + int64(secondsFromStop)
+	return int(schedulePosition - timestamp)
+}
+
 //findLineDistanceInFeet finds a location close to line segments from shapes and returns the distance
 // along the pattern that location is on the pattern
 func findLineDistanceInFeet(lat, lon float64, shapes []*gtfs.Shape) *float64 {

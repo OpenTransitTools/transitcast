@@ -160,20 +160,50 @@ func GetAllDataSets(db *sqlx.DB) ([]DataSet, error) {
 	return results, nil
 }
 
-// prepareNamedQueryRowsFromMap wraps boilerplate sqlx to prepare named query from map of sql parameters
-func prepareNamedQueryRowsFromMap(statementString string, db *sqlx.DB, sqlArgMap map[string]interface{}) (*sqlx.Rows, error) {
+// prepareNamedQueryFromMap wraps boilerplate sqlx to prepare named query from map of sql parameters
+// returns rebound query string and arguments slice
+func prepareNamedQueryFromMap(
+	statementString string,
+	db *sqlx.DB,
+	sqlArgMap map[string]interface{}) (string, []interface{}, error) {
+
 	query, args, err := sqlx.Named(statementString, sqlArgMap)
 	if err != nil {
-		return nil, err
+		return query, nil, err
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, err
+		return query, nil, err
 	}
 	query = db.Rebind(query)
+	return query, args, nil
+}
+
+// prepareNamedQueryRowsFromMap wraps boilerplate sqlx to prepare named query from map of sql parameters
+// returns sqlx.Rows after executing query with db.Queryx
+func prepareNamedQueryRowsFromMap(
+	statementString string,
+	db *sqlx.DB,
+	sqlArgMap map[string]interface{}) (*sqlx.Rows, error) {
+
+	query, args, err := prepareNamedQueryFromMap(statementString, db, sqlArgMap)
+	if err != nil {
+		return nil, err
+	}
 	rows, err := db.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}
 	return rows, nil
+}
+
+//trueStringsFromMap return slice of string keys from map where true value is present
+func trueStringsFromMap(m map[string]bool) []string {
+	results := make([]string, 0)
+	for key, val := range m {
+		if val {
+			results = append(results, key)
+		}
+	}
+	return results
 }
