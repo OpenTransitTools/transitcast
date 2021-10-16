@@ -14,7 +14,7 @@ type Trip struct {
 	ServiceId     string  `db:"service_id" json:"service_id"`
 	TripHeadsign  *string `db:"trip_headsign" json:"trip_headsign"`
 	TripShortName *string `db:"trip_short_name" json:"trip_short_name"`
-	BlockId       *string `db:"block_id" json:"block_id"`
+	BlockId       string  `db:"block_id" json:"block_id"`
 	ShapeId       string  `db:"shape_id" json:"shape_id"`
 	StartTime     int     `db:"start_time" json:"start_time"`
 	EndTime       int     `db:"end_time" json:"end_time"`

@@ -45,7 +45,7 @@ var spacedStopSequenceTrip = &gtfs.TripInstance{
 		TripId:        "1000",
 		RouteId:       "100",
 		ServiceId:     "A",
-		BlockId:       strPtr("9020"),
+		BlockId:       "9020",
 		TripHeadsign:  strPtr("Cleveland Ave MAX Station"),
 		TripShortName: strPtr("Hatfield Government Center"),
 	},
@@ -758,7 +758,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			for _, lastPosition := range tt.args.Positions {
 
 				trip := getTestTrip(testTrips, lastPosition.TripId, t)
-				_, result = vm.newPosition(testLog.log, &lastPosition, trip)
+				_, result = vm.newPosition(testLog.log, lastPosition, trip)
 
 			}
 			same, discrepancyDescription := observedStopTimesSame(result, tt.want.stopTimes)
@@ -1067,13 +1067,14 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:                testTrip.StopTimeInstances[0].ArrivalDateTime.Unix() + 10,
 			},
 			want: &tripStopPosition{
+				dataSetId:             1,
 				atPreviousStop:        true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[0],
 				nextSTI:               testTrip.StopTimeInstances[1],
 				lastTimestamp:         testTrip.StopTimeInstances[0].ArrivalDateTime.Unix() + 10,
-				delay:                 -10,
+				delay:                 10,
 			},
 		},
 		{
@@ -1092,6 +1093,7 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:    testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
+				dataSetId:             1,
 				atPreviousStop:        true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
@@ -1116,6 +1118,7 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:    testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
+				dataSetId:             1,
 				atPreviousStop:        false,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
@@ -1134,12 +1137,14 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:                testTrip.StopTimeInstances[1].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
+				dataSetId:             1,
 				atPreviousStop:        true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[1],
 				nextSTI:               testTrip.StopTimeInstances[2],
 				lastTimestamp:         testTrip.StopTimeInstances[1].ArrivalDateTime.Unix(),
+				delay:                 -25,
 			},
 		},
 		{
@@ -1152,6 +1157,7 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:                testTrip.StopTimeInstances[0].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
+				dataSetId:             1,
 				atPreviousStop:        false,
 				witnessedPreviousStop: false,
 				tripInstance:          testTrip,
@@ -1176,12 +1182,14 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:    testTrip.StopTimeInstances[2].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
+				dataSetId:             1,
 				atPreviousStop:        false,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
 				previousSTI:           testTrip.StopTimeInstances[2],
 				nextSTI:               testTrip.StopTimeInstances[3],
 				lastTimestamp:         testTrip.StopTimeInstances[2].ArrivalDateTime.Unix(),
+				delay:                 -20,
 			},
 		},
 		{
@@ -1194,6 +1202,7 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:                testTrip.StopTimeInstances[46].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
+				dataSetId:             1,
 				atPreviousStop:        true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
@@ -1218,6 +1227,7 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:    testTrip.StopTimeInstances[46].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
+				dataSetId:             1,
 				atPreviousStop:        true,
 				witnessedPreviousStop: true,
 				tripInstance:          testTrip,
@@ -1242,6 +1252,7 @@ func Test_getStopTransition(t *testing.T) {
 				timestamp:    trip10856058.StopTimeInstances[14].ArrivalDateTime.Unix(),
 			},
 			want: &tripStopPosition{
+				dataSetId:             3,
 				atPreviousStop:        false,
 				witnessedPreviousStop: true,
 				tripInstance:          trip10856058,
@@ -1815,10 +1826,11 @@ func Test_TestVehicleMonitor_NewPositionGetsEveryStopPairOnce(t *testing.T) {
 		transitionMap := make(map[string]gtfs.ObservedStopTime)
 		//iterate over positions
 		for i, lastPosition := range testPositions {
+			newPos := lastPosition
 
 			trip := getTestTrip(testTrips, lastPosition.TripId, t)
 
-			_, results := vm.newPosition(testLog.log, &lastPosition, trip)
+			_, results := vm.newPosition(testLog.log, newPos, trip)
 			if results == nil {
 				continue
 			}

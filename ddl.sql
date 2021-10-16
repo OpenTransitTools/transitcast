@@ -106,3 +106,18 @@ create table if not exists observed_stop_time
         primary key (observed_time, stop_id, next_stop_id, vehicle_id)
 
 ) partition by range (observed_time);
+
+create table if not exists trip_deviation
+(
+    id                  bigserial                not null,
+    created_at          timestamp with time zone not null,
+    trip_progress       double precision,
+    data_set_id         bigint                   not null,
+    trip_id             text                     not null,
+    vehicle_id          text                     not null,
+    at_stop             bool                     not null,
+    delay               int                      not null,
+    deviation_timestamp timestamp with time zone not null,
+    constraint trip_deviation_pkey
+        primary key (created_at, trip_id, vehicle_id)
+) partition by range (created_at);

@@ -32,58 +32,12 @@ func (vc *vehicleMonitorCollection) getOrMakeVehicle(vehicleId string) *vehicleM
 	return &vehicleMonitor
 }
 
-//tripStopPosition is used by vehicleMonitor to keep track of vehicle movement between updated positions
-type tripStopPosition struct {
-	//atPreviousStop is true when vehicle position was set to StoppedAt for previousSTI
-	atPreviousStop bool
-	//witnessedPreviousStop indicates that we have seen the vehicle at or prior to previousSTI
-	witnessedPreviousStop bool
-	//tripInstance is always populated from the vehiclePosition's tripId
-	tripInstance *gtfs.TripInstance
-	//previousSTI is the stop this trip that we are at or just passed
-	previousSTI *gtfs.StopTimeInstance
-	//nextSTI is the stop this trip that we are headed towards (or at in the case where we are at the last stop of the trip)
-	nextSTI *gtfs.StopTimeInstance
-	//lastTimestamp the timestamp of the vehiclePosition this tripStopPosition was created from
-	lastTimestamp int64
-	//latitude optionally included if present in vehiclePosition
-	latitude *float32
-	//longitude optionally included if present in vehiclePosition
-	longitude *float32
-
-	//how delayed the vehicle is. Positive is late. Negative is early
-	delay int
-	//tripDistancePosition is present if vehicle's distance on the trip was able to be found
-	tripDistancePosition *float64
-	//scheduledSecondsFromLastStop is number of seconds vehicle was found beyond the previousSTI based on tripDistancePosition
-	//if tripDistancePosition was unavailable will have default value of zero
-	scheduledSecondsFromLastStop int
-	//observedSecondsToTravelToPosition is number of seconds is assumed to have taken to move to scheduledSecondsFromLastStop
-	//if tripDistancePosition was unavailable will have default value of zero
-	observedSecondsToTravelToPosition int
-}
-
-func (t *tripStopPosition) logFormat() string {
-	var lat float32
-	if t.latitude != nil {
-		lat = *t.latitude
-	}
-	var lon float32
-	if t.longitude != nil {
-		lon = *t.longitude
-	}
-
-	return fmt.Sprintf("tripStopPosition{ tripId:%s, previousStop:(seq:%d id:%s secs:%d), nextStop:(seq:%d id:%s secs:%d), atPrevious:%t, latlng:%f,%f }",
-		t.tripInstance.TripId, t.previousSTI.StopSequence, t.previousSTI.StopId, t.previousSTI.ArrivalTime,
-		t.nextSTI.StopSequence, t.nextSTI.StopId, t.nextSTI.ArrivalTime,
-		t.atPreviousStop, lat, lon)
-}
-
 //vehicleMonitor generates gtfs.ObservedStopTime records by watching subsequent vehiclePosition records from gtfs
 type vehicleMonitor struct {
-	Id                    string
-	lastTripStopPosition  *tripStopPosition
-	lastPositionTimestamp int64
+	Id                      string
+	lastTripStopPosition    *tripStopPosition
+	lastStopChangeTimestamp int64
+	lastPosition            *vehiclePosition
 	//earlyTolerance a percentage (should be between 0.0 and 1.0) of how early the vehicle can be observed to have traveled between two stops
 	//before and gtfs.ObservedStopTime is assumed to be invalid and shouldn't be returned.
 	//for example if a vehicle is observed to travel between two stops in 10 seconds, but the scheduled to take 100 seconds
@@ -107,10 +61,10 @@ func makeVehicleMonitor(Id string, earlyTolerance float64, expirePositionSeconds
 //if trip is nil the vehicles trip is assumed to be unavailable from the gtfs schedule and its position is invalidated
 //this method is currently the only intended entry point to use a vehicleMonitor
 func (vm *vehicleMonitor) newPosition(log *log.Logger,
-	position *vehiclePosition,
+	position vehiclePosition,
 	trip *gtfs.TripInstance) (*tripStopPosition, []gtfs.ObservedStopTime) {
 	var results []gtfs.ObservedStopTime
-	if position.Timestamp <= vm.lastPositionTimestamp {
+	if position.positionIsSame(vm.lastPosition, 2) {
 		return nil, results
 	}
 	if position.TripId == nil || position.StopId == nil || position.StopSequence == nil || position.VehicleStopStatus.IsUnknown() {
@@ -125,15 +79,17 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger,
 		return nil, results
 	}
 
-	newTripStopPosition, err := getTripStopPosition(trip, vm.lastTripStopPosition, position)
+	newTripStopPosition, err := getTripStopPosition(trip, vm.lastTripStopPosition, &position)
 	if err != nil {
 		log.Printf("Unable to create TripStopPosition. error: %v\n", err)
 		vm.removeStopPosition(position.Timestamp)
 		return nil, results
 	}
+	//update last position used to generate newTripStopPosition
+	vm.lastPosition = &position
 
 	lastTripStopPosition := vm.lastTripStopPosition
-	lastPositionTimestamp := vm.lastPositionTimestamp
+	lastPositionTimestamp := vm.lastStopChangeTimestamp
 
 	if !vm.newTripStopPosition(newTripStopPosition, position.Timestamp) {
 		return newTripStopPosition, results
@@ -200,6 +156,8 @@ func getTripStopPosition(trip *gtfs.TripInstance, previousTripStopPosition *trip
 				nextSTI = trip.StopTimeInstances[index+1]
 			}
 			result := tripStopPosition{
+				dataSetId:             trip.DataSetId,
+				vehicleId:             position.Id,
 				atPreviousStop:        position.VehicleStopStatus == StoppedAt,
 				witnessedPreviousStop: witnessedPrevious || position.VehicleStopStatus == StoppedAt,
 				tripInstance:          trip,
@@ -343,14 +301,14 @@ func (vm *vehicleMonitor) updateTripStopPosition(
 	positionTimestamp int64) {
 
 	vm.lastTripStopPosition = newTripStopPosition
-	vm.lastPositionTimestamp = positionTimestamp
+	vm.lastStopChangeTimestamp = positionTimestamp
 
 }
 
-//removeStopPosition removes lastTripStopPosition and sets lastPositionTimestamp to the timestamp
+//removeStopPosition removes lastTripStopPosition and sets lastStopChangeTimestamp to the timestamp
 func (vm *vehicleMonitor) removeStopPosition(timestamp int64) {
 	vm.lastTripStopPosition = nil
-	vm.lastPositionTimestamp = timestamp
+	vm.lastStopChangeTimestamp = timestamp
 }
 
 //makeObservedStopTimes build list of gtfs.ObservedStopTime for StopTimePair array

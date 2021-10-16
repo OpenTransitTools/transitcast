@@ -26,14 +26,32 @@ type vehiclePosition struct {
 	StopId            *string
 }
 
-//Equal is a simple check to see if vehiclePosition is considered the same as another based on Id and Timestamp
-func (v *vehiclePosition) Equal(v2 *vehiclePosition) bool {
-	if v.Id != v2.Id {
+//positionIsSame returns true unless any position related differences are seen in other vehiclePosition
+//secondsTolerance allows for some skew in the vehiclePosition.Timestamp, due to slight variations
+//typically a few seconds, between service calls to VehiclePosition service being handled by different servers
+//which may have received the position a few seconds apart
+func (v *vehiclePosition) positionIsSame(v2 *vehiclePosition, secondsTolerance int64) bool {
+	if v == nil {
+		return v2 == nil
+	} else if v2 == nil {
 		return false
 	}
-	if v.Timestamp != v2.Timestamp {
+	if v.Id != v2.Id || v.VehicleStopStatus != v2.VehicleStopStatus {
 		return false
 	}
+	if v.Timestamp-v2.Timestamp > secondsTolerance {
+		return false
+	}
+	if v.StopSequence != nil && v2.StopSequence != nil && *v.StopSequence != *v2.StopSequence {
+		return false
+	}
+	if v.Latitude != nil && v2.Latitude != nil && *v.Latitude != *v2.Latitude {
+		return false
+	}
+	if v.Longitude != nil && v2.Longitude != nil && *v.Longitude != *v2.Longitude {
+		return false
+	}
+
 	return true
 }
 
@@ -128,12 +146,12 @@ getVehiclePositions Retrieves gtfs-realtime vehicle positions and loads them int
 Any changes to the GTFS-realtime protocol or generated code can be handled here and not elsewhere in the program.
 */
 func getVehiclePositions(log *log.Logger, url string) ([]vehiclePosition, error) {
-	retrieveBytes, err := retrieveBytes(log, url)
+	gtfsResponseBytes, err := retrieveBytes(log, url)
 	if err != nil {
 		return nil, err
 	}
 	feedMessage := gtfsrtproto2.FeedMessage{}
-	err = proto.Unmarshal(retrieveBytes, &feedMessage)
+	err = proto.Unmarshal(gtfsResponseBytes, &feedMessage)
 	if err != nil {
 		log.Printf("Unable to unmarshal FeedMessage: %v\n", err)
 		return nil, err

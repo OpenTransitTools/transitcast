@@ -245,7 +245,9 @@ func Test_nearestLatLngToLineFromPoint(t *testing.T) {
 
 func Test_calculateDelay(t *testing.T) {
 	trip10856058 := getFirstTestTripFromJson("trip_10856058_2021_07_13.json", t)
+	firstStop := trip10856058.StopTimeInstances[0]
 	stopTwo := trip10856058.StopTimeInstances[1]
+	thirdStop := trip10856058.StopTimeInstances[2] //this one is marked as a timepoint
 	type args struct {
 		previousStop    *gtfs.StopTimeInstance
 		secondsFromStop int
@@ -263,7 +265,7 @@ func Test_calculateDelay(t *testing.T) {
 				secondsFromStop: 0,
 				timestamp:       stopTwo.DepartureDateTime.Unix() - 10,
 			},
-			want: 10,
+			want: -10,
 		},
 		{
 			name: "20 seconds early between stops",
@@ -272,7 +274,7 @@ func Test_calculateDelay(t *testing.T) {
 				secondsFromStop: 10,
 				timestamp:       stopTwo.DepartureDateTime.Unix() - 10,
 			},
-			want: 20,
+			want: -20,
 		},
 		{
 			name: "10 seconds late at stop",
@@ -281,7 +283,7 @@ func Test_calculateDelay(t *testing.T) {
 				secondsFromStop: 0,
 				timestamp:       stopTwo.DepartureDateTime.Unix() + 10,
 			},
-			want: -10,
+			want: 10,
 		},
 		{
 			name: "20 seconds late between stops",
@@ -290,7 +292,25 @@ func Test_calculateDelay(t *testing.T) {
 				secondsFromStop: 10,
 				timestamp:       stopTwo.DepartureDateTime.Unix() + 30,
 			},
-			want: -20,
+			want: 20,
+		},
+		{
+			name: "Early at first stop of trip, calculate on time",
+			args: args{
+				previousStop:    firstStop,
+				secondsFromStop: 0,
+				timestamp:       firstStop.DepartureDateTime.Unix() - 1000, //early
+			},
+			want: 0,
+		},
+		{
+			name: "Early at timepoint calculate on time",
+			args: args{
+				previousStop:    thirdStop,
+				secondsFromStop: 0,
+				timestamp:       thirdStop.DepartureDateTime.Unix() - 1000, //early
+			},
+			want: 0,
 		},
 	}
 	for _, tt := range tests {

@@ -7,10 +7,6 @@ import (
 	"testing"
 )
 
-func testStringPtr(str string) *string {
-	return &str
-}
-
 func Test_buildTrip(t *testing.T) {
 
 	tests := []struct {
@@ -29,7 +25,7 @@ func Test_buildTrip(t *testing.T) {
 				ServiceId:     "W.581",
 				TripHeadsign:  nil,
 				TripShortName: nil,
-				BlockId:       testStringPtr("169"),
+				BlockId:       "169",
 				ShapeId:       "460932",
 			},
 			wantErr: false,

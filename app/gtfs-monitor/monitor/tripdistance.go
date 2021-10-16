@@ -31,8 +31,12 @@ func findTripDistanceOfVehicleFromPosition(position *tripStopPosition) *float64 
 //previousStop is the stop the vehicle is at or most recently past,
 //secondsFromStop is how the vehicle is from that stop, as measured in schedule seconds
 func calculateDelay(previousStop *gtfs.StopTimeInstance, secondsFromStop int, timestamp int64) int {
-	schedulePosition := previousStop.ArrivalDateTime.Unix() + int64(secondsFromStop)
-	return int(schedulePosition - timestamp)
+	schedulePosition := previousStop.DepartureDateTime.Unix() + int64(secondsFromStop)
+	delay := int(timestamp - schedulePosition)
+	if secondsFromStop == 0 && delay < 0 && (previousStop.Timepoint == 1 || previousStop.FirstStop) {
+		return 0
+	}
+	return delay
 }
 
 //findLineDistanceInFeet finds a location close to line segments from shapes and returns the distance

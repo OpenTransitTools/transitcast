@@ -84,7 +84,7 @@ func buildTrip(parser *gtfsFileParser) (*gtfs.Trip, error) {
 		ServiceId:     parser.getString("service_id", false),
 		TripHeadsign:  parser.getStringPointer("trip_headsign", true),
 		TripShortName: parser.getStringPointer("trip_short_name", true),
-		BlockId:       parser.getStringPointer("block_id", true),
+		BlockId:       parser.getString("block_id", false),
 		ShapeId:       parser.getString("shape_id", false),
 	}
 	return &trip, parser.getError()

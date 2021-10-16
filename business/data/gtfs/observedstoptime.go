@@ -40,7 +40,7 @@ func (ost *ObservedStopTime) AssumedDepartTime() int {
 	return int(ost.ObservedTime.Unix() - int64(ost.TravelSeconds))
 }
 
-// RecordObservedStopTime saves slice of ObservedStopTime into database in batch
+// RecordObservedStopTime saves ObservedStopTime into database
 func RecordObservedStopTime(observation *ObservedStopTime, db *sqlx.DB) error {
 
 	observation.CreatedAt = time.Now()

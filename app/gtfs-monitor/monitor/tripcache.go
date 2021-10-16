@@ -1,15 +1,14 @@
 package monitor
 
 import (
-	"fmt"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"time"
 )
 
-// relevantTrips handles keeping trips that are currently in service or near to service loaded
-type relevantTrips struct {
+// tripCache keeping trips that are currently in service or near to service loaded
+type tripCache struct {
 	lastLoadedTrips        time.Time
 	loadTripsEveryDuration time.Duration
 	relevantTripDuration   time.Duration
@@ -18,9 +17,9 @@ type relevantTrips struct {
 	loadedTrips     map[string]*gtfs.TripInstance
 }
 
-// makeRelevantTrips generates new relevantTrips ready to be used
-func makeRelevantTrips(now time.Time) *relevantTrips {
-	return &relevantTrips{
+// makeTripCache generates new tripCache
+func makeTripCache(now time.Time) *tripCache {
+	return &tripCache{
 		lastLoadedTrips:        now.Add(-1 * time.Hour),
 		loadTripsEveryDuration: 5 * time.Minute,
 		relevantTripDuration:   time.Hour,
@@ -29,8 +28,8 @@ func makeRelevantTrips(now time.Time) *relevantTrips {
 	}
 }
 
-// loadRelevantTrips finds all trips that are soon to be scheduled or are currently present in vehiclePositions
-func (r *relevantTrips) loadRelevantTrips(
+// loadRelevantTrips finds all trips that scheduled in the near future or are currently present in vehiclePositions slice
+func (r *tripCache) loadRelevantTrips(
 	log *log.Logger,
 	db *sqlx.DB,
 	now time.Time,
@@ -38,14 +37,13 @@ func (r *relevantTrips) loadRelevantTrips(
 	//Only load scheduled trips every so often
 	if now.After(r.lastLoadedTrips.Add(r.loadTripsEveryDuration)) {
 		// load an hours worth plus how long we wait to reload
-		loadTripsUntil := r.loadTripsEveryDuration + time.Hour
+		loadTripsUntil := r.loadTripsEveryDuration + r.relevantTripDuration
 		requiredTripMap, err := gtfs.GetScheduledTripIds(db, now, now, now.Add(loadTripsUntil))
 		if err != nil {
 			log.Printf("error retrieving scheduled trip_ids. error:%s\n", err)
 			return nil, err
 		}
 		r.requiredTripMap = requiredTripMap
-		fmt.Printf("scheduled tripIds = %+v\n", requiredTripMap)
 		r.lastLoadedTrips = now
 	}
 

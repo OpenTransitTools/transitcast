@@ -41,6 +41,7 @@
         "departure_time": 84845,
         "shape_dist_traveled": 4662,
         "first_stop": false,
+        "timepoint": 1,
         "ArrivalDateTime": "2021-07-13T23:34:05-07:00",
         "DepartureDateTime": "2021-07-13T23:34:05-07:00"
       },

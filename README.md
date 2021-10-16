@@ -54,12 +54,14 @@ Uses a postgresql database. Create a user and database, and 'grant all on databa
 The project doesn't currently generate or maintain its own schema. So run the contents of ddl.sql on the database while
 logged in as that user.
 
-The 'observed_stop_time' table is partitioned. Partitions will need to be manually created before the table can be used
-by the gtfs-monitor program. For example to create partitions for the month of August and September 2021 run the
-following:
+The 'observed_stop_time' and 'trip_deviation' tables are partitioned. Partitions will need to be manually created before 
+the table can be used by the gtfs-monitor program. For example to create partitions for the month of August and 
+September 2021 run the following:
 
     create table observed_stop_time_part_2021_08 partition of observed_stop_time for values from ('2021-08-01') to ('2021-09-01');
     create table observed_stop_time_part_2021_09 partition of observed_stop_time for values from ('2021-09-01') to ('2021-10-01');
+    create table trip_deviation_part_2021_08 partition of trip_deviation for values from ('2021-08-01') to ('2021-09-01');
+    create table trip_deviation_part_2021_09 partition of trip_deviation for values from ('2021-09-01') to ('2021-10-01');
 
 #### gtfs-load
 

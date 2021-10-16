@@ -7,6 +7,9 @@
     "block_id": "9020",
     "trip_headsign": "Cleveland Ave MAX Station",
     "trip_short_name": "Hatfield Government Center",
+    "trip_distance": 171872.7,
+    "start_time": 32350,
+    "end_time": 38765,
     "stop_time_instances": [
       {
         "data_set_id": 1,
@@ -442,6 +445,9 @@
     "block_id": "9020",
     "trip_headsign": "Hatfield Government Center",
     "trip_short_name": "Cleveland Ave MAX Station",
+    "trip_distance": 171789.4,
+    "start_time": 40125,
+    "end_time": 46290,
     "stop_time_instances": [
       {
         "data_set_id": 1,

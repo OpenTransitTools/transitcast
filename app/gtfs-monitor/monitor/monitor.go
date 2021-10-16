@@ -24,7 +24,7 @@ func RunVehicleMonitorLoop(log *log.Logger,
 	sleepChan := make(chan bool)
 	sleep := time.Duration(0) //sleep for zero seconds the first time
 
-	relevantTripCache := makeRelevantTrips(time.Now())
+	relevantTripCache := makeTripCache(time.Now())
 	monitorCollection := newVehicleMonitorCollection(earlyTolerance, expirePositionSeconds)
 	for {
 
@@ -50,12 +50,13 @@ func RunVehicleMonitorLoop(log *log.Logger,
 		vehiclePositions, err := getVehiclePositions(log, url)
 
 		if err != nil {
-			log.Printf("error attempting to get vehicle positions. error:%v\n", err)
+			log.Printf("error retrieving vehicle positions. error:%v\n", err)
 			continue
 		}
 
 		log.Printf("loaded %d vehicle positions\n", len(vehiclePositions))
 
+		//load required trips
 		loadedTrips, err := relevantTripCache.loadRelevantTrips(log, db, start, vehiclePositions)
 
 		if err != nil {
@@ -63,7 +64,10 @@ func RunVehicleMonitorLoop(log *log.Logger,
 			continue
 		}
 
-		updateVehiclePositions(log, db, vehiclePositions, loadedTrips, &monitorCollection)
+		//update vehicle positions and retrieve new positions for recording to TripDeviation
+		newPositionsByBlock := updateVehiclePositions(log, db, vehiclePositions, loadedTrips, &monitorCollection)
+
+		recordNewTripDeviations(log, db, loadedTrips, newPositionsByBlock)
 
 		// attempt to run the loop every loopEverySeconds by subtracting the time it took to perform the work
 		workTook := time.Now().Sub(start)
@@ -81,11 +85,14 @@ func RunVehicleMonitorLoop(log *log.Logger,
 }
 
 //updateVehiclePositions runs vehiclePositions through vehicleMonitors and saves results to database
+//returns map of new tripStopPositions by blockId
 func updateVehiclePositions(log *log.Logger,
 	db *sqlx.DB,
 	positions []vehiclePosition,
 	loadedTripInstancesByTripId map[string]*gtfs.TripInstance,
-	monitorCollection *vehicleMonitorCollection) {
+	monitorCollection *vehicleMonitorCollection) map[string]*tripStopPosition {
+
+	newTripStopPositions := make(map[string]*tripStopPosition)
 
 	countSavedObservations := 0
 
@@ -96,9 +103,13 @@ func updateVehiclePositions(log *log.Logger,
 			trip = loadedTripInstancesByTripId[*position.TripId]
 		}
 
-		_, observations := vm.newPosition(log, &position, trip)
+		newPosition, observations := vm.newPosition(log, position, trip)
 
-		// for now we just log it until the database is ready
+		if newPosition != nil {
+			newTripStopPositions[newPosition.tripInstance.BlockId] = newPosition
+		}
+
+		//record each observation
 		for _, observation := range observations {
 
 			log.Printf("Vehicle %s on route %s moved from %s to %s in %d\n", observation.VehicleId,
@@ -115,8 +126,9 @@ func updateVehiclePositions(log *log.Logger,
 
 	if countSavedObservations > 0 {
 		log.Printf("Saved %d stop time observations", countSavedObservations)
-
 	}
+
+	return newTripStopPositions
 }
 
 //fmtDuration returns a string presentation of time.Duration for logging
