@@ -55,6 +55,7 @@ func RecordObservedStopTime(observation *ObservedStopTime, db *sqlx.DB) error {
 		"observed_at_next_stop, " +
 		"travel_seconds, " +
 		"scheduled_seconds, " +
+		"data_set_id, " +
 		"trip_id, " +
 		"created_at) " +
 		"values " +
@@ -67,6 +68,7 @@ func RecordObservedStopTime(observation *ObservedStopTime, db *sqlx.DB) error {
 		":observed_at_next_stop, " +
 		":travel_seconds, " +
 		":scheduled_seconds, " +
+		":data_set_id, " +
 		":trip_id, " +
 		":created_at)"
 	statementString = db.Rebind(statementString)
