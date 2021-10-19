@@ -104,7 +104,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 		t.Errorf("Unable to get testing time zone location")
 		return
 	}
-	expireSeconds := int64(15 * 60)
+	expireSeconds := int64(900)
 
 	testTrips := getTestTrips(time.Date(2019, 12, 11, 0, 0, 0, 0, location), t)
 
@@ -294,7 +294,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "8359",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2019, 12, 11, 10, 59, 33, 0, location),
-						TravelSeconds:      71, //twice scheduled time due to delay
+						TravelSeconds:      75, //twice scheduled time due to delay
 						ScheduledSeconds:   intPtr(135),
 						DataSetId:          1,
 						VehicleId:          "1",
@@ -486,7 +486,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9846",
 						ObservedAtNextStop: true,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 1, 0, 0, location),
-						TravelSeconds:      110,
+						TravelSeconds:      105,
 						ScheduledSeconds:   intPtr(105),
 						DataSetId:          1,
 						VehicleId:          "1",
@@ -496,7 +496,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 			},
 		},
 		{
-			name: "When traversing two stops from start of trip mark observed stop time as traveling nearer the scheduled travel time when its almost on time",
+			name: "When traversing two stops from start of trip mark observed stop time as traveling nearer the scheduled travel time when its almost on time, multiple stops",
 			args: args{
 				Positions: []vehiclePosition{
 					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt,
@@ -516,7 +516,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "9846",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2019, 12, 11, 9, 0, 55, 0, location),
-						TravelSeconds:      105,
+						TravelSeconds:      104,
 						ScheduledSeconds:   intPtr(105),
 						DataSetId:          1,
 						VehicleId:          "1",
@@ -603,7 +603,7 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 						NextStopId:         "7960",
 						ObservedAtNextStop: false,
 						ObservedTime:       time.Date(2021, 7, 13, 23, 46, 30, 0, location),
-						TravelSeconds:      15,
+						TravelSeconds:      30,
 						ScheduledSeconds:   intPtr(30),
 						VehicleId:          "1",
 						DataSetId:          3,
@@ -746,6 +746,35 @@ func TestVehicleMonitor_NewPosition(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "When at first stop and next movement position is late, " +
+				"assume vehicle departed no later than how late it's become",
+			args: args{
+				Positions: []vehiclePosition{
+					makeVehiclePositionStopId("9529801", uint32(1), StoppedAt,
+						time.Date(2019, 12, 11, 8, 56, 10, 0, location).Unix(), "9848"), //scheduled to leave at 8:59:10
+					makeVehiclePositionStopId("9529801", uint32(2), StoppedAt,
+						time.Date(2019, 12, 11, 9, 4, 20, 0, location).Unix(), "9846"), //now three minutes late
+				},
+			},
+			want: want{
+				stopTimes: []gtfs.ObservedStopTime{
+					{
+						RouteId:            "100",
+						StopId:             "9848",
+						ObservedAtStop:     true,
+						NextStopId:         "9846",
+						ObservedAtNextStop: true,
+						ObservedTime:       time.Date(2019, 12, 11, 9, 4, 20, 0, location),
+						TravelSeconds:      285,
+						ScheduledSeconds:   intPtr(105),
+						DataSetId:          1,
+						VehicleId:          "1",
+						TripId:             "9529801",
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -802,7 +831,7 @@ func observedStopTimesSame(got []gtfs.ObservedStopTime, want []gtfs.ObservedStop
 			return false, fmt.Sprintf("row %v, vehicleId %v != %v", i, s1.VehicleId, s2.VehicleId)
 		}
 		if s1.DataSetId != s2.DataSetId {
-			return false, fmt.Sprintf("row %v, DataSetId %v != %v", i, s1.DataSetId, s2.DataSetId)
+			return false, fmt.Sprintf("row %v, dataSetId %v != %v", i, s1.DataSetId, s2.DataSetId)
 		}
 		if s1.TripId != s2.TripId {
 			return false, fmt.Sprintf("row %v, TripId %v != %v", i, s1.TripId, s2.TripId)
@@ -828,7 +857,7 @@ func printObservedStopTimesRows(stopTimes []gtfs.ObservedStopTime) string {
 			scheduleSeconds = fmt.Sprintf("%d", *st.ScheduledSeconds)
 		}
 		row := fmt.Sprintf("row:%d ObservedTime:%s, RouteId:%v StopId:%v ObservedAtStop:%v NextStopId:%v "+
-			"ObservedAtNextStop:%v TravelSeconds:%d ScheduledSeconds:%s VehicleId:%s, TripId:%s",
+			"ObservedAtNextStop:%v TravelSeconds:%d ScheduledSeconds:%s vehicleId:%s, TripId:%s",
 			i,
 			st.ObservedTime.Format("2006-01-02 15:04:05"),
 			st.RouteId,

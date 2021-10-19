@@ -276,36 +276,31 @@ func getObservedAtPositions(position1 *tripStopPosition, position2 *tripStopPosi
 //returns true if the vehicle has moved forward from its previous position
 //or false if the current position has stayed between the same stops
 func (vm *vehicleMonitor) newTripStopPosition(
-	newPosition *tripStopPosition,
-	positionTimestamp int64) bool {
+	newPosition *tripStopPosition) bool {
 
 	//if last position is expired or not set then set it
-	if vm.lastTripStopPosition == nil || vm.isCurrentPositionExpired(positionTimestamp) {
-		vm.updateTripStopPosition(newPosition, positionTimestamp)
+	if vm.lastTripStopPosition == nil || vm.isCurrentPositionExpired(newPosition.lastTimestamp) {
+		vm.updateTripStopPosition(newPosition)
 		return false
 	}
 
 	movedForward := shouldUseToMoveForward(vm.lastTripStopPosition, newPosition)
 	if movedForward || updateStoppedAtPosition(vm.lastTripStopPosition, newPosition) {
-		vm.updateTripStopPosition(newPosition, positionTimestamp)
+		vm.updateTripStopPosition(newPosition)
 	}
 	return movedForward
 }
 
 //updateTripStopPosition sets vehicleMonitors current position to newTripStopPosition at positionTimestamp
 func (vm *vehicleMonitor) updateTripStopPosition(
-	newTripStopPosition *tripStopPosition,
-	positionTimestamp int64) {
+	newTripStopPosition *tripStopPosition) {
 
 	vm.lastTripStopPosition = newTripStopPosition
-	vm.lastStopChangeTimestamp = positionTimestamp
-
 }
 
 //removeStopPosition removes lastTripStopPosition and sets lastStopChangeTimestamp to the timestamp
-func (vm *vehicleMonitor) removeStopPosition(timestamp int64) {
+func (vm *vehicleMonitor) removeStopPosition() {
 	vm.lastTripStopPosition = nil
-	vm.lastStopChangeTimestamp = timestamp
 }
 
 //makeObservedStopTimes build list of gtfs.ObservedStopTime for StopTimePair array
@@ -314,8 +309,6 @@ func (vm *vehicleMonitor) removeStopPosition(timestamp int64) {
 //observedAtTripStopPositions contains list of tripStopPositions where the vehicle was seen at a stop
 func makeObservedStopTimes(
 	vehicleId string,
-	startTimestamp int64,
-	endTimestamp int64,
 	lastTripStopPosition *tripStopPosition,
 	newTripStopPosition *tripStopPosition,
 	stopPairs []StopTimePair) []gtfs.ObservedStopTime {
@@ -326,38 +319,48 @@ func makeObservedStopTimes(
 		return results
 	}
 
+	firstStop := stopPairs[0]
+
 	observedAtTripStopPositions := getObservedAtPositions(lastTripStopPosition, newTripStopPosition)
-	firstScheduleSeconds := stopPairs[0].from.ArrivalTime
+	firstScheduleSeconds := firstStop.from.ArrivalTime
 	lastScheduleSeconds := stopPairs[lastStopTimePairIndex].to.ArrivalTime
 	totalScheduledLength := lastScheduleSeconds - firstScheduleSeconds
 
-	observedTime := endTimestamp
+	assumedStartTime := lastTripStopPosition.lastTimestamp
 
-	//don't include the seconds vehicle spent traveling between the next two stops
+	observedTime := newTripStopPosition.lastTimestamp
+
+	//don't include seconds vehicle spent traveling between the next two stops
 	observedTime -= int64(newTripStopPosition.observedSecondsToTravelToPosition)
+
+	//and calculating from the first stop,
+	//and last position was prior to depart time of first stop
+	if firstStop.from.FirstStop &&
+		lastTripStopPosition.lastTimestamp <= firstStop.from.DepartureDateTime.Unix() {
+
+		//when vehicle is early,
+		if newTripStopPosition.delay < 0 {
+			//assume vehicle travel time was the segment length
+			assumedStartTime = observedTime - int64(totalScheduledLength)
+		} else { //vehicle is late
+			//assume vehicle took no longer than the scheduled time plus how late it is, since we didn't see
+			//it dwell at its first stop
+			assumedStartTime = observedTime - int64(totalScheduledLength) - int64(newTripStopPosition.delay)
+		}
+
+	}
+
+	totalTimeOfTravel := int(observedTime - assumedStartTime)
 
 	for i := lastStopTimePairIndex; i >= 0; i-- {
 		pair := stopPairs[i]
 		stopTimeInstance1 := pair.from
 		stopTimeInstance2 := pair.to
 
-		totalTimeOfTravel := int(observedTime - startTimestamp)
-
 		segmentScheduleLength := stopTimeInstance2.ArrivalTime - stopTimeInstance1.ArrivalTime
 		travelSeconds := getSegmentTravelPortion(totalTimeOfTravel, totalScheduledLength, segmentScheduleLength)
-		if i == 0 { //only needed for first stop pair since lastTripStopPosition will contain any travel time recorded from previous positions
+		if i == 0 { //only needed for first stop pair since LastTripStopPosition will contain any travel time recorded from previous positions
 			travelSeconds += earlierTravelSecondsForStop(&stopTimeInstance1, lastTripStopPosition)
-		}
-
-		//if calculating from the first stop
-		if containsFirstStopOfTrip(stopTimeInstance1.TripId, stopPairs) {
-			late := int(observedTime - stopTimeInstance2.ArrivalDateTime.Unix())
-			if travelSeconds > segmentScheduleLength && late >= 0 {
-				//Convert travel seconds observed seconds to be no more late than the vehicle is arriving at the stop
-				//due vehicles laying over at their first stop and not sending an update
-				travelSeconds = segmentScheduleLength + late
-
-			}
 		}
 
 		observedStopTime := gtfs.ObservedStopTime{
@@ -390,16 +393,6 @@ func earlierTravelSecondsForStop(stopInstance *gtfs.StopTimeInstance, lastTripSt
 	return 0
 }
 
-//containsFirstStopOfTrip returns trip if any StopTimePair is the first stop of tripId
-func containsFirstStopOfTrip(tripId string, stopPairs []StopTimePair) bool {
-	for _, pair := range stopPairs {
-		if pair.from.FirstStop && pair.from.TripId == tripId {
-			return true
-		}
-	}
-	return false
-}
-
 //stopTimeInstancePresent returns true if stopTimeInstance is present in positions
 func stopTimeInstancePresent(stopTimeInstance gtfs.StopTimeInstance, positions []tripStopPosition) bool {
 	for _, position := range positions {
@@ -423,7 +416,7 @@ func getSegmentTravelPortion(totalTravelSeconds int,
 	return int(percent * float32(totalTravelSeconds))
 }
 
-//getStopPairsBetweenPositions get list of StopTimePairs between lastPosition and currentPosition
+//getStopPairsBetweenPositions get list of StopTimePairs between LastPosition and currentPosition
 func getStopPairsBetweenPositions(lastPosition *tripStopPosition,
 	currentPosition *tripStopPosition) ([]StopTimePair, error) {
 
