@@ -34,10 +34,9 @@ func (vc *vehicleMonitorCollection) getOrMakeVehicle(vehicleId string) *vehicleM
 
 //vehicleMonitor generates gtfs.ObservedStopTime records by watching subsequent vehiclePosition records from gtfs
 type vehicleMonitor struct {
-	Id                      string
-	lastTripStopPosition    *tripStopPosition
-	lastStopChangeTimestamp int64
-	lastPosition            *vehiclePosition
+	Id                   string
+	lastTripStopPosition *tripStopPosition
+	lastPosition         *vehiclePosition
 	//earlyTolerance a percentage (should be between 0.0 and 1.0) of how early the vehicle can be observed to have traveled between two stops
 	//before and gtfs.ObservedStopTime is assumed to be invalid and shouldn't be returned.
 	//for example if a vehicle is observed to travel between two stops in 10 seconds, but the scheduled to take 100 seconds
@@ -69,7 +68,7 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger,
 	}
 	if position.TripId == nil || position.StopId == nil || position.StopSequence == nil || position.VehicleStopStatus.IsUnknown() {
 		//non trip monitoring not implemented yet
-		vm.removeStopPosition(position.Timestamp)
+		vm.removeStopPosition()
 		return nil, results
 	}
 
@@ -82,16 +81,15 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger,
 	newTripStopPosition, err := getTripStopPosition(trip, vm.lastTripStopPosition, &position)
 	if err != nil {
 		log.Printf("Unable to create TripStopPosition. error: %v\n", err)
-		vm.removeStopPosition(position.Timestamp)
+		vm.removeStopPosition()
 		return nil, results
 	}
 	//update last position used to generate newTripStopPosition
 	vm.lastPosition = &position
 
 	lastTripStopPosition := vm.lastTripStopPosition
-	lastPositionTimestamp := vm.lastStopChangeTimestamp
 
-	if !vm.newTripStopPosition(newTripStopPosition, position.Timestamp) {
+	if !vm.newTripStopPosition(newTripStopPosition) {
 		return newTripStopPosition, results
 	}
 
@@ -100,19 +98,18 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger,
 		log.Printf("error finding stop positions. error:%v\n", err)
 		return newTripStopPosition, results
 	}
-	validMovement, totalScheduleTime, took := isMovementBelievable(stopTimePairs, lastPositionTimestamp,
+	validMovement, totalScheduleTime, took := isMovementBelievable(stopTimePairs, lastTripStopPosition.lastTimestamp,
 		position.Timestamp, vm.earlyTolerance)
 	if !validMovement {
 
 		log.Printf("Discarding trip movement as it doesn't appear valid. vehicle:%s totalScheduleTime:%d took:%d "+
 			"last %s next %s",
 			vm.Id, totalScheduleTime, took, lastTripStopPosition.logFormat(), newTripStopPosition.logFormat())
-		vm.removeStopPosition(position.Timestamp)
+		vm.removeStopPosition()
 		return newTripStopPosition, results
 	}
 
-	results = makeObservedStopTimes(vm.Id, lastPositionTimestamp, position.Timestamp,
-		lastTripStopPosition, newTripStopPosition, stopTimePairs)
+	results = makeObservedStopTimes(vm.Id, lastTripStopPosition, newTripStopPosition, stopTimePairs)
 
 	return newTripStopPosition, results
 }
@@ -260,7 +257,7 @@ func updateStoppedAtPosition(previousTripStopPosition *tripStopPosition, newPosi
 //isCurrentPositionExpired returns true if the current position is expired at currentTimestamp
 func (vm *vehicleMonitor) isCurrentPositionExpired(currentTimestamp int64) bool {
 	diff := currentTimestamp - vm.lastTripStopPosition.lastTimestamp
-	return diff > vm.expirePositionSeconds
+	return diff > vm.expirePositionSeconds*1000
 }
 
 //getObservedAtPositions convenience function returns the tripStopPosition arguments that have had their atPreviousStop flag set
