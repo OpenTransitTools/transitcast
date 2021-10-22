@@ -257,7 +257,7 @@ func updateStoppedAtPosition(previousTripStopPosition *tripStopPosition, newPosi
 //isCurrentPositionExpired returns true if the current position is expired at currentTimestamp
 func (vm *vehicleMonitor) isCurrentPositionExpired(currentTimestamp int64) bool {
 	diff := currentTimestamp - vm.lastTripStopPosition.lastTimestamp
-	return diff > vm.expirePositionSeconds*1000
+	return diff > vm.expirePositionSeconds
 }
 
 //getObservedAtPositions convenience function returns the tripStopPosition arguments that have had their atPreviousStop flag set
