@@ -366,8 +366,10 @@ func makeObservedStopTimes(
 		observedStopTime := gtfs.ObservedStopTime{
 			RouteId:            pair.trip.RouteId,
 			StopId:             stopTimeInstance1.StopId,
+			StopDistance:       stopTimeInstance1.ShapeDistTraveled,
 			ObservedAtStop:     stopTimeInstancePresent(stopTimeInstance1, observedAtTripStopPositions),
 			NextStopId:         stopTimeInstance2.StopId,
+			NextStopDistance:   stopTimeInstance2.ShapeDistTraveled,
 			ObservedAtNextStop: stopTimeInstancePresent(stopTimeInstance2, observedAtTripStopPositions),
 			ObservedTime:       time.Unix(observedTime, 0),
 			TravelSeconds:      travelSeconds,

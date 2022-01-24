@@ -25,6 +25,12 @@ type ObservedStopTime struct {
 	//ObservedAtNextStop is true when a gtfs-rt vehicle record indicated the vehicle was located at the stop the vehicle moved to
 	ObservedAtNextStop bool `db:"observed_at_next_stop"`
 
+	//StopDistance distance on trip of StopId on trip's shape
+	StopDistance float64 `db:"stop_distance"`
+
+	//NextStopDistance distance on trip of NextStopId on trip's shape
+	NextStopDistance float64 `db:"next_stop_distance"`
+
 	//TravelSeconds is the number of seconds the vehicle is assumed to have taken to move between the stops
 	TravelSeconds    int  `db:"travel_seconds"`
 	ScheduledSeconds *int `db:"scheduled_seconds"`
@@ -48,7 +54,9 @@ func RecordObservedStopTime(observation *ObservedStopTime, db *sqlx.DB) error {
 	statementString := "insert into observed_stop_time " +
 		"(observed_time, " +
 		"stop_id, " +
+		"stop_distance, " +
 		"next_stop_id, " +
+		"next_stop_distance, " +
 		"vehicle_id, " +
 		"route_id, " +
 		"observed_at_stop, " +
@@ -61,7 +69,9 @@ func RecordObservedStopTime(observation *ObservedStopTime, db *sqlx.DB) error {
 		"values " +
 		"(:observed_time, " +
 		":stop_id, " +
+		":stop_distance, " +
 		":next_stop_id, " +
+		":next_stop_distance, " +
 		":vehicle_id, " +
 		":route_id, " +
 		":observed_at_stop, " +
