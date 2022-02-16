@@ -1,6 +1,7 @@
 # Binaries
 /gtfs-loader
 /gtfs-monitor
+/model-mgr
 
 # temp file download location
 

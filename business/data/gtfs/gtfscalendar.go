@@ -80,6 +80,32 @@ func RecordCalendarDate(calendarDate *CalendarDate, dsTx *DataSetTransaction) er
 
 }
 
+// GetActiveServiceIdsBetween retrieves the active serviceIds active on startDate, on and up to endDate.
+// both calendar and calendar_date are used
+func GetActiveServiceIdsBetween(db *sqlx.DB,
+	dataSet *DataSet,
+	startDate time.Time,
+	endDate time.Time) ([]string, error) {
+
+	serviceIdMap := make(map[string]bool)
+	currentDate := startDate
+
+	for currentDate.Unix() <= endDate.Unix() {
+		serviceIds, err := GetActiveServiceIds(db, dataSet, currentDate)
+		if err != nil {
+			return nil, fmt.Errorf("unable to retrieve service ids between %s and %s error: %w",
+				startDate, endDate, err)
+		}
+		for _, serviceId := range serviceIds {
+			serviceIdMap[serviceId] = true
+		}
+		currentDate = currentDate.AddDate(0, 0, 1)
+
+	}
+
+	return trueStringsFromMap(serviceIdMap), nil
+}
+
 // GetActiveServiceIds retrieves the active serviceIds on provided serviceDate.
 // both calendar and calendar_date are used
 func GetActiveServiceIds(db *sqlx.DB, dataSet *DataSet, serviceDate time.Time) ([]string, error) {

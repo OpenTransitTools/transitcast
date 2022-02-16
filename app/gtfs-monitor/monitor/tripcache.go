@@ -28,7 +28,8 @@ func makeTripCache(now time.Time) *tripCache {
 	}
 }
 
-// loadRelevantTrips finds all trips that scheduled in the near future or are currently present in vehiclePositions slice
+// loadRelevantTrips finds all trips that are scheduled in the near future or are currently present in
+// vehiclePositions slice
 func (r *tripCache) loadRelevantTrips(
 	log *log.Logger,
 	db *sqlx.DB,

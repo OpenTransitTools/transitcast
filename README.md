@@ -46,13 +46,14 @@ Use go 1.16 or better. To build the two executables change the working directory
 
     go build ./app/gtfs-loader
 	go build ./app/gtfs-monitor
+    go build ./app/model-mgr
 
 #### Database
 
 Uses a postgresql database. Create a user and database, and 'grant all on database' to that user.
 
-The project doesn't currently generate or maintain its own schema. So run the contents of ddl.sql on the database while
-logged in as that user.
+The project doesn't currently generate or maintain its own schema. Run the contents of ddl/schedule_and_monitor_ddl.sql
+followed by ddl/models_ddl.sql on the database while logged in as that user.
 
 The 'observed_stop_time' and 'trip_deviation' tables are partitioned. Partitions will need to be manually created before 
 the table can be used by the gtfs-monitor program. For example to create partitions for the month of August and 
@@ -112,4 +113,16 @@ example:
     export MONITOR_GTFS_VEHICLE_POSITIONS_URL=https://developer.trimet.org/ws/V1/VehiclePositions/appid/<appid>
     ./gtfs-monitor
 
+#### model-mgr
+
+model-mgr examines currently active Dataset as loaded by the last gtfs-loader and creates ml_model and ml_model_stop 
+records that are required to cover current schedule.
+
+Example environment variable setup and usage to create ml_model records:
+
+    export MODEL_MGR_DB_USER=database_username
+    export MODEL_MGR_DB_PASSWORD=a_good_password
+    export MODEL_MGR_DB_NAME=database_name
+    export MODEL_MGR_DB_HOST=database_host
+    ./gtfs-mgr discover
 

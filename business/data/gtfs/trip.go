@@ -2,6 +2,7 @@ package gtfs
 
 import (
 	"fmt"
+	"github.com/OpenTransitTools/transitcast/foundation/database"
 	"github.com/jmoiron/sqlx"
 	"time"
 )
@@ -142,7 +143,7 @@ func getScheduledTripIdsForSlice(
 		"or end_time between :start_seconds and :end_seconds) " +
 		"or (trip.start_time < :start_seconds and trip.end_time > :end_seconds))"
 
-	query, args, err := prepareNamedQueryFromMap(query, db, map[string]interface{}{
+	query, args, err := database.PrepareNamedQueryFromMap(query, db, map[string]interface{}{
 		"data_set_id":   dataSet.Id,
 		"service_ids":   serviceIds,
 		"start_seconds": slice.StartSeconds,
@@ -183,7 +184,7 @@ func GetTripInstances(db *sqlx.DB,
 	results.ScheduleSliceOutOfRange = scheduleSliceOutOfRange
 
 	statementString := "select * from trip where data_set_id = :data_set_id and trip_id in (:trip_ids)"
-	rows, err := prepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
+	rows, err := database.PrepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
 		"data_set_id": dataSet.Id,
 		"trip_ids":    tripIds,
 	})

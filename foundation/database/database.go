@@ -36,3 +36,40 @@ func Open(cfg Config) (*sqlx.DB, error) {
 	}
 	return sqlx.Connect("pgx", u.String())
 }
+
+// PrepareNamedQueryFromMap wraps boilerplate sqlx to prepare named query from map of ddl parameters
+// returns rebound query string and arguments slice
+func PrepareNamedQueryFromMap(
+	statementString string,
+	db *sqlx.DB,
+	sqlArgMap map[string]interface{}) (string, []interface{}, error) {
+
+	query, args, err := sqlx.Named(statementString, sqlArgMap)
+	if err != nil {
+		return query, nil, err
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return query, nil, err
+	}
+	query = db.Rebind(query)
+	return query, args, nil
+}
+
+// PrepareNamedQueryRowsFromMap wraps boilerplate sqlx to prepare named query from map of ddl parameters
+// returns sqlx.Rows after executing query with db.Queryx
+func PrepareNamedQueryRowsFromMap(
+	statementString string,
+	db *sqlx.DB,
+	sqlArgMap map[string]interface{}) (*sqlx.Rows, error) {
+
+	query, args, err := PrepareNamedQueryFromMap(statementString, db, sqlArgMap)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := db.Queryx(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}

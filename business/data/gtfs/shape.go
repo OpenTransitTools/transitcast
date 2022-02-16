@@ -2,6 +2,7 @@ package gtfs
 
 import (
 	"fmt"
+	"github.com/OpenTransitTools/transitcast/foundation/database"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -60,7 +61,7 @@ func GetShapes(db *sqlx.DB,
 
 	statementString := "select * from shape where data_set_id = :data_set_id and shape_id in (:shape_ids)" +
 		"order by shape_id, shape_pt_sequence"
-	rows, err := prepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
+	rows, err := database.PrepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
 		"data_set_id": dataSetId,
 		"shape_ids":   shapeIds,
 	})

@@ -1,6 +1,7 @@
 package gtfs
 
 import (
+	"github.com/OpenTransitTools/transitcast/foundation/database"
 	"github.com/jmoiron/sqlx"
 	"time"
 )
@@ -16,6 +17,13 @@ type StopTime struct {
 	DepartureTime     int     `db:"departure_time" json:"departure_time"`
 	ShapeDistTraveled float64 `db:"shape_dist_traveled" json:"shape_dist_traveled"`
 	Timepoint         int     `db:"timepoint" json:"timepoint"`
+}
+
+type StopTimeInstance struct {
+	StopTime
+	FirstStop         bool `json:"first_stop"`
+	ArrivalDateTime   time.Time
+	DepartureDateTime time.Time
 }
 
 // RecordStopTimes saves stopTimes to database in batch
@@ -47,13 +55,6 @@ func RecordStopTimes(stopTimes []*StopTime, dsTx *DataSetTransaction) error {
 	return err
 }
 
-type StopTimeInstance struct {
-	StopTime
-	FirstStop         bool `json:"first_stop"`
-	ArrivalDateTime   time.Time
-	DepartureDateTime time.Time
-}
-
 // GetStopTimeInstances collects StopTimeInstances and returns in order by tripID inside a map
 // ArrivalDateTime and DepartureDateTime are populated from the best ScheduleSlice match from the trips first arrival time.
 //If a ScheduleSlice match can't be found the StopTimeInstances are not included in the map result
@@ -73,7 +74,7 @@ func GetStopTimeInstances(db *sqlx.DB,
 
 	statementString := "select * from stop_time where data_set_id = :data_set_id and trip_id in (:trip_ids) " +
 		"order by trip_id, stop_sequence"
-	rows, err := prepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
+	rows, err := database.PrepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
 		"data_set_id": dataSetId,
 		"trip_ids":    tripIds,
 	})

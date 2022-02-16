@@ -3,6 +3,7 @@ SHELL := /bin/bash
 all:
 	go build ./app/gtfs-loader
 	go build ./app/gtfs-monitor
+	go build ./app/model-mgr
 
 run-loader:
 	go run app/gtfs-loader/main.go load
