@@ -217,6 +217,7 @@ func makeModel(stopTimes []*gtfs.StopTime,
 		if previousStopTime != nil {
 			model.ModelStops = append(model.ModelStops,
 				mlmodels.MakeMLModelStop(modelStopSequence, previousStopTime.StopId, stopTime.StopId))
+			modelStopSequence++
 		}
 		previousStopTime = stopTime
 	}

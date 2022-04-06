@@ -211,6 +211,11 @@ func Test_discoverModelsOnTrip(t *testing.T) {
 								modelStop.StopId, modelStop.NextStopId)
 							return
 						}
+						if modelStop.Sequence != i {
+							t.Errorf("model '%s' stop at %d, from %s to %s expected to be sequence %d but found %d",
+								expectedModel.name, i, modelStop.StopId, modelStop.NextStopId,
+								i, modelStop.Sequence)
+						}
 
 					}
 					previousStopName = stopName
