@@ -23,8 +23,8 @@ type MLModel struct {
 	TrainedTimestamp             *time.Time     `db:"trained_timestamp" json:"trained_timestamp"`
 	AvgRMSE                      float64        `db:"avg_rmse" json:"avg_rmse"`
 	MLRMSE                       float64        `db:"ml_rmse" json:"ml_rmse"`
-	FeatureTrainedStartTimestamp *string        `db:"feature_trained_start_timestamp" json:"feature_trained_start_timestamp"`
-	FeatureTrainedEndTimestamp   *string        `db:"feature_trained_end_timestamp" json:"feature_trained_end_timestamp"`
+	FeatureTrainedStartTimestamp *time.Time     `db:"feature_trained_start_timestamp" json:"feature_trained_start_timestamp"`
+	FeatureTrainedEndTimestamp   *time.Time     `db:"feature_trained_end_timestamp" json:"feature_trained_end_timestamp"`
 	ModelName                    string         `db:"model_name" json:"model_name"`
 	CurrentlyRelevant            bool           `db:"currently_relevant" json:"currently_relevant"`
 	ModelStops                   []*MLModelStop `json:"model_stops"`
