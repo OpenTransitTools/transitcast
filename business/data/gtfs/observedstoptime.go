@@ -34,6 +34,7 @@ type ObservedStopTime struct {
 	//TravelSeconds is the number of seconds the vehicle is assumed to have taken to move between the stops
 	TravelSeconds    int  `db:"travel_seconds"`
 	ScheduledSeconds *int `db:"scheduled_seconds"`
+	ScheduledTime    *int `db:"scheduled_time"`
 	//DataSetId identifies the DataSet used during this ObservedStopTime
 	DataSetId int64     `db:"data_set_id" json:"data_set_id"`
 	TripId    string    `db:"trip_id"`
@@ -63,6 +64,7 @@ func RecordObservedStopTime(observation *ObservedStopTime, db *sqlx.DB) error {
 		"observed_at_next_stop, " +
 		"travel_seconds, " +
 		"scheduled_seconds, " +
+		"scheduled_time, " +
 		"data_set_id, " +
 		"trip_id, " +
 		"created_at) " +
@@ -78,6 +80,7 @@ func RecordObservedStopTime(observation *ObservedStopTime, db *sqlx.DB) error {
 		":observed_at_next_stop, " +
 		":travel_seconds, " +
 		":scheduled_seconds, " +
+		":scheduled_time, " +
 		":data_set_id, " +
 		":trip_id, " +
 		":created_at)"

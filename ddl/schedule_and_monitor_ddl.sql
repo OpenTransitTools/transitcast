@@ -102,6 +102,7 @@ create table if not exists observed_stop_time
     next_stop_distance    double precision         not null,
     travel_seconds        int                      not null,
     scheduled_seconds     int,
+    scheduled_time        int,
     data_set_id           bigint                   not null,
     trip_id               text                     not null,
     created_at            timestamp with time zone,

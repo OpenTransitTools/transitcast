@@ -374,6 +374,7 @@ func makeObservedStopTimes(
 			ObservedTime:       time.Unix(observedTime, 0),
 			TravelSeconds:      travelSeconds,
 			ScheduledSeconds:   &segmentScheduleLength,
+			ScheduledTime:      &stopTimeInstance1.ArrivalTime,
 			VehicleId:          vehicleId,
 			DataSetId:          stopTimeInstance1.DataSetId,
 			TripId:             stopTimeInstance1.TripId,
