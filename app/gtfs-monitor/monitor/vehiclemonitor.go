@@ -84,12 +84,12 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger,
 		vm.removeStopPosition()
 		return nil, results
 	}
-	//update last position used to generate newTripStopPosition
+	//update last position used to generate newTripStopPositionProducesObservations
 	vm.lastPosition = &position
 
 	lastTripStopPosition := vm.lastTripStopPosition
 
-	if !vm.newTripStopPosition(newTripStopPosition) {
+	if !vm.newTripStopPositionProducesObservations(newTripStopPosition) {
 		return newTripStopPosition, results
 	}
 
@@ -272,10 +272,10 @@ func getObservedAtPositions(position1 *tripStopPosition, position2 *tripStopPosi
 	return result
 }
 
-//newTripStopPosition updates trip position if needed
-//returns true if the vehicle has moved forward from its previous position
+//newTripStopPositionProducesObservations updates trip position if needed
+//returns true if the vehicle has moved forward from its previous position and can produce a ObservedStopTime
 //or false if the current position has stayed between the same stops
-func (vm *vehicleMonitor) newTripStopPosition(
+func (vm *vehicleMonitor) newTripStopPositionProducesObservations(
 	newPosition *tripStopPosition) bool {
 
 	//if last position is expired or not set then set it
@@ -291,7 +291,7 @@ func (vm *vehicleMonitor) newTripStopPosition(
 	return movedForward
 }
 
-//updateTripStopPosition sets vehicleMonitors current position to newTripStopPosition at positionTimestamp
+//updateTripStopPosition sets vehicleMonitors current position to newTripStopPositionProducesObservations at positionTimestamp
 func (vm *vehicleMonitor) updateTripStopPosition(
 	newTripStopPosition *tripStopPosition) {
 
