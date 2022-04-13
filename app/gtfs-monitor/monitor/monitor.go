@@ -26,6 +26,9 @@ func RunVehicleMonitorLoop(log *log.Logger,
 
 	relevantTripCache := makeTripCache(time.Now())
 	monitorCollection := newVehicleMonitorCollection(earlyTolerance, expirePositionSeconds)
+
+	positionRecorder := makeDBRecorder(log, db)
+
 	for {
 
 		go func() {
@@ -65,9 +68,7 @@ func RunVehicleMonitorLoop(log *log.Logger,
 		}
 
 		//update vehicle positions and retrieve new positions for recording to TripDeviation
-		newPositionsByBlock := updateVehiclePositions(log, db, vehiclePositions, loadedTrips, &monitorCollection)
-
-		recordNewTripDeviations(log, db, loadedTrips, newPositionsByBlock)
+		updateVehiclePositions(log, positionRecorder, vehiclePositions, loadedTrips, &monitorCollection)
 
 		// attempt to run the loop every loopEverySeconds by subtracting the time it took to perform the work
 		workTook := time.Now().Sub(start)
@@ -87,14 +88,13 @@ func RunVehicleMonitorLoop(log *log.Logger,
 //updateVehiclePositions runs vehiclePositions through vehicleMonitors and saves results to database
 //returns map of new tripStopPositions by blockId
 func updateVehiclePositions(log *log.Logger,
-	db *sqlx.DB,
+	recorder rtRecorder,
 	positions []vehiclePosition,
 	loadedTripInstancesByTripId map[string]*gtfs.TripInstance,
-	monitorCollection *vehicleMonitorCollection) map[string]*tripStopPosition {
+	monitorCollection *vehicleMonitorCollection) {
 
-	newTripStopPositions := make(map[string]*tripStopPosition)
-
-	countSavedObservations := 0
+	countNewTripStopPositions := 0
+	countNewObservations := 0
 
 	for _, position := range positions {
 		vm := monitorCollection.getOrMakeVehicle(position.Id)
@@ -106,29 +106,24 @@ func updateVehiclePositions(log *log.Logger,
 		newPosition, observations := vm.newPosition(log, position, trip)
 
 		if newPosition != nil {
-			newTripStopPositions[newPosition.tripInstance.BlockId] = newPosition
+			recorder.recordTripStopPosition(loadedTripInstancesByTripId, newPosition)
+			countNewTripStopPositions++
 		}
 
-		//record each observation
-		for _, observation := range observations {
+		recorder.recordObservedStopTimePositions(observations)
 
-			log.Printf("Vehicle %s on route %s moved from %s to %s in %d\n", observation.VehicleId,
-				observation.RouteId, observation.StopId, observation.NextStopId, observation.TravelSeconds)
-			err := gtfs.RecordObservedStopTime(&observation, db)
-			if err != nil {
-				log.Printf("Error saving stop time observation %+v. error: %v", observation, err)
-			} else {
-				countSavedObservations++
-			}
-		}
+		countNewObservations += len(observations)
 
 	}
 
-	if countSavedObservations > 0 {
-		log.Printf("Saved %d stop time observations", countSavedObservations)
+	if countNewObservations > 0 {
+		log.Printf("Made %d new stop time observations", countNewObservations)
 	}
 
-	return newTripStopPositions
+	if countNewTripStopPositions > 0 {
+		log.Printf("Made %d new trip stop positions", countNewObservations)
+	}
+
 }
 
 //fmtDuration returns a string presentation of time.Duration for logging

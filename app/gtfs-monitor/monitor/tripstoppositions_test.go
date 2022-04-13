@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Test_collectTripDeviations(t *testing.T) {
+func Test_collectBlockDeviations(t *testing.T) {
 	location, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		t.Errorf("Unable to get testing time zone location")
@@ -128,10 +128,7 @@ func Test_collectTripDeviations(t *testing.T) {
 			for _, trip := range tt.args.tripInstances {
 				loadedTripInstancesByTripId[trip.TripId] = trip
 			}
-			newPositionsByBlock := map[string]*tripStopPosition{
-				tt.args.newTripPosition.tripInstance.BlockId: &tt.args.newTripPosition,
-			}
-			got := collectTripDeviations(loadedTripInstancesByTripId, newPositionsByBlock)
+			got := collectBlockDeviations(loadedTripInstancesByTripId, &tt.args.newTripPosition)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("collectTripDeviations() "+
 					"\ngot  = %+v,"+

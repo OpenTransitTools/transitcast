@@ -3,8 +3,6 @@ package monitor
 import (
 	"fmt"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
-	"github.com/jmoiron/sqlx"
-	"log"
 	"sort"
 	"time"
 )
@@ -71,61 +69,40 @@ func (t *tripStopPosition) logFormat() string {
 		t.atPreviousStop, lat, lon)
 }
 
-//recordNewTripDeviations create and record gtfs.TripDeviations from new newPositionsByBlock
-func recordNewTripDeviations(log *log.Logger,
-	db *sqlx.DB,
+//collectBlockDeviations creates gtfs.TripDeviation for each trip the block in tripStopPosition.BlockId is currently on
+//or scheduled in the future
+func collectBlockDeviations(
 	loadedTripInstancesByTripId map[string]*gtfs.TripInstance,
-	newPositionsByBlock map[string]*tripStopPosition) {
-
-	newTripDeviations := collectTripDeviations(loadedTripInstancesByTripId, newPositionsByBlock)
-	err := gtfs.RecordTripDeviation(newTripDeviations, db)
-	if err != nil {
-		log.Printf("failed to record %d trip deviations, error:%v", len(newTripDeviations), err)
-		return
+	position *tripStopPosition) []*gtfs.TripDeviation {
+	results := make([]*gtfs.TripDeviation, 0)
+	if position == nil || position.tripDistancePosition == nil {
+		return results
 	}
 
-	log.Printf("Recorded %d trip deviation records for %d new positions",
-		len(newTripDeviations), len(newPositionsByBlock))
-
-}
-
-//collectTripDeviations takes positions found in newPositionsByBlock and creates gtfs.TripDeviation for each trip
-//the block is currently on or scheduled in the future as found in loadedTripInstancesByTripId
-func collectTripDeviations(
-	loadedTripInstancesByTripId map[string]*gtfs.TripInstance,
-	newPositionsByBlock map[string]*tripStopPosition) []*gtfs.TripDeviation {
-
-	//destination for trips by blockId
-	tripListsByBlock := make(map[string][]*gtfs.TripInstance)
-
+	futureTrips := make([]*gtfs.TripInstance, 0)
 	//for each loaded gtfs.TripInstance see if a new position is present for the blockId and add them to tripListsByBlock
 	for _, tripInstance := range loadedTripInstancesByTripId {
-		position := newPositionsByBlock[tripInstance.BlockId]
-		// only store trips ahead of the one the vehicle is performing
-		if position != nil && position.tripInstance.StartTime < tripInstance.StartTime {
-			blockTrips := tripListsByBlock[tripInstance.BlockId]
-			tripListsByBlock[tripInstance.BlockId] = append(blockTrips, tripInstance)
-		}
-	}
-	results := make([]*gtfs.TripDeviation, 0)
-
-	// create TripDeviations for every block, adding untraveled distance of previous trips to next TripDeviation
-	for blockId, position := range newPositionsByBlock {
-		if position.tripDistancePosition == nil {
+		if tripInstance.BlockId != position.tripInstance.BlockId {
 			continue
 		}
-		results = append(results, makeTripDeviation(position, *position.tripDistancePosition, position.tripInstance))
-		futureTrips := tripListsByBlock[blockId]
-		//sort them
-		sort.Slice(futureTrips, func(i, j int) bool {
-			return futureTrips[i].StartTime < futureTrips[j].StartTime
-		})
-		distanceToNextTrip := position.tripInstance.TripDistance - *position.tripDistancePosition
-		for _, futureTrip := range futureTrips {
-			results = append(results, makeTripDeviation(position, -distanceToNextTrip, futureTrip))
-			distanceToNextTrip += position.tripInstance.TripDistance - *position.tripDistancePosition
+		// only store trips ahead of the one the vehicle is performing
+		if position != nil && position.tripInstance.StartTime < tripInstance.StartTime {
+			futureTrips = append(futureTrips, tripInstance)
 		}
 	}
+
+	results = append(results, makeTripDeviation(position, *position.tripDistancePosition, position.tripInstance))
+
+	//sort them
+	sort.Slice(futureTrips, func(i, j int) bool {
+		return futureTrips[i].StartTime < futureTrips[j].StartTime
+	})
+	distanceToNextTrip := position.tripInstance.TripDistance - *position.tripDistancePosition
+	for _, futureTrip := range futureTrips {
+		results = append(results, makeTripDeviation(position, -distanceToNextTrip, futureTrip))
+		distanceToNextTrip += position.tripInstance.TripDistance - *position.tripDistancePosition
+	}
+
 	return results
 }
 
