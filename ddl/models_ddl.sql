@@ -24,6 +24,7 @@ create table if not exists ml_model
     feature_trained_end_timestamp   timestamp with time zone,
     currently_relevant              bool not null default false,
     model_blob                      bytea,
+    last_train_attempt_timestamp    timestamp with time zone,
     constraint ml_model_fk1
         foreign key (ml_model_type_id) references ml_model_type
 );

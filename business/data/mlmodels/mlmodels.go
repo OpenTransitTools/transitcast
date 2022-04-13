@@ -27,6 +27,7 @@ type MLModel struct {
 	FeatureTrainedEndTimestamp   *time.Time     `db:"feature_trained_end_timestamp" json:"feature_trained_end_timestamp"`
 	ModelName                    string         `db:"model_name" json:"model_name"`
 	CurrentlyRelevant            bool           `db:"currently_relevant" json:"currently_relevant"`
+	LastTrainAttemptTimestamp    *time.Time     `db:"last_train_attempt_timestamp" json:"last_train_attempt_timestamp"`
 	ModelStops                   []*MLModelStop `json:"model_stops"`
 }
 
@@ -91,7 +92,8 @@ func RecordNewMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 		"ml_rmse, " +
 		"feature_trained_start_timestamp, " +
 		"feature_trained_end_timestamp," +
-		"currently_relevant) " +
+		"currently_relevant, " +
+		"last_train_attempt_timestamp) " +
 		"values (:version, " +
 		":start_timestamp, " +
 		":end_timestamp, " +
@@ -103,7 +105,8 @@ func RecordNewMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 		":ml_rmse, " +
 		":feature_trained_start_timestamp, " +
 		":feature_trained_end_timestamp, " +
-		":currently_relevant)"
+		":currently_relevant, " +
+		":last_train_attempt_timestamp )"
 	if model.MLModelId != 0 {
 		statementString = "update ml_model set version = :version, " +
 			"start_timestamp = :start_timestamp, " +
@@ -116,7 +119,8 @@ func RecordNewMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 			"ml_rmse = :ml_rmse, " +
 			"feature_trained_start_timestamp = :feature_trained_start_timestamp, " +
 			"feature_trained_end_timestamp = :feature_trained_end_timestamp, " +
-			"currently_relevant = :currently_relevant " +
+			"currently_relevant = :currently_relevant, " +
+			"last_train_attempt_timestamp = :last_train_attempt_timestamp " +
 			"where ml_model_id = :ml_model_id"
 	}
 	statementString = db.Rebind(statementString)
@@ -157,7 +161,8 @@ func UpdateMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 		"ml_rmse = :ml_rmse, " +
 		"feature_trained_start_timestamp = :feature_trained_start_timestamp, " +
 		"feature_trained_end_timestamp = :feature_trained_end_timestamp, " +
-		"currently_relevant = :currently_relevant " +
+		"currently_relevant = :currently_relevant, " +
+		"last_train_attempt_timestamp = :last_train_attempt_timestamp " +
 		"where ml_model_id = :ml_model_id"
 	statementString = db.Rebind(statementString)
 	_, err := db.NamedExec(statementString, model)
@@ -205,7 +210,8 @@ func GetAllCurrentMLModelsByName(db *sqlx.DB) (map[string]*MLModel, error) {
 		"ml_rmse, " +
 		"feature_trained_start_timestamp, " +
 		"feature_trained_end_timestamp," +
-		"currently_relevant " +
+		"currently_relevant, " +
+		"last_train_attempt_timestamp " +
 		"from ml_model where current_timestamp between start_timestamp and end_timestamp"
 	rows, err := db.Queryx(statementString)
 	if err != nil {
