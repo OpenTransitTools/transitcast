@@ -28,6 +28,9 @@ type MLModel struct {
 	ModelName                    string         `db:"model_name" json:"model_name"`
 	CurrentlyRelevant            bool           `db:"currently_relevant" json:"currently_relevant"`
 	LastTrainAttemptTimestamp    *time.Time     `db:"last_train_attempt_timestamp" json:"last_train_attempt_timestamp"`
+	ObservedStopCount            *int           `db:"observed_stop_count" json:"observed_stop_count"`
+	Median                       *float64       `db:"median" json:"median"`
+	Average                      *float64       `db:"average" json:"average"`
 	ModelStops                   []*MLModelStop `json:"model_stops"`
 }
 
@@ -93,7 +96,10 @@ func RecordNewMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 		"feature_trained_start_timestamp, " +
 		"feature_trained_end_timestamp," +
 		"currently_relevant, " +
-		"last_train_attempt_timestamp) " +
+		"last_train_attempt_timestamp, " +
+		"observed_stop_count, " +
+		"median, " +
+		"average ) " +
 		"values (:version, " +
 		":start_timestamp, " +
 		":end_timestamp, " +
@@ -106,7 +112,10 @@ func RecordNewMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 		":feature_trained_start_timestamp, " +
 		":feature_trained_end_timestamp, " +
 		":currently_relevant, " +
-		":last_train_attempt_timestamp )"
+		":last_train_attempt_timestamp, " +
+		":observed_stop_count, " +
+		":median, " +
+		":average )"
 	if model.MLModelId != 0 {
 		statementString = "update ml_model set version = :version, " +
 			"start_timestamp = :start_timestamp, " +
@@ -120,7 +129,10 @@ func RecordNewMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 			"feature_trained_start_timestamp = :feature_trained_start_timestamp, " +
 			"feature_trained_end_timestamp = :feature_trained_end_timestamp, " +
 			"currently_relevant = :currently_relevant, " +
-			"last_train_attempt_timestamp = :last_train_attempt_timestamp " +
+			"last_train_attempt_timestamp = :last_train_attempt_timestamp, " +
+			"observed_stop_count = :observed_stop_count, " +
+			"median = :median, " +
+			"average = :average " +
 			"where ml_model_id = :ml_model_id"
 	}
 	statementString = db.Rebind(statementString)
@@ -162,7 +174,10 @@ func UpdateMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 		"feature_trained_start_timestamp = :feature_trained_start_timestamp, " +
 		"feature_trained_end_timestamp = :feature_trained_end_timestamp, " +
 		"currently_relevant = :currently_relevant, " +
-		"last_train_attempt_timestamp = :last_train_attempt_timestamp " +
+		"last_train_attempt_timestamp = :last_train_attempt_timestamp, " +
+		"observed_stop_count = :observed_stop_count, " +
+		"median = :median, " +
+		"average = :average " +
 		"where ml_model_id = :ml_model_id"
 	statementString = db.Rebind(statementString)
 	_, err := db.NamedExec(statementString, model)
@@ -199,7 +214,8 @@ func GetAllCurrentMLModelsByName(db *sqlx.DB) (map[string]*MLModel, error) {
 		return nil, err
 	}
 
-	statementString := "select version, " +
+	statementString := "select ml_model_id, " +
+		"version, " +
 		"start_timestamp, " +
 		"end_timestamp, " +
 		"ml_model_type_id, " +
@@ -211,7 +227,10 @@ func GetAllCurrentMLModelsByName(db *sqlx.DB) (map[string]*MLModel, error) {
 		"feature_trained_start_timestamp, " +
 		"feature_trained_end_timestamp," +
 		"currently_relevant, " +
-		"last_train_attempt_timestamp " +
+		"last_train_attempt_timestamp, " +
+		"observed_stop_count, " +
+		"median, " +
+		"average " +
 		"from ml_model where current_timestamp between start_timestamp and end_timestamp"
 	rows, err := db.Queryx(statementString)
 	if err != nil {
