@@ -2,10 +2,11 @@ package monitor
 
 import (
 	"fmt"
-	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"log"
 	"math"
 	"time"
+
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 )
 
 //vehicleMonitorCollection simple wrapper for retrieving, constructing, and expiring old vehicleMonitors
@@ -66,7 +67,7 @@ func (vm *vehicleMonitor) newPosition(log *log.Logger,
 	if position.positionIsSame(vm.lastPosition, 2) {
 		return nil, results
 	}
-	if position.TripId == nil || position.StopId == nil || position.StopSequence == nil || position.VehicleStopStatus.IsUnknown() {
+	if position.TripId == nil || position.StopSequence == nil || position.VehicleStopStatus.IsUnknown() {
 		//non trip monitoring not implemented yet
 		vm.removeStopPosition()
 		return nil, results
