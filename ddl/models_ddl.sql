@@ -25,7 +25,7 @@ create table if not exists ml_model
     currently_relevant              bool not null default false,
     model_blob                      bytea,
     last_train_attempt_timestamp    timestamp with time zone,
-    ml_model observed_stop_count    int,
+    observed_stop_count             int,
     median                          double precision,
     average                         double precision,
     constraint ml_model_fk1
