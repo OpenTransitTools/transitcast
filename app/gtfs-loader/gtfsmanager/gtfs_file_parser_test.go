@@ -1,6 +1,8 @@
 package gtfsmanager
 
 import (
+	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -552,6 +554,49 @@ func TestCSVFileParser_getGTFSTimePointer(t *testing.T) {
 				t.Errorf("getGTFSTimePointer() = nil, want %v", tt.want)
 			} else if *got != tt.want {
 				t.Errorf("getGTFSTimePointer() = %v, want %v", *got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_load_csv_with_bom(t *testing.T) {
+	tests := []struct {
+		name     string
+		fileName string
+		wantErr  bool
+		want     []string
+	}{
+		{
+			name:     "load example calendar.txt file that contains a byte order mark at the beginning",
+			fileName: "testdata/calendar_with_bom.txt",
+			wantErr:  false,
+			want: []string{
+				"service_id", "monday", "tuesday", "wednesday", "thursday",
+				"friday", "saturday", "sunday", "start_date", "end_date",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rc, err := os.Open(tt.fileName)
+			if err != nil {
+				t.Errorf("Unable to open file %s, error: %s", tt.fileName, err)
+				return
+			}
+			defer func(rc *os.File) {
+				err := rc.Close()
+				if err != nil {
+					t.Errorf("Unable to close file %s, error: %s", tt.fileName, err)
+				}
+			}(rc)
+
+			parser, err := makeGTFSFileParser(rc, tt.fileName)
+			if err != nil {
+				t.Errorf("Unable to make gtfsFileParser %s", err)
+			}
+
+			if !reflect.DeepEqual(parser.headers, tt.want) {
+				t.Errorf("wanted headers %+v, but got %+v", tt.want, parser.headers)
 			}
 		})
 	}

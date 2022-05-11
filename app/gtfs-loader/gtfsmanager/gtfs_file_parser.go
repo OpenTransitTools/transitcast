@@ -39,6 +39,7 @@ func makeGTFSFileParser(r io.Reader, filename string) (*gtfsFileParser, error) {
 	csvReader := csv.NewReader(r)
 
 	headers, err := csvReader.Read()
+	removeBOMIfPresent(headers)
 
 	if err != nil {
 		return nil, fmt.Errorf("unable to load header in stop_times.txt file: %v", err)
@@ -50,6 +51,20 @@ func makeGTFSFileParser(r io.Reader, filename string) (*gtfsFileParser, error) {
 		headers:        headers,
 		currentRecords: headers,
 	}, nil
+}
+
+func removeBOMIfPresent(headers []string) {
+	if len(headers) < 1 {
+		return
+	}
+	firstHeader := headers[0]
+	if len(firstHeader) < 1 {
+		return
+	}
+	runes := []rune(firstHeader) // convert string to runes
+	if runes[0] == '\uFEFF' {    //check for BOM
+		headers[0] = string(runes[1:])
+	}
 }
 
 // getString retrieves string
