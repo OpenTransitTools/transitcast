@@ -376,7 +376,7 @@ func loadGtfsZipFile(log *log.Logger, gtfsDataSetTx *gtfs.DataSetTransaction, lo
 		}
 	}()
 
-	files, err := newGTFSFiles(r)
+	files, err := newGTFSFiles(log, r)
 
 	if err != nil {
 		return err
@@ -396,7 +396,7 @@ type gtfsFiles struct {
 
 // newGTFSFiles creates new set of gtfsRowReaders for gtfs file in zipReader
 // returns error if any files are missing
-func newGTFSFiles(zipReader *zip.ReadCloser) (*gtfsFiles, error) {
+func newGTFSFiles(log *log.Logger, zipReader *zip.ReadCloser) (*gtfsFiles, error) {
 	readers := gtfsFiles{}
 	//iterate over each file
 	for _, f := range zipReader.File {
@@ -422,16 +422,18 @@ func newGTFSFiles(zipReader *zip.ReadCloser) (*gtfsFiles, error) {
 		return nil, fmt.Errorf("gtfs zip file is missing the following file(s) %s",
 			strings.Join(missingFiles, ","))
 	}
+	printWarningOnOptionalMissingFiles(log, &readers)
 	return &readers, nil
 }
 
 // getMissingFiles checks gtfsFiles for required files and returns string list of missing files
 func getMissingFiles(readers *gtfsFiles) []string {
 	missingFileNames := make([]string, 0)
-	if readers.calendarFile == nil {
+	//Must include at least one of calendar.txt or calendar_dates.txt
+	if readers.calendarFile == nil && readers.calendarDateFile == nil {
 		missingFileNames = append(missingFileNames, "calendar.txt")
+		missingFileNames = append(missingFileNames, "calendar_dates.txt")
 	}
-	//ok to be missing calendar_dates.txt
 
 	if readers.tripFile == nil {
 		missingFileNames = append(missingFileNames, "trips.txt")
@@ -447,18 +449,30 @@ func getMissingFiles(readers *gtfsFiles) []string {
 	return missingFileNames
 }
 
+func printWarningOnOptionalMissingFiles(log *log.Logger, readers *gtfsFiles) {
+	if readers.calendarFile == nil {
+		log.Printf("Warning: without calendar.txt file future trips may not be loaded resulting " +
+			"in missing trip deviation records for training")
+	}
+}
+
 //loadGtfsFiles loads gtfsFiles in order required by gtfsRowReaders
 func loadGtfsFiles(files *gtfsFiles, gtfsDataSetTx *gtfs.DataSetTransaction) error {
-	err := loadGtfsFile(gtfsDataSetTx, &calendarRowReader{}, files.calendarFile)
-	if err != nil {
-		return err
+	if files.calendarFile != nil {
+		err := loadGtfsFile(gtfsDataSetTx, &calendarRowReader{}, files.calendarFile)
+		if err != nil {
+			return err
+		}
 	}
-	err = loadGtfsFile(gtfsDataSetTx, &calendarDateRowReader{}, files.calendarDateFile)
-	if err != nil {
-		return err
+	if files.calendarDateFile != nil {
+		err := loadGtfsFile(gtfsDataSetTx, &calendarDateRowReader{}, files.calendarDateFile)
+		if err != nil {
+			return err
+		}
 	}
+
 	stopRR := newStopTimeRowReader()
-	err = loadGtfsFile(gtfsDataSetTx, stopRR, files.stopTimeFile)
+	err := loadGtfsFile(gtfsDataSetTx, stopRR, files.stopTimeFile)
 	if err != nil {
 		return err
 	}
