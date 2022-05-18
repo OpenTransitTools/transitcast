@@ -63,7 +63,7 @@ func MakeMLModel(modelType *MLModelType,
 	return &MLModel{
 		Version:           version,
 		StartTimestamp:    at,
-		EndTimestamp:      time.Date(9999, 12, 31, 23, 29, 59, 0, at.Location()),
+		EndTimestamp:      time.Date(3000, 12, 31, 23, 29, 59, 0, at.Location()),
 		MLModelTypeId:     modelType.MLModelTypeId,
 		TrainFlag:         true,
 		CurrentlyRelevant: true,
