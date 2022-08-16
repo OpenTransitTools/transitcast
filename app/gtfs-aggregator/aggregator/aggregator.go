@@ -17,6 +17,7 @@ type Conf struct {
 	MinimumObservedStopCount              int
 	PredictionSubject                     string
 	ExpirePredictorSeconds                int
+	LimitEarlyDepartureSeconds            int
 }
 
 //StartPredictionAggregator starts all routines for aggregation of predicted trips
@@ -35,9 +36,10 @@ func StartPredictionAggregator(log *logger.Logger,
 	log.Println("Creating ObservedStopTransitions")
 	osts := makeObservedStopTransitions(conf.MaximumObservedTransitionAgeInSeconds)
 	log.Println("Creating predictionPublisher")
-	predictionPublisher := makePredictionPublisher(log, natsConn, conf.PredictionSubject)
+	publisher := makePredictionPublisher(log, natsConn, conf.PredictionSubject,
+		conf.LimitEarlyDepartureSeconds)
 	log.Println("Creating tripPredictorsCollection")
-	tripPredictorsCollection, err := makeTripPredictorsCollection(db, osts,
+	predictorsCollection, err := makeTripPredictorsCollection(db, osts,
 		conf.MinimumRMSEModelImprovement, conf.MinimumObservedStopCount, conf.ExpirePredictorSeconds)
 	log.Println("Done creating shared aggregator structures")
 
@@ -53,14 +55,14 @@ func StartPredictionAggregator(log *logger.Logger,
 	inferenceListenerShutdown := make(chan bool, 1)
 
 	log.Println("Starting background loop")
-	go runBackgroundLoop(log, &wg, pendingPredictions, tripPredictorsCollection, backgroundLoopShutdown)
+	go runBackgroundLoop(log, &wg, pendingPredictions, predictorsCollection, backgroundLoopShutdown)
 	log.Println("Starting ObservedStopTransitionListener")
 	go startObservedStopTransitionListener(log, &wg, osts, natsConn, ostSubscriptionShutdown)
 	log.Println("Starting TripUpdateListener")
-	go startTripUpdateListener(log, &wg, osts, natsConn, tripUpdateSubscriberShutdown, tripPredictorsCollection,
-		pendingPredictions, predictionPublisher)
+	go startTripUpdateListener(log, &wg, osts, natsConn, tripUpdateSubscriberShutdown, predictorsCollection,
+		pendingPredictions, publisher)
 	log.Println("Starting InferenceListener")
-	go startInferenceResponseListener(log, &wg, natsConn, inferenceListenerShutdown, pendingPredictions, predictionPublisher)
+	go startInferenceResponseListener(log, &wg, natsConn, inferenceListenerShutdown, pendingPredictions, publisher)
 
 	for {
 

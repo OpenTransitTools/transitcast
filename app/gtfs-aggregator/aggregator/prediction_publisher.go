@@ -10,19 +10,22 @@ import (
 
 //predictionPublisher takes completed predictions and publishes them on NATS connection as TripUpdates
 type predictionPublisher struct {
-	log               *logger.Logger
-	natsConn          *nats.Conn
-	predictionSubject string
+	log                        *logger.Logger
+	natsConn                   *nats.Conn
+	predictionSubject          string
+	limitEarlyDepartureSeconds int
 }
 
 //makePredictionPublisher builds predictionPublisher
 func makePredictionPublisher(log *logger.Logger,
 	natsConn *nats.Conn,
-	predictionSubject string) *predictionPublisher {
+	predictionSubject string,
+	limitEarlyDepartureSeconds int) *predictionPublisher {
 	return &predictionPublisher{
-		log:               log,
-		natsConn:          natsConn,
-		predictionSubject: predictionSubject,
+		log:                        log,
+		natsConn:                   natsConn,
+		predictionSubject:          predictionSubject,
+		limitEarlyDepartureSeconds: limitEarlyDepartureSeconds,
 	}
 }
 
@@ -30,7 +33,7 @@ func makePredictionPublisher(log *logger.Logger,
 // and publish them over NATS
 func (p *predictionPublisher) publishPredictionBatch(batch *predictionBatch) {
 	orderedTripPredictions := batch.orderedTripPredictions()
-	tripUpdates := makeTripUpdates(p.log, orderedTripPredictions)
+	tripUpdates := makeTripUpdates(p.log, orderedTripPredictions, p.limitEarlyDepartureSeconds)
 	for _, tripUpdate := range tripUpdates {
 		jsonData, err := json.Marshal(tripUpdate)
 		if err != nil {
@@ -47,13 +50,14 @@ func (p *predictionPublisher) publishPredictionBatch(batch *predictionBatch) {
 
 //makeTripUpdates builds series of gtfs.TripUpdates from tripPredictions
 func makeTripUpdates(log *logger.Logger,
-	orderedPredictions []*tripPrediction) []*gtfs.TripUpdate {
+	orderedPredictions []*tripPrediction,
+	limitEarlyDepartureSeconds int) []*gtfs.TripUpdate {
 
 	tripUpdates := make([]*gtfs.TripUpdate, 0)
 	schedulePosition := getInitialSchedulePosition(orderedPredictions)
 
 	for _, prediction := range orderedPredictions {
-		tripUpdate := buildTripUpdate(log, schedulePosition, prediction)
+		tripUpdate := buildTripUpdate(log, schedulePosition, prediction, limitEarlyDepartureSeconds)
 		newSchedulePosition := tripUpdate.LastSchedulePosition()
 		if newSchedulePosition != nil {
 			schedulePosition = *newSchedulePosition
@@ -80,7 +84,8 @@ func getInitialSchedulePosition(orderedPredictions []*tripPrediction) time.Time 
 // allowing this trip update to start late if the vehicle is running late after its previous trip
 func buildTripUpdate(log *logger.Logger,
 	previousSchedulePositionTime time.Time,
-	prediction *tripPrediction) *gtfs.TripUpdate {
+	prediction *tripPrediction,
+	limitEarlyDepartureSeconds int) *gtfs.TripUpdate {
 	trip := prediction.tripInstance
 	tripUpdate := gtfs.TripUpdate{
 		TripId:               trip.TripId,
@@ -97,8 +102,8 @@ func buildTripUpdate(log *logger.Logger,
 	tripDistanceTraveled := prediction.tripDeviation.TripProgress
 	for _, sp := range prediction.stopPredictions {
 		var newStopUpdate gtfs.StopTimeUpdate
-		newStopUpdate, predictionRemainder = buildStopUpdate(log, previousSchedulePositionTime, tripDistanceTraveled, predictionRemainder,
-			sp)
+		newStopUpdate, predictionRemainder = buildStopUpdate(log, previousSchedulePositionTime, tripDistanceTraveled,
+			predictionRemainder, sp, limitEarlyDepartureSeconds)
 		previousSchedulePositionTime = newStopUpdate.PredictedArrivalTime
 		tripUpdate.StopTimeUpdates = append(tripUpdate.StopTimeUpdates, newStopUpdate)
 	}
@@ -155,7 +160,8 @@ func buildStopUpdate(log *logger.Logger,
 	previousTime time.Time,
 	tripDistanceTraveled float64,
 	previousPredictionRemainder float64,
-	stopPrediction *stopPrediction) (stopTimeUpdate gtfs.StopTimeUpdate, predictionRemainder float64) {
+	stopPrediction *stopPrediction,
+	limitEarlyDepartureSeconds int) (stopTimeUpdate gtfs.StopTimeUpdate, predictionRemainder float64) {
 	toStop := stopPrediction.toStop
 	traversalSeconds := stopPrediction.predictedTime + previousPredictionRemainder
 	//if the vehicle is further than the previous stop it's between the last stop and this one
@@ -166,12 +172,20 @@ func buildStopUpdate(log *logger.Logger,
 	//only whole seconds
 	traversalInt64, traversalRemainder := roundSecondsAndRemainder(traversalSeconds)
 	predictedArrivalTime := previousTime.Add(time.Duration(traversalInt64) * time.Second)
+	arrivalDelay := int(predictedArrivalTime.Sub(toStop.ArrivalDateTime).Seconds())
+	//check for early departure from last stop
+	if stopPrediction.fromStop.IsTimepoint() &&
+		tripDistanceTraveled <= stopPrediction.fromStop.ShapeDistTraveled &&
+		arrivalDelay < -limitEarlyDepartureSeconds {
+		arrivalDelay = -limitEarlyDepartureSeconds
+		predictedArrivalTime = toStop.ArrivalDateTime.Add(time.Duration(-limitEarlyDepartureSeconds) * time.Second)
+	}
 
 	return gtfs.StopTimeUpdate{
 		StopSequence:         toStop.StopSequence,
 		StopId:               toStop.StopId,
 		ScheduledArrivalTime: toStop.ArrivalDateTime,
-		ArrivalDelay:         int(predictedArrivalTime.Sub(toStop.ArrivalDateTime).Seconds()),
+		ArrivalDelay:         arrivalDelay,
 		PredictedArrivalTime: predictedArrivalTime,
 		PredictionSource:     stopPrediction.predictionSource,
 	}, traversalRemainder

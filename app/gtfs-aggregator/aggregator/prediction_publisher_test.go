@@ -24,11 +24,13 @@ func Test_buildStopUpdate(t *testing.T) {
 	firstStop := trip.StopTimeInstances[0]
 	secondStop := trip.StopTimeInstances[1]
 	thirdStop := trip.StopTimeInstances[2]
+	fourthStop := trip.StopTimeInstances[3]
 	type args struct {
 		previousTime                time.Time
 		tripDistanceTraveled        float64
 		previousPredictionRemainder float64
 		stopPrediction              *stopPrediction
+		limitEarlyDepartureSeconds  int
 	}
 	tests := []struct {
 		name                    string
@@ -204,12 +206,38 @@ func Test_buildStopUpdate(t *testing.T) {
 			},
 			wantPredictionRemainder: .1,
 		},
+		{
+			name: "vehicle 5 minutes early at timepoint, next stop should not be earlier than limitEarlyDepartureSeconds",
+			args: args{
+				previousTime:                time.Date(2022, 5, 22, 12, 35, 0, 0, location),
+				tripDistanceTraveled:        0,
+				previousPredictionRemainder: 0,
+				stopPrediction: &stopPrediction{
+					fromStop:           thirdStop,
+					toStop:             fourthStop,
+					predictedTime:      1200,
+					predictionSource:   gtfs.TimepointMLPrediction,
+					predictionComplete: true,
+				},
+				limitEarlyDepartureSeconds: 60,
+			},
+			wantStopTimeUpdate: gtfs.StopTimeUpdate{
+				StopSequence:         4,
+				StopId:               "D",
+				ArrivalDelay:         -60,
+				ScheduledArrivalTime: fourthStop.ArrivalDateTime,
+				PredictedArrivalTime: time.Date(2022, 5, 22, 12, 59, 0, 0, location),
+				PredictionSource:     gtfs.TimepointMLPrediction,
+			},
+			wantPredictionRemainder: 0,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testLog := makeTestLogWriter()
 			gotStopTimeUpdate, gotPredictionRemainder := buildStopUpdate(testLog.log, tt.args.previousTime,
-				tt.args.tripDistanceTraveled, tt.args.previousPredictionRemainder, tt.args.stopPrediction)
+				tt.args.tripDistanceTraveled, tt.args.previousPredictionRemainder, tt.args.stopPrediction,
+				tt.args.limitEarlyDepartureSeconds)
 			if !reflect.DeepEqual(gotStopTimeUpdate, tt.wantStopTimeUpdate) {
 				t.Errorf("buildStopUpdate() produced unexpected StopTimeUpdate\ngot= %+v\nwant=%+v", gotStopTimeUpdate, tt.wantStopTimeUpdate)
 			}
@@ -262,6 +290,7 @@ func Test_buildTripUpdate(t *testing.T) {
 	type args struct {
 		previousSchedulePositionTime time.Time
 		prediction                   *tripPrediction
+		limitEarlyDepartureSeconds   int
 	}
 	tests := []struct {
 		name string
@@ -550,9 +579,10 @@ func Test_buildTripUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "2 minutes early, at fourth stop, predictions to end of trip",
+			name: "2 minutes early, at fourth stop, predictions to end of trip, early adjusted by first timepoint",
 			args: args{
 				previousSchedulePositionTime: twelve58Pm,
+				limitEarlyDepartureSeconds:   60,
 				prediction: &tripPrediction{
 					tripDeviation: &gtfs.TripDeviation{
 						CreatedAt:          twelve58Pm,
@@ -622,17 +652,17 @@ func Test_buildTripUpdate(t *testing.T) {
 					{
 						StopSequence:         6,
 						StopId:               "F",
-						ArrivalDelay:         -120,
+						ArrivalDelay:         -60,
 						ScheduledArrivalTime: sixthStop.ArrivalDateTime,
-						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 28, 0, 0, location),
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 29, 0, 0, location),
 						PredictionSource:     gtfs.StopMLPrediction,
 					},
 					{
 						StopSequence:         7,
 						StopId:               "G",
-						ArrivalDelay:         -120,
+						ArrivalDelay:         -60,
 						ScheduledArrivalTime: seventhStop.ArrivalDateTime,
-						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 39, 40, 0, location),
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 40, 40, 0, location),
 						PredictionSource:     gtfs.StopMLPrediction,
 					},
 				},
@@ -642,8 +672,9 @@ func Test_buildTripUpdate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testLog := makeTestLogWriter()
-			if got := buildTripUpdate(testLog.log, tt.args.previousSchedulePositionTime, tt.args.prediction); !reflect.DeepEqual(got, tt.want) {
-
+			got := buildTripUpdate(testLog.log, tt.args.previousSchedulePositionTime, tt.args.prediction,
+				tt.args.limitEarlyDepartureSeconds)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("buildTripUpdate() produced unexpected StopTimeUpdate\ngot= %v\nwant=%v",
 					sprintTripUpdate(got), sprintTripUpdate(tt.want))
 			}
@@ -691,9 +722,10 @@ func Test_makeTripUpdates(t *testing.T) {
 	oneFiftyThree := time.Date(2022, 5, 22, 13, 53, 0, 0, location)
 
 	tests := []struct {
-		name               string
-		orderedPredictions []*tripPrediction
-		want               []*gtfs.TripUpdate
+		name                       string
+		orderedPredictions         []*tripPrediction
+		limitEarlyDepartureSeconds int
+		want                       []*gtfs.TripUpdate
 	}{
 		{
 			name: "On time prediction at start of trip",
@@ -1194,7 +1226,8 @@ func Test_makeTripUpdates(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testLog := makeTestLogWriter()
-			if got := makeTripUpdates(testLog.log, tt.orderedPredictions); !reflect.DeepEqual(got, tt.want) {
+			got := makeTripUpdates(testLog.log, tt.orderedPredictions, tt.limitEarlyDepartureSeconds)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("makeTripUpdates() \ngot =\n%v\nwant=\n%v", sprintTripUpdates(got), sprintTripUpdates(tt.want))
 			}
 		})
