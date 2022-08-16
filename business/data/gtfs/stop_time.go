@@ -26,6 +26,10 @@ type StopTimeInstance struct {
 	DepartureDateTime time.Time
 }
 
+func (sti *StopTimeInstance) IsTimepoint() bool {
+	return sti != nil && sti.Timepoint == 1
+}
+
 // RecordStopTimes saves stopTimes to database in batch
 func RecordStopTimes(stopTimes []*StopTime, dsTx *DataSetTransaction) error {
 	for _, stopTime := range stopTimes {

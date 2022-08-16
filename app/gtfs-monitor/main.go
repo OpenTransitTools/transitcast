@@ -5,6 +5,7 @@ import (
 	"github.com/OpenTransitTools/transitcast/app/gtfs-monitor/monitor"
 	"github.com/OpenTransitTools/transitcast/foundation/database"
 	"github.com/ardanlabs/conf"
+	"github.com/nats-io/nats.go"
 	logger "log"
 	"os"
 	"os/signal"
@@ -32,12 +33,17 @@ func run(log *logger.Logger) error {
 			Name       string `conf:"default:postgres"`
 			DisableTLS bool   `conf:"default:true"`
 		}
+		NATS struct {
+			URL string `conf:"default:localhost"`
+		}
 		GTFS struct {
 			VehiclePositionsUrl   string  `conf:"default:https://developer.trimet.org/ws/V1/VehiclePositions"`
 			LoadEverySeconds      int     `conf:"default:3"`
 			EarlyTolerance        float64 `conf:"default:0.1"`
 			ExpirePositionSeconds int     `conf:"default:900"`
 		}
+		RecordToDatabase bool `conf:"default:true"`
+		PublishOverNats  bool `conf:"default:true"`
 	}
 	cfg.Version.SVN = build
 	cfg.Version.Desc = "Maintain gtfs schedule instances in database"
@@ -98,13 +104,30 @@ func run(log *logger.Logger) error {
 		}
 	}()
 
+	// =========================================================================
+	// Start nats
+
+	log.Printf("main: Connecting to NATS\n")
+	natsConnection, err := nats.Connect(cfg.NATS.URL)
+	if err != nil {
+		return fmt.Errorf("unable to establish connection to nats server: %w", err)
+	}
+	defer func() {
+		log.Printf("main: closing connection to NATS")
+		natsConnection.Close()
+	}()
+
 	// Make a channel to listen for an interrupt or terminate signal from the OS.
 	// Use a buffered channel because the signal package requires it.
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
 
-	return monitor.RunVehicleMonitorLoop(log, db, cfg.GTFS.VehiclePositionsUrl, cfg.GTFS.LoadEverySeconds,
-		cfg.GTFS.EarlyTolerance, cfg.GTFS.ExpirePositionSeconds, shutdown)
+	return monitor.RunVehicleMonitorLoop(log, db, natsConnection,
+		cfg.GTFS.VehiclePositionsUrl, cfg.GTFS.LoadEverySeconds,
+		cfg.GTFS.EarlyTolerance, cfg.GTFS.ExpirePositionSeconds,
+		cfg.RecordToDatabase,
+		cfg.PublishOverNats,
+		shutdown)
 
 }
 

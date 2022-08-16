@@ -2,7 +2,9 @@ package mlmodels
 
 import (
 	"fmt"
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/jmoiron/sqlx"
+	"strings"
 	"time"
 )
 
@@ -70,6 +72,24 @@ func MakeMLModel(modelType *MLModelType,
 		ModelName:         modelName,
 		ModelStops:        make([]*MLModelStop, 0),
 	}
+}
+
+//GetModelNameForStops names a model based on its series of stops
+func GetModelNameForStops(stopTimes []*gtfs.StopTime) string {
+	stopNames := make([]string, len(stopTimes))
+	for i, st := range stopTimes {
+		stopNames[i] = st.StopId
+	}
+	return strings.Join(stopNames, "_")
+}
+
+//GetModelNameForStopTimeInstances names a model based on its series of stops
+func GetModelNameForStopTimeInstances(stopTimes []*gtfs.StopTimeInstance) string {
+	stopNames := make([]string, len(stopTimes))
+	for i, st := range stopTimes {
+		stopNames[i] = st.StopId
+	}
+	return strings.Join(stopNames, "_")
 }
 
 //MakeMLModelStop MLModelStop factory
@@ -208,8 +228,19 @@ func RecordNewMLStopModel(db *sqlx.DB, modelStop *MLModelStop) (*MLModelStop, er
 
 //GetAllCurrentMLModelsByName returns map of all current MLModel by ModelName, where current timestamp is between
 //ml_model.start_timestamp and ml_model.end_timestamp
-func GetAllCurrentMLModelsByName(db *sqlx.DB) (map[string]*MLModel, error) {
-	modelStopMap, err := getAllCurrentMLModelStopsByMLModelID(db)
+func GetAllCurrentMLModelsByName(db *sqlx.DB, trainedOnly bool) (map[string]*MLModel, error) {
+	modelStopsWhereClause := ""
+	modelWhereClause := ""
+	if trainedOnly {
+		modelStopsWhereClause = "and m.trained_timestamp is not null "
+		modelWhereClause = " and trained_timestamp is not null "
+	}
+	modelStopMap, err := GetMLModelStopsByMLModelID(db,
+		"select s.ml_model_id, s.ml_model_stop_id, s.stop_id, s.next_stop_id, s.sequence "+
+			"from ml_model_stop s left join ml_model m on s.ml_model_id = m.ml_model_id "+
+			"where current_timestamp between m.start_timestamp and m.end_timestamp "+
+			modelStopsWhereClause+
+			"order by s.ml_model_id, s.sequence")
 	if err != nil {
 		return nil, err
 	}
@@ -231,30 +262,43 @@ func GetAllCurrentMLModelsByName(db *sqlx.DB) (map[string]*MLModel, error) {
 		"observed_stop_count, " +
 		"median, " +
 		"average " +
-		"from ml_model where current_timestamp between start_timestamp and end_timestamp"
-	rows, err := db.Queryx(statementString)
+		"from ml_model where current_timestamp between start_timestamp and end_timestamp" +
+		modelWhereClause
+	modelMap := make(map[string]*MLModel)
+	err = GetMLModels(db, func(model *MLModel) {
+		modelMap[model.ModelName] = model
+	}, modelStopMap, statementString)
 	if err != nil {
 		return nil, err
 	}
-	modelMap := make(map[string]*MLModel)
+
+	return modelMap, nil
+}
+
+//GetMLModels returns map of all current MLModel by ModelName, where current timestamp is between
+//ml_model.start_timestamp and ml_model.end_timestamp
+func GetMLModels(db *sqlx.DB, callback func(model *MLModel), modelStopMap map[int64][]*MLModelStop,
+	query string, args ...interface{}) error {
+
+	rows, err := db.Queryx(query, args...)
+	if err != nil {
+		return err
+	}
 	for rows.Next() {
 		model := MLModel{}
 		err = rows.StructScan(&model)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		model.ModelStops = modelStopMap[model.MLModelId]
-		modelMap[model.ModelName] = &model
+		callback(&model)
 	}
-	return modelMap, nil
+	return nil
 }
 
-func getAllCurrentMLModelStopsByMLModelID(db *sqlx.DB) (map[int64][]*MLModelStop, error) {
-	statementString := "select s.ml_model_id, s.ml_model_stop_id, s.stop_id, s.next_stop_id, s.sequence " +
-		"from ml_model_stop s left join ml_model m on s.ml_model_id = m.ml_model_id " +
-		"where current_timestamp between m.start_timestamp and m.end_timestamp " +
-		"order by s.ml_model_id, s.sequence"
-	rows, err := db.Queryx(statementString)
+func GetMLModelStopsByMLModelID(db *sqlx.DB, query string, args ...interface{}) (map[int64][]*MLModelStop, error) {
+
+	rows, err := db.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}

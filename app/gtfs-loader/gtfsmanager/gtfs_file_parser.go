@@ -34,7 +34,7 @@ type gtfsFileParser struct {
 	errors         []error
 }
 
-// makeGTFSFileParser creates new gtfsFileParser from io.Reader
+// makeGTFSFileParser builds gtfsFileParser from io.Reader
 func makeGTFSFileParser(r io.Reader, filename string) (*gtfsFileParser, error) {
 	csvReader := csv.NewReader(r)
 

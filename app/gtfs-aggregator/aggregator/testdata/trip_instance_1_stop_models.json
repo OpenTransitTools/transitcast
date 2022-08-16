@@ -1,0 +1,97 @@
+[
+  {
+    "ml_model_id": 1,
+    "ml_model_type_id": 1,
+    "trained_timestamp": "2022-05-20T11:20:19-07:00",
+    "model_name": "A_B",
+    "currently_relevant": true,
+    "median": null,
+    "average": 1300,
+    "avg_rmse": 12.0,
+    "ml_rmse": 12.0,
+    "model_stops": [
+      {
+        "ml_model_id": 1,
+        "sequence": 1,
+        "stop_id": "A",
+        "next_stop_id": "B"
+      }
+    ]
+  },
+  {
+    "ml_model_id": 1,
+    "ml_model_type_id": 1,
+    "trained_timestamp": "2022-05-20T11:20:19-07:00",
+    "model_name": "B_C",
+    "currently_relevant": true,
+    "median": null,
+    "average": null,
+    "avg_rmse": 12.0,
+    "ml_rmse": 13.0,
+    "model_stops": [
+      {
+        "ml_model_id": 1,
+        "sequence": 1,
+        "stop_id": "B",
+        "next_stop_id": "C"
+      }
+    ]
+  },
+  {
+    "ml_model_id": 1,
+    "ml_model_type_id": 1,
+    "trained_timestamp": "2022-05-20T11:20:19-07:00",
+    "model_name": "C_D",
+    "currently_relevant": true,
+    "median": null,
+    "average": null,
+    "avg_rmse": 12.0,
+    "ml_rmse": 12.0,
+    "model_stops": [
+      {
+        "ml_model_id": 1,
+        "sequence": 1,
+        "stop_id": "C",
+        "next_stop_id": "D"
+      }
+    ]
+  },
+  {
+    "ml_model_id": 1,
+    "ml_model_type_id": 1,
+    "trained_timestamp": "2022-05-20T11:20:19-07:00",
+    "model_name": "D_E",
+    "currently_relevant": true,
+    "median": null,
+    "average": null,
+    "avg_rmse": 12.0,
+    "ml_rmse": 12.0,
+    "model_stops": [
+      {
+        "ml_model_id": 1,
+        "sequence": 1,
+        "stop_id": "D",
+        "next_stop_id": "E"
+      }
+    ]
+  },
+  {
+    "ml_model_id": 1,
+    "ml_model_type_id": 1,
+    "trained_timestamp": "2022-05-20T11:20:19-07:00",
+    "model_name": "E_F",
+    "currently_relevant": true,
+    "median": null,
+    "average": 1260.0,
+    "avg_rmse": 12.0,
+    "ml_rmse": 12.0,
+    "model_stops": [
+      {
+        "ml_model_id": 1,
+        "sequence": 1,
+        "stop_id": "E",
+        "next_stop_id": "F"
+      }
+    ]
+  }
+]

@@ -2,6 +2,7 @@
 /gtfs-loader
 /gtfs-monitor
 /model-mgr
+/gtfs-aggregator
 
 # temp file download location
 

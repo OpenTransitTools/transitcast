@@ -5,7 +5,6 @@ import (
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/OpenTransitTools/transitcast/business/data/mlmodels"
 	"github.com/jmoiron/sqlx"
-	"strings"
 	"time"
 )
 
@@ -14,7 +13,7 @@ type discoveredModels struct {
 	modelsByName map[string]*mlmodels.MLModel
 }
 
-//makeDiscoveredModels makeDiscoveredModels builder
+//makeDiscoveredModels builds makeDiscoveredModels
 func makeDiscoveredModels() *discoveredModels {
 	return &discoveredModels{modelsByName: make(map[string]*mlmodels.MLModel)}
 }
@@ -190,7 +189,7 @@ func discoverModelsOnTrip(models *discoveredModels,
 
 //addModel creates and adds model to discoveredModels
 func addModel(models *discoveredModels, stopTimes []*gtfs.StopTime, modelType *mlmodels.MLModelType) {
-	modelName := getModelNameForStops(stopTimes)
+	modelName := mlmodels.GetModelNameForStops(stopTimes)
 	if models.containsModel(modelName) {
 		return
 	}
@@ -202,7 +201,7 @@ func addModel(models *discoveredModels, stopTimes []*gtfs.StopTime, modelType *m
 
 }
 
-//makeModel creates model with MLStopTimes for each gtfs.StopTime pair.
+//makeModel builds model with MLStopTimes for each gtfs.StopTime pair.
 func makeModel(stopTimes []*gtfs.StopTime,
 	modelName string,
 	modelType *mlmodels.MLModelType) *mlmodels.MLModel {
@@ -222,15 +221,6 @@ func makeModel(stopTimes []*gtfs.StopTime,
 		previousStopTime = stopTime
 	}
 	return model
-}
-
-//getModelNameForStops names a model based on its series of stops
-func getModelNameForStops(stopTimes []*gtfs.StopTime) string {
-	stopNames := make([]string, len(stopTimes))
-	for i, st := range stopTimes {
-		stopNames[i] = st.StopId
-	}
-	return strings.Join(stopNames, "_")
 }
 
 //getModelTypes returns all MLModelTypes currently known.

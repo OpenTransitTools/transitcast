@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/jmoiron/sqlx"
+	"github.com/nats-io/nats.go"
 	"log"
 	"os"
 	"time"
@@ -13,10 +14,13 @@ import (
 //RunVehicleMonitorLoop starts loop that monitors gtfs-rt feed and records results for use in ML processing.
 func RunVehicleMonitorLoop(log *log.Logger,
 	db *sqlx.DB,
+	natsConnection *nats.Conn,
 	url string,
 	loopEverySeconds int,
 	earlyTolerance float64,
 	expirePositionSeconds int,
+	recordToDatabase bool,
+	publishOverNats bool,
 	shutdownSignal chan os.Signal) error {
 
 	loopDuration := time.Duration(loopEverySeconds) * time.Second
@@ -27,7 +31,7 @@ func RunVehicleMonitorLoop(log *log.Logger,
 	relevantTripCache := makeTripCache(time.Now())
 	monitorCollection := newVehicleMonitorCollection(earlyTolerance, expirePositionSeconds)
 
-	positionRecorder := makeDBRecorder(log, db)
+	resultPublisher := makeVehicleMonitorResultsPublisher(log, db, natsConnection, recordToDatabase, publishOverNats)
 
 	for {
 
@@ -67,8 +71,8 @@ func RunVehicleMonitorLoop(log *log.Logger,
 			continue
 		}
 
-		//update vehicle positions and retrieve new positions for recording to TripDeviation
-		updateVehiclePositions(log, positionRecorder, vehiclePositions, loadedTrips, &monitorCollection)
+		//update vehicle positions and retrieve new positions for recording to TripDeviations
+		updateVehiclePositions(log, resultPublisher, vehiclePositions, loadedTrips, &monitorCollection)
 
 		// attempt to run the loop every loopEverySeconds by subtracting the time it took to perform the work
 		workTook := time.Now().Sub(start)
@@ -88,9 +92,9 @@ func RunVehicleMonitorLoop(log *log.Logger,
 //updateVehiclePositions runs vehiclePositions through vehicleMonitors and saves results to database
 //returns map of new tripStopPositions by blockId
 func updateVehiclePositions(log *log.Logger,
-	recorder rtRecorder,
+	resultPublisher *vehicleMonitorResultsPublisher,
 	positions []vehiclePosition,
-	loadedTripInstancesByTripId map[string]*gtfs.TripInstance,
+	tripCache map[string]*gtfs.TripInstance,
 	monitorCollection *vehicleMonitorCollection) {
 
 	countNewTripStopPositions := 0
@@ -100,19 +104,17 @@ func updateVehiclePositions(log *log.Logger,
 		vm := monitorCollection.getOrMakeVehicle(position.Id)
 		var trip *gtfs.TripInstance
 		if position.TripId != nil {
-			trip = loadedTripInstancesByTripId[*position.TripId]
+			trip = tripCache[*position.TripId]
 		}
 
-		newPosition, observations := vm.newPosition(log, position, trip)
+		newPosition, osts := vm.newPosition(log, position, trip)
 
 		if newPosition != nil {
-			recorder.recordTripStopPosition(loadedTripInstancesByTripId, newPosition)
 			countNewTripStopPositions++
 		}
+		countNewObservations += len(osts)
 
-		recorder.recordObservedStopTimePositions(observations)
-
-		countNewObservations += len(observations)
+		publishNewPosition(resultPublisher, position.Id, tripCache, newPosition, osts)
 
 	}
 
@@ -124,6 +126,22 @@ func updateVehiclePositions(log *log.Logger,
 		log.Printf("Made %d new trip stop positions", countNewObservations)
 	}
 
+}
+
+func publishNewPosition(resultPublisher *vehicleMonitorResultsPublisher,
+	vehicleId string,
+	tripCache map[string]*gtfs.TripInstance,
+	tsp *tripStopPosition,
+	osts []*gtfs.ObservedStopTime) {
+	if tsp == nil && len(osts) == 0 {
+		return
+	}
+	vehicleMonitorResults := gtfs.VehicleMonitorResults{
+		VehicleId:         vehicleId,
+		ObservedStopTimes: osts,
+		TripDeviations:    collectBlockDeviations(tripCache, tsp),
+	}
+	resultPublisher.publish(&vehicleMonitorResults)
 }
 
 //fmtDuration returns a string presentation of time.Duration for logging

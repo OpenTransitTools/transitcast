@@ -96,6 +96,21 @@ func (t *TripInstance) ShapesBetweenDistances(start float64, end float64) []*Sha
 	return results
 }
 
+func (t *TripInstance) FirstStopTimeInstance() *StopTimeInstance {
+	if len(t.StopTimeInstances) == 0 {
+		return nil
+	}
+	return t.StopTimeInstances[0]
+}
+
+func (t *TripInstance) LastStopTimeInstance() *StopTimeInstance {
+	lastIndex := len(t.StopTimeInstances) - 1
+	if lastIndex < 0 {
+		return nil
+	}
+	return t.StopTimeInstances[lastIndex]
+}
+
 //GetScheduledTripIds returns all map of trip_ids that are scheduled between relevantFrom and relevantTo
 // at is used to retrieve the active dataSet
 func GetScheduledTripIds(db *sqlx.DB,
@@ -197,22 +212,18 @@ func GetTripInstances(db *sqlx.DB,
 
 	// iterate over each row
 	for rows.Next() {
-		tripInstance := TripInstance{}
-		err = rows.StructScan(&tripInstance)
+		tripInstance, err := loadTripInstanceRows(rows, stopTimeMap)
 		if err != nil {
 			return nil, err
 		}
-		//collect shapeIds we need
 
+		//collect shapeIds needed
 		if _, present := shapeIdMap[tripInstance.ShapeId]; !present {
 			shapeIdMap[tripInstance.ShapeId] = true
 			shapeIds = append(shapeIds, tripInstance.ShapeId)
 		}
 
-		if stopTimes, present := stopTimeMap[tripInstance.TripId]; present {
-			tripInstance.StopTimeInstances = stopTimes
-			results.TripInstancesByTripId[tripInstance.TripId] = &tripInstance
-		}
+		results.TripInstancesByTripId[tripInstance.TripId] = tripInstance
 	}
 
 	// check the error from rows
@@ -237,5 +248,66 @@ func GetTripInstances(db *sqlx.DB,
 	results.MissingShapeIds = missingShapeIds
 
 	return results, err
+
+}
+
+func GetTripInstance(db *sqlx.DB,
+	dataSetId int64,
+	tripId string,
+	at time.Time,
+	tripSearchRangeSeconds int) (*TripInstance, error) {
+	scheduleSlices := GetScheduleSlicesForSearchRange(at, tripSearchRangeSeconds)
+
+	stopTimeMap, _, _, err := GetStopTimeInstances(db, scheduleSlices, dataSetId, []string{tripId})
+
+	if err != nil {
+		return nil, err
+	}
+
+	statementString := "select * from trip where data_set_id = :data_set_id and trip_id = :trip_id"
+	rows, err := database.PrepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
+		"data_set_id": dataSetId,
+		"trip_id":     tripId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var tripInstance *TripInstance
+	if rows.Next() {
+		tripInstance, err = loadTripInstanceRows(rows, stopTimeMap)
+
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, fmt.Errorf("unable to find trip for dataSet id: %d, tripId: %s at %v", dataSetId, tripId, at)
+	}
+	err = rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	// check the error from rows
+	err = rows.Err()
+
+	return tripInstance, err
+}
+
+func loadTripInstanceRows(rows *sqlx.Rows,
+	stopTimeMap map[string][]*StopTimeInstance) (*TripInstance, error) {
+	tripInstance := TripInstance{}
+	err := rows.StructScan(&tripInstance)
+	if err != nil {
+		return nil, err
+	}
+	//collect shapeIds we need
+	stopTimes, present := stopTimeMap[tripInstance.TripId]
+	if present {
+		tripInstance.StopTimeInstances = stopTimes
+	} else {
+		return nil, fmt.Errorf("found no scheduled stops in dataSet id: %d, tripId: %s",
+			tripInstance.DataSetId, tripInstance.TripId)
+	}
+	return &tripInstance, nil
 
 }

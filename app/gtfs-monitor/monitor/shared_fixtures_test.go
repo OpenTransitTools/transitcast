@@ -24,6 +24,11 @@ func makeTestLogWriter() *testLogWriter {
 	return &logWriter
 }
 
+func (t *testLogWriter) Write(p []byte) (n int, err error) {
+	t.logLines = append(t.logLines, string(p))
+	return len(p), nil
+}
+
 func intPtr(i int) *int {
 	return &i
 }
@@ -37,11 +42,6 @@ func float32Ptr(f float32) *float32 {
 
 func float64Ptr(f float64) *float64 {
 	return &f
-}
-
-func (t *testLogWriter) Write(p []byte) (n int, err error) {
-	t.logLines = append(t.logLines, string(p))
-	return len(p), nil
 }
 
 func getTestTrip(trips []*gtfs.TripInstance, tripId *string, t *testing.T) *gtfs.TripInstance {

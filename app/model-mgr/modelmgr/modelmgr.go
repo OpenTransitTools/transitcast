@@ -11,7 +11,7 @@ import (
 //ensures there are mlmodels.MLModel rows present, and marks any existing rows as not relevant
 func DiscoverAndRecordRequiredModels(log *log.Logger, db *sqlx.DB, days int) error {
 	log.Printf("Loading all current models\n")
-	existingModelsByName, err := mlmodels.GetAllCurrentMLModelsByName(db)
+	existingModelsByName, err := mlmodels.GetAllCurrentMLModelsByName(db, false)
 	if err != nil {
 		log.Printf("Unable to load existing models from database. error: %s", err)
 		return err

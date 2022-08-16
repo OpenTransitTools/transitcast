@@ -104,7 +104,7 @@ func collectRequiredTrips(log *log.Logger,
 		return requiredTrips, nil
 	}
 
-	startTime, endTime := getStartEndTimeToSearchForTrips(now)
+	startTime, endTime := gtfs.GetStartEndTimeToSearchSchedule(now, 60*60*8)
 	batchResult, err := gtfs.GetTripInstances(db, now, startTime, endTime, tripIdsNeeded)
 	if err != nil {
 		return requiredTrips, err
@@ -123,13 +123,4 @@ func collectRequiredTrips(log *log.Logger,
 	}
 
 	return requiredTrips, nil
-}
-
-//getStartEndTimeToSearchForTrips produces very wide range of time to search for valid trip schedules at a point in time
-//but still shouldn't overlap to other schedule days
-func getStartEndTimeToSearchForTrips(now time.Time) (start time.Time, end time.Time) {
-	const tripSearchRangeSeconds = 60 * 60 * 8
-	start = now.Add(time.Duration(-tripSearchRangeSeconds) * time.Second)
-	end = now.Add(time.Duration(tripSearchRangeSeconds) * time.Second)
-	return
 }
