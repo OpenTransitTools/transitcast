@@ -55,6 +55,7 @@ func (t *tripPredictorsCollection) retrieveTripPredictor(deviation *gtfs.TripDev
 }
 
 //removeExpiredPredictors removes all expired predictors from cache as of "now"
+//returns number of tripPredictors in collection before and after cleanup
 func (t *tripPredictorsCollection) removeExpiredPredictors(now time.Time) (int, int) {
 	return t.locker.removeExpiredPredictors(now, t.expireSeconds)
 }
@@ -87,6 +88,7 @@ func (t *tripPredictorsLocker) put(predictorMapId string, predictor *tripPredict
 
 //removeExpiredPredictors builds new tripPredictor with only items that have not expired as of "expireSeconds"
 //a tripPredictor has expired if its final stop's arrival time is "expireSeconds" after "now"
+//returns number of tripPredictors in collection before and after cleanup
 func (t *tripPredictorsLocker) removeExpiredPredictors(now time.Time, expireSeconds int) (int, int) {
 	t.mu.Lock()
 	defer t.mu.Unlock()

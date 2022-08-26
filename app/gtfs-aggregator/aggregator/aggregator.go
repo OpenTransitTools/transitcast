@@ -1,6 +1,7 @@
 package aggregator
 
 import (
+	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/jmoiron/sqlx"
 	"github.com/nats-io/nats.go"
 	logger "log"
@@ -18,6 +19,7 @@ type Conf struct {
 	PredictionSubject                     string
 	ExpirePredictorSeconds                int
 	LimitEarlyDepartureSeconds            int
+	InferenceBuckets                      int
 }
 
 //StartPredictionAggregator starts all routines for aggregation of predicted trips
@@ -60,7 +62,7 @@ func StartPredictionAggregator(log *logger.Logger,
 	go startObservedStopTransitionListener(log, &wg, osts, natsConn, ostSubscriptionShutdown)
 	log.Println("Starting TripUpdateListener")
 	go startTripUpdateListener(log, &wg, osts, natsConn, tripUpdateSubscriberShutdown, predictorsCollection,
-		pendingPredictions, publisher)
+		pendingPredictions, publisher, conf.InferenceBuckets)
 	log.Println("Starting InferenceListener")
 	go startInferenceResponseListener(log, &wg, natsConn, inferenceListenerShutdown, pendingPredictions, publisher)
 
@@ -113,11 +115,14 @@ func runBackgroundLoop(log *logger.Logger,
 		// mark the time we start working
 		start := time.Now()
 
-		pendingAtStart, afterCleanup := pendingPredictions.removeExpiredPredictions(start)
+		expiredPredictions, pendingPredictionsAfterCleanup := pendingPredictions.removeExpiredPredictions(start)
 
-		log.Printf("PendingPredictions have %d removed %d\n", afterCleanup, pendingAtStart-afterCleanup)
+		completedPredictions, incompletePredictions := countExpiredPredictionCompletions(expiredPredictions)
 
-		pendingAtStart, afterCleanup = tripPredictorsCollection.removeExpiredPredictors(start)
+		log.Printf("PendingPredictions has %d. failed: %d, completed: %d\n",
+			pendingPredictionsAfterCleanup, incompletePredictions, completedPredictions)
+
+		pendingAtStart, afterCleanup := tripPredictorsCollection.removeExpiredPredictors(start)
 
 		log.Printf("tripPredictorsCollection have %d removed %d\n", afterCleanup, pendingAtStart-afterCleanup)
 
@@ -130,4 +135,28 @@ func runBackgroundLoop(log *logger.Logger,
 			sleep = loopDuration - workTook
 		}
 	}
+}
+
+//countExpiredPredictionCompletions count number of predictions completed and not completed in expiredBatches
+func countExpiredPredictionCompletions(expiredBatches []*predictionBatch) (completed int, notCompleted int) {
+
+	completed = 0
+	notCompleted = 0
+	for _, batch := range expiredBatches {
+		for _, pendingTrip := range batch.pendingTripPredictions {
+
+			for _, stop := range pendingTrip.tripPrediction.stopPredictions {
+				if stop.predictionComplete {
+					if stop.predictionSource == gtfs.StopMLPrediction ||
+						stop.predictionSource == gtfs.TimepointMLPrediction {
+						completed++
+					}
+
+				} else {
+					notCompleted++
+				}
+			}
+		}
+	}
+	return completed, notCompleted
 }

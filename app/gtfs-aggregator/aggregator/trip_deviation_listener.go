@@ -2,6 +2,7 @@ package aggregator
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/nats-io/nats.go"
 	logger "log"
@@ -21,7 +22,8 @@ func startTripUpdateListener(
 	shutdownSignal chan bool,
 	tripPredictorsCollection *tripPredictorsCollection,
 	pendingPredictions *pendingPredictionsCollection,
-	predictionPublisher *predictionPublisher) {
+	predictionPublisher *predictionPublisher,
+	inferenceBuckets int) {
 	wg.Add(1)
 	defer wg.Done()
 
@@ -30,7 +32,8 @@ func startTripUpdateListener(
 		predictionPublisher,
 		osts,
 		tripPredictorsCollection,
-		pendingPredictions)
+		pendingPredictions,
+		inferenceBuckets)
 
 	ch := make(chan *nats.Msg, 64)
 	log.Printf("Subscribing to vehicle-monitor-results in queue group prediction-generator on nats: %v\n",
@@ -60,7 +63,7 @@ func startTripUpdateListener(
 
 }
 
-//unsubscribe convience function for unsubscribing from a NATS subscription, and logging the results.
+//unsubscribe convenience function for unsubscribing from a NATS subscription, and logging the results.
 func unsubscribe(log *logger.Logger, sub *nats.Subscription, subName string) {
 	if !sub.IsValid() {
 		return
@@ -82,6 +85,7 @@ type tripUpdateProcessor struct {
 	osts                     *observedStopTransitions
 	tripPredictorsCollection *tripPredictorsCollection
 	pendingPredictions       *pendingPredictionsCollection
+	inferenceBuckets         int
 }
 
 //makeTripUpdateProcessor builds tripUpdateProcessor
@@ -90,7 +94,8 @@ func makeTripUpdateProcessor(log *logger.Logger,
 	predictionPublisher *predictionPublisher,
 	osts *observedStopTransitions,
 	tripPredictorsCollection *tripPredictorsCollection,
-	pendingPredictions *pendingPredictionsCollection) *tripUpdateProcessor {
+	pendingPredictions *pendingPredictionsCollection,
+	inferenceBuckets int) *tripUpdateProcessor {
 	return &tripUpdateProcessor{
 		log:                      log,
 		natsConn:                 natsConn,
@@ -98,6 +103,7 @@ func makeTripUpdateProcessor(log *logger.Logger,
 		osts:                     osts,
 		tripPredictorsCollection: tripPredictorsCollection,
 		pendingPredictions:       pendingPredictions,
+		inferenceBuckets:         inferenceBuckets,
 	}
 }
 
@@ -162,6 +168,7 @@ func (t *tripUpdateProcessor) startPredictionForTripDeviation(
 func (t *tripUpdateProcessor) handlePredictionBatch(batch *predictionBatch) {
 	if batch.predictionsRemaining() == 0 {
 		t.predictionPublisher.publishPredictionBatch(batch)
+		return
 	}
 	t.pendingPredictions.addPendingPredictionBatch(time.Now(), batch)
 	t.sendInferenceRequests(batch.allInferenceRequests())
@@ -176,7 +183,9 @@ func (t *tripUpdateProcessor) sendInferenceRequests(requests []*InferenceRequest
 			t.log.Printf("Error marshalling inferenceRequest: %v, error:%v", request, err)
 			return
 		}
-		err = t.natsConn.Publish("inference-request", jsonData)
+		bucket := request.MLModelId % int64(t.inferenceBuckets)
+		subject := fmt.Sprintf("inference-request.%d", bucket)
+		err = t.natsConn.Publish(subject, jsonData)
 		if err != nil {
 			t.log.Printf("Error sending inferenceRequest: %v, error:%v", request, err)
 			return

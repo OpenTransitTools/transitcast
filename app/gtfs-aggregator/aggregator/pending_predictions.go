@@ -29,9 +29,9 @@ func makePredictionBatch(at time.Time, vehicleId string) *predictionBatch {
 //predictionsRemaining returns the number of predictions awaiting inference responses in this batch
 func (p *predictionBatch) predictionsRemaining() int {
 	remaining := 0
-	for _, pending := range p.pendingTripPredictions {
+	for _, pendingTrip := range p.pendingTripPredictions {
 
-		remaining += pending.tripPrediction.predictionsRemaining()
+		remaining += pendingTrip.tripPrediction.predictionsRemaining()
 	}
 	return remaining
 }
@@ -149,32 +149,34 @@ func (p *pendingPredictionsCollection) getPendingPrediction(at time.Time,
 			if request.expireTime.Before(at) {
 				return nil, nil, nil, fmt.Errorf("inference request has expired for %v", response)
 			}
-			tripPrediction, inferenceRequest := request.predictionBatch.findInferenceRequest(requestIds)
-			if tripPrediction == nil || inferenceRequest == nil {
+			prediction, inferenceRequest := request.predictionBatch.findInferenceRequest(requestIds)
+			if prediction == nil || inferenceRequest == nil {
 				return nil, nil, nil, fmt.Errorf("unable to find inference request for %v", response)
 			}
-			return request.predictionBatch, tripPrediction, inferenceRequest, nil
+			return request.predictionBatch, prediction, inferenceRequest, nil
 		}
 	}
 	return nil, nil, nil, fmt.Errorf("unable to find inference request for %v", response)
 }
 
 //removeExpiredPredictions remove all expired predictionBatch that have expired. Called by a background cleanup routine
-func (p *pendingPredictionsCollection) removeExpiredPredictions(at time.Time) (int, int) {
+//returns slice of expired predictionBatch and size of current predictionBatch in collection
+func (p *pendingPredictionsCollection) removeExpiredPredictions(at time.Time) ([]*predictionBatch, int) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	pendingAtStart := len(p.pendingList)
-
-	newPendingList := make([]*pendingPredictionBatch, 0)
+	var expiredList []*predictionBatch
+	var newPendingList []*pendingPredictionBatch
 	for _, pending := range p.pendingList {
 		if pending.expireTime.After(at) {
 			newPendingList = append(newPendingList, pending)
+		} else {
+			expiredList = append(expiredList, pending.predictionBatch)
 		}
 	}
 	p.pendingList = newPendingList
 
-	return pendingAtStart, len(p.pendingList)
+	return expiredList, len(p.pendingList)
 }
 
 //makePredictionsBatchId builds an identifier for use in a predictionBatch
