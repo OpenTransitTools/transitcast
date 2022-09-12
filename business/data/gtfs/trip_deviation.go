@@ -18,6 +18,7 @@ type TripDeviation struct {
 	VehicleId string `db:"vehicle_id" json:"vehicle_id"`
 	AtStop    bool   `db:"at_stop" json:"at_stop"`
 	Delay     int    `db:"delay"`
+	RouteId   string `db:"-" json:"route_id"`
 }
 
 // RecordTripDeviation saves slice of TripDeviations into database in batch

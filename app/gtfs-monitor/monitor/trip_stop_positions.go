@@ -119,5 +119,6 @@ func makeTripDeviation(
 		VehicleId:          position.vehicleId,
 		AtStop:             position.atPreviousStop,
 		Delay:              position.delay,
+		RouteId:            trip.RouteId,
 	}
 }
