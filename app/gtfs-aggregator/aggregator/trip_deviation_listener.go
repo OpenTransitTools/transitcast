@@ -23,6 +23,7 @@ func startTripUpdateListener(
 	tripPredictorsCollection *tripPredictorsCollection,
 	pendingPredictions *pendingPredictionsCollection,
 	predictionPublisher *predictionPublisher,
+	includedRoutes []string,
 	inferenceBuckets int) {
 	wg.Add(1)
 	defer wg.Done()
@@ -33,7 +34,8 @@ func startTripUpdateListener(
 		osts,
 		tripPredictorsCollection,
 		pendingPredictions,
-		inferenceBuckets)
+		inferenceBuckets,
+		includedRoutes)
 
 	ch := make(chan *nats.Msg, 64)
 	log.Printf("Subscribing to vehicle-monitor-results in queue group prediction-generator on nats: %v\n",
@@ -86,6 +88,7 @@ type tripUpdateProcessor struct {
 	tripPredictorsCollection *tripPredictorsCollection
 	pendingPredictions       *pendingPredictionsCollection
 	inferenceBuckets         int
+	includedRoutes           []string
 }
 
 //makeTripUpdateProcessor builds tripUpdateProcessor
@@ -95,7 +98,8 @@ func makeTripUpdateProcessor(log *logger.Logger,
 	osts *observedStopTransitions,
 	tripPredictorsCollection *tripPredictorsCollection,
 	pendingPredictions *pendingPredictionsCollection,
-	inferenceBuckets int) *tripUpdateProcessor {
+	inferenceBuckets int,
+	includedRoutes []string) *tripUpdateProcessor {
 	return &tripUpdateProcessor{
 		log:                      log,
 		natsConn:                 natsConn,
@@ -104,6 +108,7 @@ func makeTripUpdateProcessor(log *logger.Logger,
 		tripPredictorsCollection: tripPredictorsCollection,
 		pendingPredictions:       pendingPredictions,
 		inferenceBuckets:         inferenceBuckets,
+		includedRoutes:           includedRoutes,
 	}
 }
 
@@ -138,6 +143,9 @@ func (t *tripUpdateProcessor) predictionsForVehicleMonitorResults(
 	}
 	batch := makePredictionBatch(time.Now(), vehicleMonitorResults.VehicleId)
 	for _, deviation := range vehicleMonitorResults.TripDeviations {
+		if !t.shouldPredictTripDeviation(deviation) {
+			continue
+		}
 		tp, inferenceRequests, err := t.startPredictionForTripDeviation(deviation)
 		if err != nil {
 			t.log.Printf("Error generating pendingTripPrediction tripId %s, error:%v", deviation.TripId, err)
@@ -147,6 +155,20 @@ func (t *tripUpdateProcessor) predictionsForVehicleMonitorResults(
 	}
 	return batch
 
+}
+
+//shouldPredictTripDeviation returns true if deviation should be used to generate a prediction based on filtered RouteIds
+func (t *tripUpdateProcessor) shouldPredictTripDeviation(deviation *gtfs.TripDeviation) bool {
+	//include the trip deviation if includedRoutes is empty
+	if len(t.includedRoutes) == 0 {
+		return true
+	}
+	for _, value := range t.includedRoutes {
+		if value == deviation.RouteId {
+			return true
+		}
+	}
+	return false
 }
 
 //startPredictionForTripDeviation creates tripPrediction returning it and any InferenceRequests to be made to complete

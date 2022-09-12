@@ -20,6 +20,7 @@ type Conf struct {
 	ExpirePredictorSeconds                int
 	LimitEarlyDepartureSeconds            int
 	InferenceBuckets                      int
+	IncludedRouteIds                      []string
 }
 
 //StartPredictionAggregator starts all routines for aggregation of predicted trips
@@ -62,25 +63,22 @@ func StartPredictionAggregator(log *logger.Logger,
 	go startObservedStopTransitionListener(log, &wg, osts, natsConn, ostSubscriptionShutdown)
 	log.Println("Starting TripUpdateListener")
 	go startTripUpdateListener(log, &wg, osts, natsConn, tripUpdateSubscriberShutdown, predictorsCollection,
-		pendingPredictions, publisher, conf.InferenceBuckets)
+		pendingPredictions, publisher, conf.IncludedRouteIds, conf.InferenceBuckets)
 	log.Println("Starting InferenceListener")
 	go startInferenceResponseListener(log, &wg, natsConn, inferenceListenerShutdown, pendingPredictions, publisher)
 
-	for {
-
-		select {
-		case <-shutdownSignal:
-			log.Printf("Exiting on shutdown signal, shutting down subroutines")
-			backgroundLoopShutdown <- true
-			ostSubscriptionShutdown <- true
-			tripUpdateSubscriberShutdown <- true
-			inferenceListenerShutdown <- true
-			wg.Wait()
-			log.Printf("Subroutines shut down, exiting aggregator")
-			return nil
-		}
+	select {
+	case <-shutdownSignal:
+		log.Printf("Exiting on shutdown signal, shutting down subroutines")
+		backgroundLoopShutdown <- true
+		ostSubscriptionShutdown <- true
+		tripUpdateSubscriberShutdown <- true
+		inferenceListenerShutdown <- true
+		wg.Wait()
+		log.Printf("Subroutines shut down, exiting aggregator")
 
 	}
+	return nil
 }
 
 //runBackgroundLoop frequently runs clean up on pendingPredictionsCollection and tripPredictorsCollection
