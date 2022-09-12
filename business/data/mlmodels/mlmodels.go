@@ -232,8 +232,9 @@ func GetAllCurrentMLModelsByName(db *sqlx.DB, trainedOnly bool) (map[string]*MLM
 	modelStopsWhereClause := ""
 	modelWhereClause := ""
 	if trainedOnly {
-		modelStopsWhereClause = "and m.trained_timestamp is not null "
-		modelWhereClause = " and trained_timestamp is not null "
+		modelStopsWhereClause = " and m.trained_timestamp is not null "
+		modelWhereClause = " and trained_timestamp is not null and train_flag = false " +
+			"and currently_relevant = true "
 	}
 	modelStopMap, err := GetMLModelStopsByMLModelID(db,
 		"select s.ml_model_id, s.ml_model_stop_id, s.stop_id, s.next_stop_id, s.sequence "+
