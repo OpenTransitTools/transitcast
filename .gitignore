@@ -3,6 +3,7 @@
 /gtfs-monitor
 /model-mgr
 /gtfs-aggregator
+/gtfs-tripupdate-svc
 
 # temp file download location
 
