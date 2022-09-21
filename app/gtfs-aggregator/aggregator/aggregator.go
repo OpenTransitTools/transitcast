@@ -21,6 +21,7 @@ type Conf struct {
 	LimitEarlyDepartureSeconds            int
 	InferenceBuckets                      int
 	IncludedRouteIds                      []string
+	MaximumPredictionMinutes              int
 }
 
 //StartPredictionAggregator starts all routines for aggregation of predicted trips
@@ -43,7 +44,8 @@ func StartPredictionAggregator(log *logger.Logger,
 		conf.LimitEarlyDepartureSeconds)
 	log.Println("Creating tripPredictorsCollection")
 	predictorsCollection, err := makeTripPredictorsCollection(db, osts,
-		conf.MinimumRMSEModelImprovement, conf.MinimumObservedStopCount, conf.ExpirePredictorSeconds)
+		conf.MinimumRMSEModelImprovement, conf.MinimumObservedStopCount, conf.ExpirePredictorSeconds,
+		conf.MaximumPredictionMinutes)
 	log.Println("Done creating shared aggregator structures")
 
 	if err != nil {
@@ -63,7 +65,7 @@ func StartPredictionAggregator(log *logger.Logger,
 	go startObservedStopTransitionListener(log, &wg, osts, natsConn, ostSubscriptionShutdown)
 	log.Println("Starting TripUpdateListener")
 	go startTripUpdateListener(log, &wg, osts, natsConn, tripUpdateSubscriberShutdown, predictorsCollection,
-		pendingPredictions, publisher, conf.IncludedRouteIds, conf.InferenceBuckets)
+		pendingPredictions, publisher, conf.IncludedRouteIds, conf.InferenceBuckets, conf.MaximumPredictionMinutes)
 	log.Println("Starting InferenceListener")
 	go startInferenceResponseListener(log, &wg, natsConn, inferenceListenerShutdown, pendingPredictions, publisher)
 

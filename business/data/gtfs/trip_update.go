@@ -12,6 +12,7 @@ const (
 	TimepointMLPrediction
 	StopStatisticsPrediction
 	TimepointStatisticsPrediction
+	NoFurtherPredictions
 )
 
 //TripUpdate holds a predicted Trip and its StopTimeUpdates

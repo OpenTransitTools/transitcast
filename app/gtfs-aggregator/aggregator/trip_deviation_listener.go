@@ -24,7 +24,8 @@ func startTripUpdateListener(
 	pendingPredictions *pendingPredictionsCollection,
 	predictionPublisher *predictionPublisher,
 	includedRoutes []string,
-	inferenceBuckets int) {
+	inferenceBuckets int,
+	maximumPredictionMinutes int) {
 	wg.Add(1)
 	defer wg.Done()
 
@@ -35,7 +36,8 @@ func startTripUpdateListener(
 		tripPredictorsCollection,
 		pendingPredictions,
 		inferenceBuckets,
-		includedRoutes)
+		includedRoutes,
+		maximumPredictionMinutes)
 
 	ch := make(chan *nats.Msg, 64)
 	log.Printf("Subscribing to vehicle-monitor-results in queue group prediction-generator on nats: %v\n",
@@ -89,6 +91,7 @@ type tripUpdateProcessor struct {
 	pendingPredictions       *pendingPredictionsCollection
 	inferenceBuckets         int
 	includedRoutes           []string
+	maximumPredictionMinutes int
 }
 
 //makeTripUpdateProcessor builds tripUpdateProcessor
@@ -99,7 +102,8 @@ func makeTripUpdateProcessor(log *logger.Logger,
 	tripPredictorsCollection *tripPredictorsCollection,
 	pendingPredictions *pendingPredictionsCollection,
 	inferenceBuckets int,
-	includedRoutes []string) *tripUpdateProcessor {
+	includedRoutes []string,
+	maximumPredictionMinutes int) *tripUpdateProcessor {
 	return &tripUpdateProcessor{
 		log:                      log,
 		natsConn:                 natsConn,
@@ -109,6 +113,7 @@ func makeTripUpdateProcessor(log *logger.Logger,
 		pendingPredictions:       pendingPredictions,
 		inferenceBuckets:         inferenceBuckets,
 		includedRoutes:           includedRoutes,
+		maximumPredictionMinutes: maximumPredictionMinutes,
 	}
 }
 
@@ -151,7 +156,9 @@ func (t *tripUpdateProcessor) predictionsForVehicleMonitorResults(
 			t.log.Printf("Error generating pendingTripPrediction tripId %s, error:%v", deviation.TripId, err)
 			return nil
 		}
-		batch.addPendingTripPrediction(tp, inferenceRequests)
+		if tp != nil {
+			batch.addPendingTripPrediction(tp, inferenceRequests)
+		}
 	}
 	return batch
 
@@ -173,12 +180,17 @@ func (t *tripUpdateProcessor) shouldPredictTripDeviation(deviation *gtfs.TripDev
 
 //startPredictionForTripDeviation creates tripPrediction returning it and any InferenceRequests to be made to complete
 //the tripPrediction
+//returns nil, nil, nil if no prediction should be started on this trip yet
 func (t *tripUpdateProcessor) startPredictionForTripDeviation(
 	deviation *gtfs.TripDeviation) (*tripPrediction, []*InferenceRequest, error) {
 
 	predictor, err := t.tripPredictorsCollection.retrieveTripPredictor(deviation)
 	if err != nil {
 		return nil, nil, err
+	}
+	//don't begin predictions if the trip is too far away
+	if !predictor.tripIsWithinPredictionRange(deviation) {
+		return nil, nil, nil
 	}
 	tp, inferenceRequests := predictor.predict(deviation)
 	return tp, inferenceRequests, nil

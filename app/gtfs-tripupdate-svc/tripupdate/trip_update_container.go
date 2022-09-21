@@ -20,6 +20,7 @@ func makeUpdateWrapper(tripUpdate *gtfs.TripUpdate) *updateWrapper {
 	}
 	tripScheduleRelationship := gtfsrtproto.TripDescriptor_SCHEDULED
 	stopScheduleRelationship := gtfsrtproto.TripUpdate_StopTimeUpdate_SCHEDULED
+	stopNoDataRelationship := gtfsrtproto.TripUpdate_StopTimeUpdate_NO_DATA
 	tripUpdateProtoc := gtfsrtproto.TripUpdate{
 		Trip: &gtfsrtproto.TripDescriptor{
 			TripId:               &tripUpdate.TripId,
@@ -34,15 +35,22 @@ func makeUpdateWrapper(tripUpdate *gtfs.TripUpdate) *updateWrapper {
 	}
 	var stopTimeUpdates []*gtfsrtproto.TripUpdate_StopTimeUpdate
 	for _, stopTimeUpdate := range tripUpdate.StopTimeUpdates {
-		arrivalDelay := int32(stopTimeUpdate.ArrivalDelay)
-		stopTimeUpdates = append(stopTimeUpdates, &gtfsrtproto.TripUpdate_StopTimeUpdate{
+		gtfsStopUpdate := gtfsrtproto.TripUpdate_StopTimeUpdate{
 			StopSequence: &stopTimeUpdate.StopSequence,
 			StopId:       &stopTimeUpdate.StopId,
-			Arrival: &gtfsrtproto.TripUpdate_StopTimeEvent{
+		}
+
+		if stopTimeUpdate.PredictionSource == gtfs.NoFurtherPredictions {
+			gtfsStopUpdate.ScheduleRelationship = &stopNoDataRelationship
+		} else {
+			arrivalDelay := int32(stopTimeUpdate.ArrivalDelay)
+			gtfsStopUpdate.ScheduleRelationship = &stopScheduleRelationship
+			gtfsStopUpdate.Arrival = &gtfsrtproto.TripUpdate_StopTimeEvent{
 				Delay: &arrivalDelay,
-			},
-			ScheduleRelationship: &stopScheduleRelationship,
-		})
+			}
+		}
+
+		stopTimeUpdates = append(stopTimeUpdates, &gtfsStopUpdate)
 	}
 	tripUpdateProtoc.StopTimeUpdate = stopTimeUpdates
 	u.tripUpdateProtoc = &tripUpdateProtoc

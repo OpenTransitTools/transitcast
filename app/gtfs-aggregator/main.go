@@ -44,6 +44,7 @@ func run(log *logger.Logger) error {
 		ExpirePredictorSeconds                int      `conf:"default:3600"`
 		LimitEarlyDepartureSeconds            int      `conf:"default:60"`
 		InferenceBuckets                      int      `conf:"default:8"`
+		MaximumPredictionMinutes              int      `conf:"default:60"`
 		IncludedRouteIds                      []string `conf:"help:List route_ids seperated by of semicolons. If included only trips for these route_ids will be predicted."`
 	}
 	cfg.Version.SVN = build
@@ -136,6 +137,7 @@ func run(log *logger.Logger) error {
 			LimitEarlyDepartureSeconds:            cfg.LimitEarlyDepartureSeconds,
 			InferenceBuckets:                      cfg.InferenceBuckets,
 			IncludedRouteIds:                      cfg.IncludedRouteIds,
+			MaximumPredictionMinutes:              cfg.MaximumPredictionMinutes,
 		})
 
 }

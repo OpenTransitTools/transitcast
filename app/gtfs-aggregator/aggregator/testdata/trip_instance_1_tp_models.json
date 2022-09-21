@@ -9,6 +9,7 @@
     "ml_rmse": 13.0,
     "median": null,
     "average": 3600.0,
+    "observed_stop_count": 500,
     "model_stops": [
       {
         "ml_model_id": 1,
@@ -33,7 +34,8 @@
     "avg_rmse": 12.0,
     "ml_rmse": 11.0,
     "median": null,
-    "average": null,
+    "average": 2400.0,
+    "observed_stop_count": 500,
     "model_stops": [
       {
         "ml_model_id": 1,

@@ -28,6 +28,10 @@ func (s *segmentPredictor) scheduledTime() int {
 	return s.stopTimeInstances[len(s.stopTimeInstances)-1].ArrivalTime - s.stopTimeInstances[0].ArrivalTime
 }
 
+func (s *segmentPredictor) firstScheduledStopTimeInstances() (*gtfs.StopTimeInstance, *gtfs.StopTimeInstance) {
+	return s.stopTimeInstances[0], s.stopTimeInstances[1]
+}
+
 //relevantForDistance returns true if this segment is relevant for predictions after the distance on the trip
 func (s *segmentPredictor) relevantForDistance(distance float64) bool {
 	lastIndex := len(s.stopTimeInstances) - 1
