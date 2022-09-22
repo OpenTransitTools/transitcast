@@ -65,6 +65,11 @@ func GetShapes(db *sqlx.DB,
 		"data_set_id": dataSetId,
 		"shape_ids":   shapeIds,
 	})
+	defer func() {
+		if rows != nil {
+			_ = rows.Close()
+		}
+	}()
 	if err != nil {
 		return nil, missingShapeIds, fmt.Errorf("unable to retrieve shapeIds %v, error: %w", shapeIds, err)
 	}

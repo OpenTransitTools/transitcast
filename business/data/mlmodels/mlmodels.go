@@ -282,6 +282,11 @@ func GetMLModels(db *sqlx.DB, callback func(model *MLModel), modelStopMap map[in
 	query string, args ...interface{}) error {
 
 	rows, err := db.Queryx(query, args...)
+	defer func() {
+		if rows != nil {
+			_ = rows.Close()
+		}
+	}()
 	if err != nil {
 		return err
 	}
@@ -300,6 +305,11 @@ func GetMLModels(db *sqlx.DB, callback func(model *MLModel), modelStopMap map[in
 func GetMLModelStopsByMLModelID(db *sqlx.DB, query string, args ...interface{}) (map[int64][]*MLModelStop, error) {
 
 	rows, err := db.Queryx(query, args...)
+	defer func() {
+		if rows != nil {
+			_ = rows.Close()
+		}
+	}()
 	if err != nil {
 		return nil, err
 	}

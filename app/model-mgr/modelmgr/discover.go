@@ -56,6 +56,11 @@ func loadStopTimesForTrip(db *sqlx.DB,
 	query := "select * from stop_time where data_set_id = $1 and trip_id = $2 " +
 		"order by stop_sequence"
 	rows, err := db.Queryx(query, dataSet.Id, tripId)
+	defer func() {
+		if rows != nil {
+			_ = rows.Close()
+		}
+	}()
 	if err != nil {
 		return nil, fmt.Errorf("unable to load stops for trip_id %s, error: %w", tripId, err)
 	}

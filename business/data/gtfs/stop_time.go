@@ -82,6 +82,11 @@ func GetStopTimeInstances(db *sqlx.DB,
 		"data_set_id": dataSetId,
 		"trip_ids":    tripIds,
 	})
+	defer func() {
+		if rows != nil {
+			_ = rows.Close()
+		}
+	}()
 	if err != nil {
 		return nil, missingTripIds, invalidTimeSliceTripIds, err
 	}
