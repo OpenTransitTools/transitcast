@@ -150,7 +150,7 @@ func GetDataSetAt(db *sqlx.DB, at time.Time) (*DataSet, error) {
 
 // GetAllDataSets retrieves all DataSets currently loaded
 func GetAllDataSets(db *sqlx.DB) ([]DataSet, error) {
-	query := "select * from data_set"
+	query := "select * from data_set order by saved_at"
 	var results []DataSet
 	err := db.Select(&results, query)
 	if err != nil {
