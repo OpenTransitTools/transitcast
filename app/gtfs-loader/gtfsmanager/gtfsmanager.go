@@ -236,9 +236,13 @@ func ExportTripToJson(log *log.Logger,
 
 	results, err := gtfs.GetTripInstances(db, at, start, end, []string{tripId})
 	if err != nil {
+		var missingTripInstancesError *gtfs.MissingTripInstances
+		if errors.As(err, &missingTripInstancesError) {
+			log.Printf("%s\n", err)
+		}
 		return err
 	}
-	trip, present := results.TripInstancesByTripId[tripId]
+	trip, present := results[tripId]
 	if !present {
 		return fmt.Errorf("unable to find trip %s", tripId)
 	}

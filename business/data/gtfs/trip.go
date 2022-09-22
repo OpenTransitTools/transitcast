@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/OpenTransitTools/transitcast/foundation/database"
 	"github.com/jmoiron/sqlx"
+	"strings"
 	"time"
 )
 
@@ -55,21 +56,6 @@ func RecordTrips(trips []*Trip, dsTx *DataSetTransaction) error {
 	_, err := dsTx.Tx.NamedExec(statementString, trips)
 	return err
 
-}
-
-// TripInstanceBatchQueryResults provides results from batch querying trips
-// tripIds that were not found (MissingTripIds) or where the schedule time was outside of date range (ScheduleSliceOutOfRange) can be logged
-type TripInstanceBatchQueryResults struct {
-	TripInstancesByTripId   map[string]*TripInstance
-	MissingTripIds          []string
-	ScheduleSliceOutOfRange []string
-	MissingShapeIds         []string
-}
-
-func makeTripInstanceBatchQueryResults() *TripInstanceBatchQueryResults {
-	return &TripInstanceBatchQueryResults{
-		TripInstancesByTripId: make(map[string]*TripInstance),
-	}
 }
 
 type TripInstance struct {
@@ -173,30 +159,103 @@ func getScheduledTripIdsForSlice(
 	return tripIds, nil
 }
 
+type MissingTripInstances struct {
+	DataSetId               int64
+	MissingTripIds          []string
+	ScheduleSliceOutOfRange []string
+	MissingShapeIds         []string
+}
+
+func (m *MissingTripInstances) Error() string {
+
+	return fmt.Sprintf("tripids not found or out of range for dataSetId:%d missingTrips:[%s], "+
+		"missingScheduleSlice:[%s], missingShapeIds:[%s]",
+		m.DataSetId,
+		strings.Join(m.MissingTripIds, ","),
+		strings.Join(m.ScheduleSliceOutOfRange, ","),
+		strings.Join(m.MissingShapeIds, ","))
+
+}
+
 // GetTripInstances loads trip instances with tripIds.
 // Appropriate scheduleDates are selected where trip start and end times are within range of relevantFrom and relevantTo
+// if any tripIds could not be loaded error will be of MissingTripInstances, in which case its safe to continue if those
+// trips are not needed, but the error should be logged
 func GetTripInstances(db *sqlx.DB,
 	at time.Time,
 	relevantFrom time.Time,
 	relevantTo time.Time,
-	tripIds []string) (*TripInstanceBatchQueryResults, error) {
+	tripIds []string) (map[string]*TripInstance, error) {
 
+	//find dataSet that's relevant
 	dataSet, err := GetDataSetAt(db, at)
 	if err != nil {
 		return nil, err
 	}
 
+	//find relevant schedule slices
 	scheduleSlices := GetScheduleSlices(relevantFrom, relevantTo)
 
-	stopTimeMap, missingTripIds, scheduleSliceOutOfRange, err := GetStopTimeInstances(db, scheduleSlices, dataSet.Id, tripIds)
+	//load all stopTimes for requested tripIds
+	stopTimeMap, missingTripIds, tripIdsScheduleSliceOutOfRange, err :=
+		getStopTimeInstances(db, scheduleSlices, dataSet.Id, tripIds)
 
 	if err != nil {
 		return nil, err
 	}
 
-	results := makeTripInstanceBatchQueryResults()
-	results.MissingTripIds = missingTripIds
-	results.ScheduleSliceOutOfRange = scheduleSliceOutOfRange
+	//if some tripIds couldn't be found remove them from the requested tripIds
+	if len(missingTripIds) > 0 || len(tripIdsScheduleSliceOutOfRange) > 0 {
+		//remove missing tripIds from request
+		tripIds = removeStringsFromSlice(tripIds, missingTripIds)
+		tripIds = removeStringsFromSlice(tripIds, tripIdsScheduleSliceOutOfRange)
+		//no more tripIds to load, just return error, as there are no results
+		if len(tripIds) == 0 {
+			return nil, &MissingTripInstances{
+				DataSetId:               dataSet.Id,
+				MissingTripIds:          missingTripIds,
+				ScheduleSliceOutOfRange: tripIdsScheduleSliceOutOfRange,
+				MissingShapeIds:         nil,
+			}
+		}
+	}
+
+	//load tripInstances with stopTimeMap
+	var tripInstanceByTripId map[string]*TripInstance
+	tripInstanceByTripId, err = getTripInstances(db, tripIds, dataSet, stopTimeMap)
+
+	if err != nil {
+		return nil, err
+	}
+
+	//load any shape list available into trips
+	var missingShapeIds []string
+	missingShapeIds, err = loadShapesIntoTrips(tripInstanceByTripId, db, dataSet)
+
+	if err != nil {
+		return nil, err
+	}
+
+	//only return missingTripInstancesError if its non-null
+	if len(missingTripIds) > 0 || len(tripIdsScheduleSliceOutOfRange) > 0 || len(missingShapeIds) > 0 {
+		return tripInstanceByTripId, &MissingTripInstances{
+			DataSetId:               dataSet.Id,
+			MissingTripIds:          missingTripIds,
+			ScheduleSliceOutOfRange: tripIdsScheduleSliceOutOfRange,
+			MissingShapeIds:         missingShapeIds,
+		}
+	}
+
+	return tripInstanceByTripId, nil
+
+}
+
+func getTripInstances(db *sqlx.DB,
+	tripIds []string,
+	dataSet *DataSet,
+	stopTimeMap map[string][]*StopTimeInstance) (map[string]*TripInstance, error) {
+
+	results := make(map[string]*TripInstance)
 
 	statementString := "select * from trip where data_set_id = :data_set_id and trip_id in (:trip_ids)"
 	rows, err := database.PrepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
@@ -206,9 +265,9 @@ func GetTripInstances(db *sqlx.DB,
 	if err != nil {
 		return nil, err
 	}
-
-	shapeIdMap := make(map[string]bool)
-	shapeIds := make([]string, 0)
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	// iterate over each row
 	for rows.Next() {
@@ -217,13 +276,7 @@ func GetTripInstances(db *sqlx.DB,
 			return nil, err
 		}
 
-		//collect shapeIds needed
-		if _, present := shapeIdMap[tripInstance.ShapeId]; !present {
-			shapeIdMap[tripInstance.ShapeId] = true
-			shapeIds = append(shapeIds, tripInstance.ShapeId)
-		}
-
-		results.TripInstancesByTripId[tripInstance.TripId] = tripInstance
+		results[tripInstance.TripId] = tripInstance
 	}
 
 	// check the error from rows
@@ -231,24 +284,50 @@ func GetTripInstances(db *sqlx.DB,
 	if err != nil {
 		return nil, err
 	}
+	return results, nil
+}
+
+func loadShapesIntoTrips(tripsByTripId map[string]*TripInstance,
+	db *sqlx.DB,
+	dataSet *DataSet) ([]string, error) {
+
+	//find shapeIds needed
+	shapeIdMap := make(map[string]bool)
+	shapeIds := make([]string, 0)
+	for _, tripInstance := range tripsByTripId {
+		if _, present := shapeIdMap[tripInstance.ShapeId]; !present {
+			shapeIdMap[tripInstance.ShapeId] = true
+			shapeIds = append(shapeIds, tripInstance.ShapeId)
+		}
+	}
 
 	//load shapes
 	mappedShapes, missingShapeIds, err := GetShapes(db, dataSet.Id, shapeIds)
 	if err != nil {
-		return nil, err
+		return missingShapeIds, err
 	}
 
-	//load any shape lists available into trips
-	for _, tripInstance := range results.TripInstancesByTripId {
+	for _, tripInstance := range tripsByTripId {
 		if shapes, present := mappedShapes[tripInstance.ShapeId]; present {
 			tripInstance.Shapes = shapes
 		}
 
 	}
-	results.MissingShapeIds = missingShapeIds
+	return missingShapeIds, nil
+}
 
-	return results, err
-
+func removeStringsFromSlice(target []string, toRemove []string) []string {
+	removeMap := make(map[string]bool)
+	for _, s := range toRemove {
+		removeMap[s] = true
+	}
+	var newSlice []string
+	for _, s := range target {
+		if _, exists := removeMap[s]; !exists {
+			newSlice = append(newSlice, s)
+		}
+	}
+	return newSlice
 }
 
 func GetTripInstance(db *sqlx.DB,
@@ -258,7 +337,7 @@ func GetTripInstance(db *sqlx.DB,
 	tripSearchRangeSeconds int) (*TripInstance, error) {
 	scheduleSlices := GetScheduleSlicesForSearchRange(at, tripSearchRangeSeconds)
 
-	stopTimeMap, _, _, err := GetStopTimeInstances(db, scheduleSlices, dataSetId, []string{tripId})
+	stopTimeMap, _, _, err := getStopTimeInstances(db, scheduleSlices, dataSetId, []string{tripId})
 
 	if err != nil {
 		return nil, err
@@ -269,6 +348,11 @@ func GetTripInstance(db *sqlx.DB,
 		"data_set_id": dataSetId,
 		"trip_id":     tripId,
 	})
+	defer func() {
+		if rows != nil {
+			_ = rows.Close()
+		}
+	}()
 	if err != nil {
 		return nil, err
 	}
@@ -300,7 +384,7 @@ func loadTripInstanceRows(rows *sqlx.Rows,
 	if err != nil {
 		return nil, err
 	}
-	//collect shapeIds we need
+	//collect stopTimes we needed
 	stopTimes, present := stopTimeMap[tripInstance.TripId]
 	if present {
 		tripInstance.StopTimeInstances = stopTimes

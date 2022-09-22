@@ -1,6 +1,7 @@
 package monitor
 
 import (
+	"errors"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -105,20 +106,17 @@ func collectRequiredTrips(log *log.Logger,
 	}
 
 	startTime, endTime := gtfs.GetStartEndTimeToSearchSchedule(now, 60*60*8)
-	batchResult, err := gtfs.GetTripInstances(db, now, startTime, endTime, tripIdsNeeded)
+	tripInstancesByTripId, err := gtfs.GetTripInstances(db, now, startTime, endTime, tripIdsNeeded)
 	if err != nil {
+		if errors.Is(err, &gtfs.MissingTripInstances{}) {
+			log.Printf("%s\n", err)
+		}
 		return requiredTrips, err
 	}
-	log.Printf("loaded of %d of %d new trips\n", len(batchResult.TripInstancesByTripId), len(tripIdsNeeded))
-	if len(batchResult.MissingTripIds) > 0 {
-		log.Printf("unable to find tripIds %+v\n", batchResult.MissingTripIds)
-	}
-	if len(batchResult.ScheduleSliceOutOfRange) > 0 {
-		log.Printf("unable to find matching schedule slices for tripIds %+v\n", batchResult.ScheduleSliceOutOfRange)
-	}
+	log.Printf("loaded of %d of %d new trips\n", len(tripInstancesByTripId), len(tripIdsNeeded))
 
 	// add all the trips loaded into the requiredTrips result
-	for _, trip := range batchResult.TripInstancesByTripId {
+	for _, trip := range tripInstancesByTripId {
 		requiredTrips[trip.TripId] = trip
 	}
 

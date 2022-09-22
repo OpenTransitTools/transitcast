@@ -59,14 +59,14 @@ func RecordStopTimes(stopTimes []*StopTime, dsTx *DataSetTransaction) error {
 	return err
 }
 
-// GetStopTimeInstances collects StopTimeInstances and returns in order by tripID inside a map
+// getStopTimeInstances collects StopTimeInstances and returns in order by tripID inside a map
 // ArrivalDateTime and DepartureDateTime are populated from the best ScheduleSlice match from the trips first arrival time.
 //If a ScheduleSlice match can't be found the StopTimeInstances are not included in the map result
 // returns:
 //		map with results keyed by tripId,
 //		slice of missing trip ids (where no StopTimeInstances could be found)
 //		slice of trip ids where no matching ScheduleSlice could be found for the trip
-func GetStopTimeInstances(db *sqlx.DB,
+func getStopTimeInstances(db *sqlx.DB,
 	scheduleSlices []ScheduleSlice,
 	dataSetId int64,
 	tripIds []string) (map[string][]*StopTimeInstance, []string, []string, error) {
@@ -88,7 +88,7 @@ func GetStopTimeInstances(db *sqlx.DB,
 		}
 	}()
 	if err != nil {
-		return nil, missingTripIds, invalidTimeSliceTripIds, err
+		return nil, nil, nil, err
 	}
 
 	currentTripId := ""
@@ -98,7 +98,7 @@ func GetStopTimeInstances(db *sqlx.DB,
 		sti := StopTimeInstance{}
 		err = rows.StructScan(&sti)
 		if err != nil {
-			return nil, missingTripIds, invalidTimeSliceTripIds, err
+			return nil, nil, nil, err
 		}
 
 		// check if the current row is the start of a new trip
