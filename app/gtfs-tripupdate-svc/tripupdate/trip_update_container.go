@@ -35,9 +35,13 @@ func makeUpdateWrapper(tripUpdate *gtfs.TripUpdate) *updateWrapper {
 	}
 	var stopTimeUpdates []*gtfsrtproto.TripUpdate_StopTimeUpdate
 	for _, stopTimeUpdate := range tripUpdate.StopTimeUpdates {
+		//make new variables so pointers in gtfsStopUpdate doesn't end up pointing to the stopTimeUpdate
+		//that's reused by range
+		stopSequence := stopTimeUpdate.StopSequence
+		stopId := stopTimeUpdate.StopId
 		gtfsStopUpdate := gtfsrtproto.TripUpdate_StopTimeUpdate{
-			StopSequence: &stopTimeUpdate.StopSequence,
-			StopId:       &stopTimeUpdate.StopId,
+			StopSequence: &stopSequence,
+			StopId:       &stopId,
 		}
 
 		if stopTimeUpdate.PredictionSource == gtfs.NoFurtherPredictions {
