@@ -131,7 +131,7 @@ func (t *gtfsTripUpdateHandler) currentUpdates(now uint64) []*updateWrapper {
 
 //buildFeedMessage retrieve current tripUpdates as of "now" and build gtfsrtproto.FeedMessage from them
 func (t *gtfsTripUpdateHandler) buildFeedMessage(now uint64) *gtfsrtproto.FeedMessage {
-	gtfsRealtimeVersion := "1"
+	gtfsRealtimeVersion := "2.0"
 	incrementality := gtfsrtproto.FeedHeader_FULL_DATASET
 	feedMessage := gtfsrtproto.FeedMessage{
 		Header: &gtfsrtproto.FeedHeader{
