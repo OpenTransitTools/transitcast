@@ -101,6 +101,9 @@ func buildTripUpdate(log *logger.Logger,
 	var predictionRemainder = 0.0
 	tripDistanceTraveled := prediction.tripDeviation.TripProgress
 	for _, sp := range prediction.stopPredictions {
+		if tripDistanceTraveled > sp.toStop.ShapeDistTraveled {
+			continue
+		}
 		var newStopUpdate gtfs.StopTimeUpdate
 		newStopUpdate, predictionRemainder = buildStopUpdate(log, previousSchedulePositionTime, tripDistanceTraveled,
 			predictionRemainder, sp, limitEarlyDepartureSeconds)
@@ -129,25 +132,29 @@ func buildPastStopUpdates(previousTime time.Time,
 	if len(prediction.stopPredictions) == 0 {
 		return updates
 	}
-	firstStopPrediction := prediction.stopPredictions[0]
+
+	var lastStop *gtfs.StopTimeInstance
+	tripProgress := prediction.tripDeviation.TripProgress
+
 	for _, stopTime := range prediction.tripInstance.StopTimeInstances {
 		if len(updates) == 0 {
 			//if the trip has moved past the stop, use buildStopUpdateForPastStop
-			if prediction.tripDeviation.TripProgress > stopTime.ShapeDistTraveled {
+			if tripProgress > stopTime.ShapeDistTraveled {
 				updates = append(updates, buildStopUpdateForPastStop(previousTime, stopTime))
 			} else {
 				updates = append(updates, buildStopUpdateForFirstStop(previousTime, stopTime))
-			}
-
-			if stopTime.StopSequence == firstStopPrediction.fromStop.StopSequence {
 				return updates
 			}
+			continue
 		}
-		if stopTime.StopSequence == firstStopPrediction.fromStop.StopSequence {
+		if tripProgress < stopTime.ShapeDistTraveled {
 			//found the first stop sequence without a prediction
-			return append(updates, buildStopUpdateForPastStop(previousTime, stopTime))
-
+			if lastStop == nil {
+				return updates
+			}
+			return append(updates, buildStopUpdateForPastStop(previousTime, lastStop))
 		}
+		lastStop = stopTime
 	}
 	return updates
 }

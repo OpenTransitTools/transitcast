@@ -165,12 +165,20 @@ func (p *tripPredictor) predict(tripDeviation *gtfs.TripDeviation) (*tripPredict
 	stopPredictions := make([]*stopPrediction, 0)
 	inferenceRequests := make([]*InferenceRequest, 0)
 	predictUpTo := tripDeviation.DeviationTimestamp.Add(time.Duration(p.maximumPredictionMinutes) * time.Minute).Unix()
+
+	lastStopPassed := p.findLastStopPassed(tripDeviation.TripProgress)
+
 	for _, sp := range p.segmentPredictors {
+
 		fromStop, toStop := sp.firstScheduledStopTimeInstances()
 		if fromStop.ArrivalDateTime.Unix() >= predictUpTo {
 			//stop predicting, generate a terminating StopUpdate
 			stopPredictions = append(stopPredictions, makeTerminatingStopPrediction(fromStop, toStop))
 			break
+		}
+		//don't add stops we have past, except for the first stop
+		if lastStopPassed != nil && lastStopPassed.ShapeDistTraveled > fromStop.ShapeDistTraveled {
+			continue
 		}
 		result := sp.predict(tripDeviation)
 		if result.inferenceRequest != nil {
@@ -181,6 +189,21 @@ func (p *tripPredictor) predict(tripDeviation *gtfs.TripDeviation) (*tripPredict
 	}
 	prediction := makeTripPrediction(tripDeviation, p.tripInstance, stopPredictions)
 	return prediction, inferenceRequests
+}
+
+func (p *tripPredictor) findLastStopPassed(tripProgress float64) *gtfs.StopTimeInstance {
+	if tripProgress < 0.01 {
+		return nil
+	}
+	var pastStopTimeInstance *gtfs.StopTimeInstance
+	for _, sti := range p.tripInstance.StopTimeInstances {
+		if tripProgress > sti.ShapeDistTraveled {
+			pastStopTimeInstance = sti
+		} else {
+			return pastStopTimeInstance
+		}
+	}
+	return pastStopTimeInstance
 }
 
 func makeTerminatingStopPrediction(fromStop, toStop *gtfs.StopTimeInstance) *stopPrediction {

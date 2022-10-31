@@ -287,6 +287,8 @@ func Test_buildTripUpdate(t *testing.T) {
 	twelve20Pm := time.Date(2022, 5, 22, 12, 20, 0, 0, location)
 	twelve38Pm := time.Date(2022, 5, 22, 12, 38, 0, 0, location)
 	twelve58Pm := time.Date(2022, 5, 22, 12, 58, 0, 0, location)
+	timeAt1320 := time.Date(2022, 5, 22, 13, 20, 0, 0, location)
+	timeAt1330 := time.Date(2022, 5, 22, 13, 30, 0, 0, location)
 	type args struct {
 		previousSchedulePositionTime time.Time
 		prediction                   *tripPrediction
@@ -664,6 +666,334 @@ func Test_buildTripUpdate(t *testing.T) {
 						ScheduledArrivalTime: seventhStop.ArrivalDateTime,
 						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 40, 40, 0, location),
 						PredictionSource:     gtfs.StopMLPrediction,
+					},
+				},
+			},
+		},
+		{
+			name: "late, half way between fifth and sixth stop",
+			args: args{
+				previousSchedulePositionTime: timeAt1330,
+				limitEarlyDepartureSeconds:   60,
+				prediction: &tripPrediction{
+					tripDeviation: &gtfs.TripDeviation{
+						CreatedAt:          timeAt1330,
+						DeviationTimestamp: timeAt1330,
+						TripProgress:       4500.0,
+						TripId:             trip1.TripId,
+						VehicleId:          "1",
+					},
+					mu: sync.Mutex{},
+					stopPredictions: []*stopPrediction{
+						{
+							fromStop:           fifthStop,
+							toStop:             sixthStop,
+							predictedTime:      600,
+							predictionSource:   gtfs.StopMLPrediction,
+							predictionComplete: true,
+						},
+						{
+							fromStop:           sixthStop,
+							toStop:             seventhStop,
+							predictedTime:      900,
+							predictionSource:   gtfs.StopMLPrediction,
+							predictionComplete: true,
+						},
+					},
+					tripInstance: trip1,
+				},
+			},
+			want: &gtfs.TripUpdate{
+				TripId:               trip1.TripId,
+				RouteId:              trip1.RouteId,
+				ScheduleRelationship: "SCHEDULED",
+				Timestamp:            uint64(timeAt1330.Unix()),
+				VehicleId:            "1",
+				StopTimeUpdates: []gtfs.StopTimeUpdate{
+					{
+						StopSequence:         1,
+						StopId:               "A",
+						ArrivalDelay:         0,
+						ScheduledArrivalTime: firstStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 12, 0, 0, 0, location),
+						PredictionSource:     gtfs.SchedulePrediction,
+					},
+					{
+						StopSequence:         5,
+						StopId:               "E",
+						ArrivalDelay:         0,
+						ScheduledArrivalTime: fifthStop.ArrivalDateTime, //13:20:00
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 20, 0, 0, location),
+						PredictionSource:     gtfs.SchedulePrediction,
+					},
+					{
+						StopSequence:         6,
+						StopId:               "F",
+						ArrivalDelay:         300,
+						ScheduledArrivalTime: sixthStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 35, 0, 0, location),
+						PredictionSource:     gtfs.StopMLPrediction,
+					},
+					{
+						StopSequence:         7,
+						StopId:               "G",
+						ArrivalDelay:         500,
+						ScheduledArrivalTime: seventhStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 50, 0, 0, location),
+						PredictionSource:     gtfs.StopMLPrediction,
+					},
+				},
+			},
+		},
+		{
+			name: "early, half way between fifth and sixth stop",
+			args: args{
+				previousSchedulePositionTime: timeAt1320,
+				limitEarlyDepartureSeconds:   60,
+				prediction: &tripPrediction{
+					tripDeviation: &gtfs.TripDeviation{
+						CreatedAt:          timeAt1320,
+						DeviationTimestamp: timeAt1320,
+						TripProgress:       4500.0,
+						TripId:             trip1.TripId,
+						VehicleId:          "1",
+					},
+					mu: sync.Mutex{},
+					stopPredictions: []*stopPrediction{
+						{
+							fromStop:           fifthStop,
+							toStop:             sixthStop,
+							predictedTime:      600,
+							predictionSource:   gtfs.StopMLPrediction,
+							predictionComplete: true,
+						},
+						{
+							fromStop:           sixthStop,
+							toStop:             seventhStop,
+							predictedTime:      700,
+							predictionSource:   gtfs.StopMLPrediction,
+							predictionComplete: true,
+						},
+					},
+					tripInstance: trip1,
+				},
+			},
+			want: &gtfs.TripUpdate{
+				TripId:               trip1.TripId,
+				RouteId:              trip1.RouteId,
+				ScheduleRelationship: "SCHEDULED",
+				Timestamp:            uint64(timeAt1320.Unix()),
+				VehicleId:            "1",
+				StopTimeUpdates: []gtfs.StopTimeUpdate{
+					{
+						StopSequence:         1,
+						StopId:               "A",
+						ArrivalDelay:         0,
+						ScheduledArrivalTime: firstStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 12, 0, 0, 0, location),
+						PredictionSource:     gtfs.SchedulePrediction,
+					},
+					{
+						StopSequence:         5,
+						StopId:               "E",
+						ArrivalDelay:         -60,
+						ScheduledArrivalTime: fifthStop.ArrivalDateTime, //13:20:00
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 19, 0, 0, location),
+						PredictionSource:     gtfs.SchedulePrediction,
+					},
+					{
+						StopSequence:         6,
+						StopId:               "F",
+						ArrivalDelay:         -300,
+						ScheduledArrivalTime: sixthStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 25, 0, 0, location),
+						PredictionSource:     gtfs.StopMLPrediction,
+					},
+					{
+						StopSequence:         7,
+						StopId:               "G",
+						ArrivalDelay:         -60,
+						ScheduledArrivalTime: seventhStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 40, 40, 0, location),
+						PredictionSource:     gtfs.StopMLPrediction,
+					},
+				},
+			},
+		},
+		{
+			name: "late, half way between fifth and sixth stop, timepoint stop transitions before trip progress",
+			args: args{
+				previousSchedulePositionTime: timeAt1330,
+				limitEarlyDepartureSeconds:   60,
+				prediction: &tripPrediction{
+					tripDeviation: &gtfs.TripDeviation{
+						CreatedAt:          timeAt1330,
+						DeviationTimestamp: timeAt1330,
+						TripProgress:       4500.0,
+						TripId:             trip1.TripId,
+						VehicleId:          "1",
+					},
+					mu: sync.Mutex{},
+					stopPredictions: []*stopPrediction{
+						{
+							fromStop:           thirdStop,
+							toStop:             fourthStop,
+							predictedTime:      1200,
+							predictionSource:   gtfs.TimepointMLPrediction,
+							predictionComplete: true,
+						},
+						{
+							fromStop:           fifthStop,
+							toStop:             sixthStop,
+							predictedTime:      600,
+							predictionSource:   gtfs.TimepointMLPrediction,
+							predictionComplete: true,
+						},
+						{
+							fromStop:           sixthStop,
+							toStop:             seventhStop,
+							predictedTime:      900,
+							predictionSource:   gtfs.TimepointMLPrediction,
+							predictionComplete: true,
+						},
+					},
+					tripInstance: trip1,
+				},
+			},
+			want: &gtfs.TripUpdate{
+				TripId:               trip1.TripId,
+				RouteId:              trip1.RouteId,
+				ScheduleRelationship: "SCHEDULED",
+				Timestamp:            uint64(timeAt1330.Unix()),
+				VehicleId:            "1",
+				StopTimeUpdates: []gtfs.StopTimeUpdate{
+					{
+						StopSequence:         1,
+						StopId:               "A",
+						ArrivalDelay:         0,
+						ScheduledArrivalTime: firstStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 12, 0, 0, 0, location),
+						PredictionSource:     gtfs.SchedulePrediction,
+					},
+					{
+						StopSequence:         5,
+						StopId:               "E",
+						ArrivalDelay:         0,
+						ScheduledArrivalTime: fifthStop.ArrivalDateTime, //13:20:00
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 20, 0, 0, location),
+						PredictionSource:     gtfs.SchedulePrediction,
+					},
+					{
+						StopSequence:         6,
+						StopId:               "F",
+						ArrivalDelay:         300,
+						ScheduledArrivalTime: sixthStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 35, 0, 0, location),
+						PredictionSource:     gtfs.TimepointMLPrediction,
+					},
+					{
+						StopSequence:         7,
+						StopId:               "G",
+						ArrivalDelay:         500,
+						ScheduledArrivalTime: seventhStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 50, 0, 0, location),
+						PredictionSource:     gtfs.TimepointMLPrediction,
+					},
+				},
+			},
+		},
+		{
+			name: "late, half way between fifth and sixth stop, timepoint stop transitions from beginning of trip",
+			args: args{
+				previousSchedulePositionTime: timeAt1330,
+				limitEarlyDepartureSeconds:   60,
+				prediction: &tripPrediction{
+					tripDeviation: &gtfs.TripDeviation{
+						CreatedAt:          timeAt1330,
+						DeviationTimestamp: timeAt1330,
+						TripProgress:       4500.0,
+						TripId:             trip1.TripId,
+						VehicleId:          "1",
+					},
+					mu: sync.Mutex{},
+					stopPredictions: []*stopPrediction{
+						{
+							fromStop:           firstStop,
+							toStop:             secondStop,
+							predictedTime:      1200,
+							predictionSource:   gtfs.TimepointMLPrediction,
+							predictionComplete: true,
+						},
+						{
+							fromStop:           secondStop,
+							toStop:             thirdStop,
+							predictedTime:      1200,
+							predictionSource:   gtfs.TimepointMLPrediction,
+							predictionComplete: true,
+						},
+						{
+							fromStop:           thirdStop,
+							toStop:             fourthStop,
+							predictedTime:      1200,
+							predictionSource:   gtfs.TimepointMLPrediction,
+							predictionComplete: true,
+						},
+						{
+							fromStop:           fifthStop,
+							toStop:             sixthStop,
+							predictedTime:      600,
+							predictionSource:   gtfs.TimepointMLPrediction,
+							predictionComplete: true,
+						},
+						{
+							fromStop:           sixthStop,
+							toStop:             seventhStop,
+							predictedTime:      900,
+							predictionSource:   gtfs.TimepointMLPrediction,
+							predictionComplete: true,
+						},
+					},
+					tripInstance: trip1,
+				},
+			},
+			want: &gtfs.TripUpdate{
+				TripId:               trip1.TripId,
+				RouteId:              trip1.RouteId,
+				ScheduleRelationship: "SCHEDULED",
+				Timestamp:            uint64(timeAt1330.Unix()),
+				VehicleId:            "1",
+				StopTimeUpdates: []gtfs.StopTimeUpdate{
+					{
+						StopSequence:         1,
+						StopId:               "A",
+						ArrivalDelay:         0,
+						ScheduledArrivalTime: firstStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 12, 0, 0, 0, location),
+						PredictionSource:     gtfs.SchedulePrediction,
+					},
+					{
+						StopSequence:         5,
+						StopId:               "E",
+						ArrivalDelay:         0,
+						ScheduledArrivalTime: fifthStop.ArrivalDateTime, //13:20:00
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 20, 0, 0, location),
+						PredictionSource:     gtfs.SchedulePrediction,
+					},
+					{
+						StopSequence:         6,
+						StopId:               "F",
+						ArrivalDelay:         300,
+						ScheduledArrivalTime: sixthStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 35, 0, 0, location),
+						PredictionSource:     gtfs.TimepointMLPrediction,
+					},
+					{
+						StopSequence:         7,
+						StopId:               "G",
+						ArrivalDelay:         500,
+						ScheduledArrivalTime: seventhStop.ArrivalDateTime,
+						PredictedArrivalTime: time.Date(2022, 5, 22, 13, 50, 0, 0, location),
+						PredictionSource:     gtfs.TimepointMLPrediction,
 					},
 				},
 			},

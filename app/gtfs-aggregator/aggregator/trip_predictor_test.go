@@ -93,6 +93,7 @@ func Test_tripPredictor_predict(t *testing.T) {
 
 	timeAt1200 := time.Date(2022, 5, 22, 12, 0, 0, 0, location)
 	timeAt1101 := time.Date(2022, 5, 22, 11, 1, 0, 0, location)
+	timeAt1310 := time.Date(2022, 5, 22, 13, 10, 0, 0, location)
 
 	segmentPredictionFactory := makeSegmentPredictionFactory(modelMap, osts,
 		0.0, 1)
@@ -174,6 +175,35 @@ func Test_tripPredictor_predict(t *testing.T) {
 				pendingPredictions: 1,
 			},
 		},
+		{
+			name:                     "First stop and skip passed stops",
+			maximumPredictionMinutes: 60,
+			tripDeviation: &gtfs.TripDeviation{
+				DeviationTimestamp: timeAt1310,
+				TripId:             trip.TripId,
+				TripProgress:       4500.0,
+			},
+			want: &tripPrediction{
+				tripDeviation: &gtfs.TripDeviation{
+					DeviationTimestamp: timeAt1310,
+					TripId:             trip.TripId,
+				},
+				stopPredictions: []*stopPrediction{
+					{
+						fromStop:         trip.StopTimeInstances[4],
+						toStop:           trip.StopTimeInstances[5],
+						predictionSource: gtfs.StopStatisticsPrediction,
+					},
+					{
+						fromStop:         trip.StopTimeInstances[5],
+						toStop:           trip.StopTimeInstances[6],
+						predictionSource: gtfs.SchedulePrediction,
+					},
+				},
+				tripInstance:       trip,
+				pendingPredictions: 1,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -217,7 +247,7 @@ func sprintTripPrediction(p *tripPrediction) string {
 	var parts []string
 	for _, sp := range p.stopPredictions {
 		parts = append(parts,
-			fmt.Sprintf("{fromStopId:%s fromStopId:%s predictionSource:%d}",
+			fmt.Sprintf("{fromStopId:%s toStopId:%s predictionSource:%d}",
 				sp.fromStop.StopId, sp.toStop.StopId, sp.predictionSource))
 	}
 	return fmt.Sprintf("TripPrediction TripId:%s pendingPredictions:%d stopPredictions:\n%s",
