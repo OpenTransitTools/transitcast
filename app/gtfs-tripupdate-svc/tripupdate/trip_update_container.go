@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-//updateWrapper holds gtfs.TripUpdate and gtfsrtproto.TripUpdate that was built from it
+// updateWrapper holds gtfs.TripUpdate and gtfsrtproto.TripUpdate that was built from it
 type updateWrapper struct {
 	tripUpdate       *gtfs.TripUpdate
 	tripUpdateProtoc *gtfsrtproto.TripUpdate
 }
 
-//makeUpdateWrapper builds updateWrapper from gtfs.TripUpdate
+// makeUpdateWrapper builds updateWrapper from gtfs.TripUpdate
 func makeUpdateWrapper(tripUpdate *gtfs.TripUpdate) *updateWrapper {
 	u := updateWrapper{
 		tripUpdate: tripUpdate,
@@ -52,6 +52,12 @@ func makeUpdateWrapper(tripUpdate *gtfs.TripUpdate) *updateWrapper {
 			gtfsStopUpdate.Arrival = &gtfsrtproto.TripUpdate_StopTimeEvent{
 				Delay: &arrivalDelay,
 			}
+			if stopTimeUpdate.DepartureDelay != nil {
+				departureDelay := int32(stopTimeUpdate.ArrivalDelay)
+				gtfsStopUpdate.Departure = &gtfsrtproto.TripUpdate_StopTimeEvent{
+					Delay: &departureDelay,
+				}
+			}
 		}
 
 		stopTimeUpdates = append(stopTimeUpdates, &gtfsStopUpdate)
@@ -61,14 +67,14 @@ func makeUpdateWrapper(tripUpdate *gtfs.TripUpdate) *updateWrapper {
 	return &u
 }
 
-//updateCollection contains all current updateWrappers and provides thread safe access to them
+// updateCollection contains all current updateWrappers and provides thread safe access to them
 type updateCollection struct {
 	mu             sync.Mutex
 	tripUpdatesMap map[string]*updateWrapper
 	tripUpdates    []*updateWrapper
 }
 
-//makeUpdateCollection updateCollection factory
+// makeUpdateCollection updateCollection factory
 func makeUpdateCollection() *updateCollection {
 	return &updateCollection{
 		tripUpdatesMap: make(map[string]*updateWrapper),
@@ -76,8 +82,8 @@ func makeUpdateCollection() *updateCollection {
 	}
 }
 
-//addTripUpdate stores new updateWrapper, discards it if updateCollection already contains a newer updateWrapper for
-//the same trip
+// addTripUpdate stores new updateWrapper, discards it if updateCollection already contains a newer updateWrapper for
+// the same trip
 func (c *updateCollection) addTripUpdate(newUpdate *updateWrapper) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -96,15 +102,15 @@ func (c *updateCollection) addTripUpdate(newUpdate *updateWrapper) bool {
 	return true
 }
 
-//updateList returns all updateWrappers currently stored
+// updateList returns all updateWrappers currently stored
 func (c *updateCollection) updateList() []*updateWrapper {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.tripUpdates
 }
 
-//expireUpdates removes all updateWrappers that are older than "expireAfterSeconds".
-//returns the number of updateWrappers that have been removed and how many are currently stored.
+// expireUpdates removes all updateWrappers that are older than "expireAfterSeconds".
+// returns the number of updateWrappers that have been removed and how many are currently stored.
 func (c *updateCollection) expireUpdates(at time.Time, expireAfterSeconds int) (removed int, currentSize int) {
 	c.mu.Lock()
 	defer c.mu.Unlock()

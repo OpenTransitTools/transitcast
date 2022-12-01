@@ -169,6 +169,7 @@ func Test_segmentPredictor_applySegmentTime(t *testing.T) {
 		seconds            float64
 		src                gtfs.PredictionSource
 		predictionComplete bool
+		tripProgress       float64
 	}
 	tests := []struct {
 		name   string
@@ -189,14 +190,16 @@ func Test_segmentPredictor_applySegmentTime(t *testing.T) {
 				seconds:            float64(trip1.StopTimeInstances[1].ArrivalTime - trip1.StopTimeInstances[0].ArrivalTime),
 				src:                gtfs.SchedulePrediction,
 				predictionComplete: true,
+				tripProgress:       -5.0,
 			},
 			want: []*stopPrediction{
 				{
-					fromStop:           trip1.StopTimeInstances[0],
-					toStop:             trip1.StopTimeInstances[1],
-					predictedTime:      1200,
-					predictionSource:   gtfs.SchedulePrediction,
-					predictionComplete: true,
+					fromStop:              trip1.StopTimeInstances[0],
+					toStop:                trip1.StopTimeInstances[1],
+					predictedTime:         1200,
+					predictionSource:      gtfs.SchedulePrediction,
+					stopUpdateDisposition: FutureStop,
+					predictionComplete:    true,
 				},
 			},
 		},
@@ -213,21 +216,58 @@ func Test_segmentPredictor_applySegmentTime(t *testing.T) {
 				seconds:            2400 * 2, //twice the length of each stop
 				src:                gtfs.SchedulePrediction,
 				predictionComplete: true,
+				tripProgress:       -5.0,
 			},
 			want: []*stopPrediction{
 				{
-					fromStop:           trip1.StopTimeInstances[0],
-					toStop:             trip1.StopTimeInstances[1],
-					predictedTime:      2400,
-					predictionSource:   gtfs.SchedulePrediction,
-					predictionComplete: true,
+					fromStop:              trip1.StopTimeInstances[0],
+					toStop:                trip1.StopTimeInstances[1],
+					predictedTime:         2400,
+					predictionSource:      gtfs.SchedulePrediction,
+					stopUpdateDisposition: FutureStop,
+					predictionComplete:    true,
 				},
 				{
-					fromStop:           trip1.StopTimeInstances[1],
-					toStop:             trip1.StopTimeInstances[2],
-					predictedTime:      2400,
-					predictionSource:   gtfs.SchedulePrediction,
-					predictionComplete: true,
+					fromStop:              trip1.StopTimeInstances[1],
+					toStop:                trip1.StopTimeInstances[2],
+					predictedTime:         2400,
+					predictionSource:      gtfs.SchedulePrediction,
+					stopUpdateDisposition: FutureStop,
+					predictionComplete:    true,
+				},
+			},
+		},
+		{
+			name: "Multiple stops produces proportional times, and first stop is past",
+			fields: fields{
+				model: nil,
+				osts:  osts,
+				stopTimeInstances: []*gtfs.StopTimeInstance{
+					trip1.StopTimeInstances[0], trip1.StopTimeInstances[1], trip1.StopTimeInstances[2],
+				},
+			},
+			args: args{
+				seconds:            2400 * 2, //twice the length of each stop
+				src:                gtfs.SchedulePrediction,
+				predictionComplete: true,
+				tripProgress:       15.0,
+			},
+			want: []*stopPrediction{
+				{
+					fromStop:              trip1.StopTimeInstances[0],
+					toStop:                trip1.StopTimeInstances[1],
+					predictedTime:         2400,
+					predictionSource:      gtfs.SchedulePrediction,
+					stopUpdateDisposition: FutureStop,
+					predictionComplete:    true,
+				},
+				{
+					fromStop:              trip1.StopTimeInstances[1],
+					toStop:                trip1.StopTimeInstances[2],
+					predictedTime:         2400,
+					predictionSource:      gtfs.SchedulePrediction,
+					stopUpdateDisposition: FutureStop,
+					predictionComplete:    true,
 				},
 			},
 		},
@@ -239,7 +279,7 @@ func Test_segmentPredictor_applySegmentTime(t *testing.T) {
 				osts:              tt.fields.osts,
 				stopTimeInstances: tt.fields.stopTimeInstances,
 			}
-			got := s.applySegmentTime(tt.args.seconds, tt.args.src, tt.args.predictionComplete)
+			got := s.applySegmentTime(tt.args.seconds, tt.args.src, tt.args.predictionComplete, tt.args.tripProgress)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("applySegmentTime() got = %+v, wantPendingPrediction %+v", got, tt.want)
 			}
@@ -322,11 +362,12 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				inferenceRequest: nil,
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[0],
-						toStop:             trip1.StopTimeInstances[1],
-						predictedTime:      float64(trip1.StopTimeInstances[1].ArrivalTime - trip1.StopTimeInstances[0].ArrivalTime),
-						predictionSource:   gtfs.SchedulePrediction,
-						predictionComplete: true,
+						fromStop:              trip1.StopTimeInstances[0],
+						toStop:                trip1.StopTimeInstances[1],
+						predictedTime:         float64(trip1.StopTimeInstances[1].ArrivalTime - trip1.StopTimeInstances[0].ArrivalTime),
+						predictionSource:      gtfs.SchedulePrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    true,
 					},
 				},
 			},
@@ -353,18 +394,20 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				inferenceRequest: nil,
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[0],
-						toStop:             trip1.StopTimeInstances[1],
-						predictedTime:      float64(trip1.StopTimeInstances[1].ArrivalTime - trip1.StopTimeInstances[0].ArrivalTime),
-						predictionSource:   gtfs.SchedulePrediction,
-						predictionComplete: true,
+						fromStop:              trip1.StopTimeInstances[0],
+						toStop:                trip1.StopTimeInstances[1],
+						predictedTime:         float64(trip1.StopTimeInstances[1].ArrivalTime - trip1.StopTimeInstances[0].ArrivalTime),
+						predictionSource:      gtfs.SchedulePrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    true,
 					},
 					{
-						fromStop:           trip1.StopTimeInstances[1],
-						toStop:             trip1.StopTimeInstances[2],
-						predictedTime:      float64(trip1.StopTimeInstances[2].ArrivalTime - trip1.StopTimeInstances[1].ArrivalTime),
-						predictionSource:   gtfs.SchedulePrediction,
-						predictionComplete: true,
+						fromStop:              trip1.StopTimeInstances[1],
+						toStop:                trip1.StopTimeInstances[2],
+						predictedTime:         float64(trip1.StopTimeInstances[2].ArrivalTime - trip1.StopTimeInstances[1].ArrivalTime),
+						predictionSource:      gtfs.SchedulePrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    true,
 					},
 				},
 			},
@@ -391,11 +434,12 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				inferenceRequest: nil,
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[0],
-						toStop:             trip1.StopTimeInstances[1],
-						predictedTime:      *modelMap["A_B"].Average,
-						predictionSource:   gtfs.StopStatisticsPrediction,
-						predictionComplete: true,
+						fromStop:              trip1.StopTimeInstances[0],
+						toStop:                trip1.StopTimeInstances[1],
+						predictedTime:         *modelMap["A_B"].Average,
+						predictionSource:      gtfs.StopStatisticsPrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    true,
 					},
 				},
 			},
@@ -422,18 +466,20 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				inferenceRequest: nil,
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[0],
-						toStop:             trip1.StopTimeInstances[1],
-						predictedTime:      float64(1800),
-						predictionSource:   gtfs.TimepointStatisticsPrediction,
-						predictionComplete: true,
+						fromStop:              trip1.StopTimeInstances[0],
+						toStop:                trip1.StopTimeInstances[1],
+						predictedTime:         float64(1800),
+						predictionSource:      gtfs.TimepointStatisticsPrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    true,
 					},
 					{
-						fromStop:           trip1.StopTimeInstances[1],
-						toStop:             trip1.StopTimeInstances[2],
-						predictedTime:      float64(1800),
-						predictionSource:   gtfs.TimepointStatisticsPrediction,
-						predictionComplete: true,
+						fromStop:              trip1.StopTimeInstances[1],
+						toStop:                trip1.StopTimeInstances[2],
+						predictedTime:         float64(1800),
+						predictionSource:      gtfs.TimepointStatisticsPrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    true,
 					},
 				},
 			},
@@ -484,11 +530,12 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				},
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[0],
-						toStop:             trip1.StopTimeInstances[1],
-						predictedTime:      *modelMap["A_B"].Average,
-						predictionSource:   gtfs.StopStatisticsPrediction,
-						predictionComplete: false,
+						fromStop:              trip1.StopTimeInstances[0],
+						toStop:                trip1.StopTimeInstances[1],
+						predictedTime:         *modelMap["A_B"].Average,
+						predictionSource:      gtfs.StopStatisticsPrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    false,
 					},
 				},
 			},
@@ -539,11 +586,12 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				},
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[4],
-						toStop:             trip1.StopTimeInstances[5],
-						predictedTime:      *modelMap["E_F"].Average,
-						predictionSource:   gtfs.StopStatisticsPrediction,
-						predictionComplete: false,
+						fromStop:              trip1.StopTimeInstances[4],
+						toStop:                trip1.StopTimeInstances[5],
+						predictedTime:         *modelMap["E_F"].Average,
+						predictionSource:      gtfs.StopStatisticsPrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    false,
 					},
 				},
 			},
@@ -561,7 +609,7 @@ func Test_segmentPredictor_predict(t *testing.T) {
 			},
 			args: args{
 				deviation: &gtfs.TripDeviation{
-					TripProgress:       trip1.StopTimeInstances[5].ShapeDistTraveled + 1.0,
+					TripProgress:       trip1.StopTimeInstances[5].ShapeDistTraveled + 15.0,
 					TripId:             trip1.TripId,
 					VehicleId:          "A",
 					DeviationTimestamp: aDeviationTimestamp,
@@ -572,11 +620,12 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				inferenceRequest: nil,
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[4],
-						toStop:             trip1.StopTimeInstances[5],
-						predictedTime:      *modelMap["E_F"].Average,
-						predictionSource:   gtfs.StopStatisticsPrediction,
-						predictionComplete: true,
+						fromStop:              trip1.StopTimeInstances[4],
+						toStop:                trip1.StopTimeInstances[5],
+						predictedTime:         *modelMap["E_F"].Average,
+						predictionSource:      gtfs.StopStatisticsPrediction,
+						stopUpdateDisposition: PastStop,
+						predictionComplete:    true,
 					},
 				},
 			},
@@ -628,11 +677,12 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				},
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[4],
-						toStop:             trip1.StopTimeInstances[5],
-						predictedTime:      *modelMap["E_F"].Average,
-						predictionSource:   gtfs.StopStatisticsPrediction,
-						predictionComplete: false,
+						fromStop:              trip1.StopTimeInstances[4],
+						toStop:                trip1.StopTimeInstances[5],
+						predictedTime:         *modelMap["E_F"].Average,
+						predictionSource:      gtfs.StopStatisticsPrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    false,
 					},
 				},
 			},
@@ -688,18 +738,20 @@ func Test_segmentPredictor_predict(t *testing.T) {
 				},
 				stopPredictions: []*stopPrediction{
 					{
-						fromStop:           trip1.StopTimeInstances[0],
-						toStop:             trip1.StopTimeInstances[1],
-						predictedTime:      1800,
-						predictionSource:   gtfs.TimepointStatisticsPrediction,
-						predictionComplete: false,
+						fromStop:              trip1.StopTimeInstances[0],
+						toStop:                trip1.StopTimeInstances[1],
+						predictedTime:         1800,
+						predictionSource:      gtfs.TimepointStatisticsPrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    false,
 					},
 					{
-						fromStop:           trip1.StopTimeInstances[1],
-						toStop:             trip1.StopTimeInstances[2],
-						predictedTime:      1800,
-						predictionSource:   gtfs.TimepointStatisticsPrediction,
-						predictionComplete: false,
+						fromStop:              trip1.StopTimeInstances[1],
+						toStop:                trip1.StopTimeInstances[2],
+						predictedTime:         1800,
+						predictionSource:      gtfs.TimepointStatisticsPrediction,
+						stopUpdateDisposition: FutureStop,
+						predictionComplete:    false,
 					},
 				},
 			},
@@ -763,6 +815,9 @@ func predictionResultMatches(got *predictionResult, want *predictionResult) (boo
 		diff := s1.predictedTime - s2.predictedTime
 		if math.Abs(diff) > 0.1 {
 			return false, stopPredictionMismatchDesc(i, "PredictedTime", s1, s2)
+		}
+		if s1.stopUpdateDisposition != s2.stopUpdateDisposition {
+			return false, stopPredictionMismatchDesc(i, "stopUpdateDisposition", s1, s2)
 		}
 
 	}

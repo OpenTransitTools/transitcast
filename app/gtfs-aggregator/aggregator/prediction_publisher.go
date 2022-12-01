@@ -5,10 +5,11 @@ import (
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/nats-io/nats.go"
 	logger "log"
+	"math"
 	"time"
 )
 
-//predictionPublisher takes completed predictions and publishes them on NATS connection as TripUpdates
+// predictionPublisher takes completed predictions and publishes them on NATS connection as TripUpdates
 type predictionPublisher struct {
 	log                        *logger.Logger
 	natsConn                   *nats.Conn
@@ -16,7 +17,7 @@ type predictionPublisher struct {
 	limitEarlyDepartureSeconds int
 }
 
-//makePredictionPublisher builds predictionPublisher
+// makePredictionPublisher builds predictionPublisher
 func makePredictionPublisher(log *logger.Logger,
 	natsConn *nats.Conn,
 	predictionSubject string,
@@ -29,7 +30,7 @@ func makePredictionPublisher(log *logger.Logger,
 	}
 }
 
-//publishPredictionBatch for each trip predictions in predictionBatch, build gtfs.TripUpdate
+// publishPredictionBatch for each trip predictions in predictionBatch, build gtfs.TripUpdate
 // and publish them over NATS
 func (p *predictionPublisher) publishPredictionBatch(batch *predictionBatch) {
 	orderedTripPredictions := batch.orderedTripPredictions()
@@ -48,123 +49,112 @@ func (p *predictionPublisher) publishPredictionBatch(batch *predictionBatch) {
 	}
 }
 
-//makeTripUpdates builds series of gtfs.TripUpdates from tripPredictions
+// makeTripUpdates builds series of gtfs.TripUpdates from tripPredictions
 func makeTripUpdates(log *logger.Logger,
 	orderedPredictions []*tripPrediction,
 	limitEarlyDepartureSeconds int) []*gtfs.TripUpdate {
 
 	tripUpdates := make([]*gtfs.TripUpdate, 0)
-	schedulePosition := getInitialSchedulePosition(orderedPredictions)
+	var previousSchedulePositionTime time.Time
 
 	for _, prediction := range orderedPredictions {
-		tripUpdate := buildTripUpdate(log, schedulePosition, prediction, limitEarlyDepartureSeconds)
-		newSchedulePosition := tripUpdate.LastSchedulePosition()
-		if newSchedulePosition != nil {
-			schedulePosition = *newSchedulePosition
+		if len(tripUpdates) == 0 {
+			previousSchedulePositionTime = prediction.tripDeviation.SchedulePosition()
+		}
+		tripUpdate := buildTripUpdate(log, previousSchedulePositionTime, prediction, limitEarlyDepartureSeconds)
+		if tripUpdate != nil {
+			newSchedulePosition := tripUpdate.LastSchedulePosition()
+			if newSchedulePosition != nil {
+				previousSchedulePositionTime = *newSchedulePosition
+			}
 			tripUpdates = append(tripUpdates, tripUpdate)
 		}
+
 	}
 
 	return tripUpdates
 }
 
-//getInitialSchedulePosition return the schedule position (where the vehicle is according to its schedule) of the
-//vehicle on its series of tripPredictions
-func getInitialSchedulePosition(orderedPredictions []*tripPrediction) time.Time {
-	if len(orderedPredictions) < 1 {
-		return time.Now()
-	}
-	firstDeviation := orderedPredictions[0].tripDeviation
-	return firstDeviation.DeviationTimestamp.Add(time.Duration(firstDeviation.Delay) * time.Second)
-
-}
-
-//buildTripUpdate builds a gtfs.TripUpdate a tripPrediction
+// buildTripUpdate builds a gtfs.TripUpdate a tripPrediction
 // previousSchedulePositionTime should be the last position the vehicle was reported as departing from
 // allowing this trip update to start late if the vehicle is running late after its previous trip
 func buildTripUpdate(log *logger.Logger,
-	previousSchedulePositionTime time.Time,
+	scheduleAccumulation time.Time,
 	prediction *tripPrediction,
 	limitEarlyDepartureSeconds int) *gtfs.TripUpdate {
 	trip := prediction.tripInstance
+	if len(trip.StopTimeInstances) < 1 {
+		log.Printf("trip %s had no StopTimeInstances", trip.TripId)
+		return nil
+	}
+	tripDeviation := prediction.tripDeviation
+	deviationTimestamp := tripDeviation.DeviationTimestamp
+
 	tripUpdate := gtfs.TripUpdate{
 		TripId:               trip.TripId,
 		RouteId:              trip.RouteId,
 		ScheduleRelationship: "SCHEDULED",
-		Timestamp:            uint64(prediction.tripDeviation.DeviationTimestamp.Unix()),
-		VehicleId:            prediction.tripDeviation.VehicleId,
-		StopTimeUpdates:      buildPastStopUpdates(previousSchedulePositionTime, prediction),
+		Timestamp:            uint64(deviationTimestamp.Unix()),
+		VehicleId:            tripDeviation.VehicleId,
 	}
 
-	previousSchedulePositionTime = getLatestTimeAfterInitialStop(previousSchedulePositionTime, tripUpdate.StopTimeUpdates)
+	var lastPastStop *gtfs.StopTimeInstance
+	var predictionsForStopUpdates []*stopPrediction
+
+	for _, sp := range prediction.stopPredictions {
+		if sp.stopUpdateDisposition == PastStop {
+			lastPastStop = sp.toStop
+		} else {
+			predictionsForStopUpdates = append(predictionsForStopUpdates, sp)
+		}
+	}
+
+	firstStopTimeInstance := trip.StopTimeInstances[0]
+	stopUpdate := buildStopUpdateForFirstStop(scheduleAccumulation, tripDeviation.SchedulePosition(),
+		deviationTimestamp, firstStopTimeInstance)
+	tripUpdate.StopTimeUpdates = []gtfs.StopTimeUpdate{stopUpdate}
+	scheduleAccumulation = scheduleAccumulationAfterFirstStop(scheduleAccumulation,
+		stopUpdate.PredictedArrivalTime, firstStopTimeInstance.DepartureDateTime)
+
+	if lastPastStop != nil {
+		lastPastStopUpdate := buildStopUpdateForPassedStop(deviationTimestamp, lastPastStop)
+		tripUpdate.StopTimeUpdates = append(tripUpdate.StopTimeUpdates, lastPastStopUpdate)
+	}
 
 	var predictionRemainder = 0.0
-	tripDistanceTraveled := prediction.tripDeviation.TripProgress
-	for _, sp := range prediction.stopPredictions {
-		if tripDistanceTraveled > sp.toStop.ShapeDistTraveled {
-			continue
-		}
+
+	for _, sp := range predictionsForStopUpdates {
 		var newStopUpdate gtfs.StopTimeUpdate
-		newStopUpdate, predictionRemainder = buildStopUpdate(log, previousSchedulePositionTime, tripDistanceTraveled,
-			predictionRemainder, sp, limitEarlyDepartureSeconds)
-		previousSchedulePositionTime = newStopUpdate.PredictedArrivalTime
+		if sp.stopUpdateDisposition == AtStop {
+			newStopUpdate = buildStopUpdateForAtStop(deviationTimestamp, sp.toStop, limitEarlyDepartureSeconds)
+		} else {
+			newStopUpdate, predictionRemainder = buildStopUpdate(log, scheduleAccumulation,
+				tripDeviation.TripProgress, predictionRemainder, sp, limitEarlyDepartureSeconds)
+		}
+
+		scheduleAccumulation = newStopUpdate.LatestPredictedTime()
 		tripUpdate.StopTimeUpdates = append(tripUpdate.StopTimeUpdates, newStopUpdate)
 	}
-
 	return &tripUpdate
 }
 
-//getLatestTimeAfterInitialStop returns previousTime, or the arrival time of the first stop, whichever is latest
-func getLatestTimeAfterInitialStop(previousTime time.Time, stopTimeUpdates []gtfs.StopTimeUpdate) time.Time {
-	size := len(stopTimeUpdates)
-	if size == 0 {
-		return previousTime
+// scheduleAccumulationAfterFirstStop returns how much scheduleAccumulation should be used after the first stop of the trip
+func scheduleAccumulationAfterFirstStop(scheduleAccumulation time.Time,
+	predictedDepartTime time.Time,
+	scheduledDepartTime time.Time) time.Time {
+	departTime := laterOfDates(predictedDepartTime, scheduledDepartTime)
+	if scheduleAccumulation.After(departTime) {
+		return scheduleAccumulation
 	}
-	//just looking for the first stop
-	return laterOfDates(previousTime, stopTimeUpdates[0].ScheduledArrivalTime)
+	return predictedDepartTime
 }
 
-//buildPastStopUpdates creates gtfs.StopTimeUpdates that should be included in a gtfs.TripUpdate that the vehicle
-//has already past
-func buildPastStopUpdates(previousTime time.Time,
-	prediction *tripPrediction) []gtfs.StopTimeUpdate {
-	updates := make([]gtfs.StopTimeUpdate, 0)
-	if len(prediction.stopPredictions) == 0 {
-		return updates
-	}
-
-	var lastStop *gtfs.StopTimeInstance
-	tripProgress := prediction.tripDeviation.TripProgress
-
-	for _, stopTime := range prediction.tripInstance.StopTimeInstances {
-		if len(updates) == 0 {
-			//if the trip has moved past the stop, use buildStopUpdateForPastStop
-			if tripProgress > stopTime.ShapeDistTraveled {
-				updates = append(updates, buildStopUpdateForPastStop(previousTime, stopTime))
-			} else {
-				updates = append(updates, buildStopUpdateForFirstStop(previousTime, stopTime))
-				return updates
-			}
-			continue
-		}
-		if tripProgress < stopTime.ShapeDistTraveled {
-			//found the first stop sequence without a prediction
-			if lastStop == nil {
-				return updates
-			}
-			return append(updates, buildStopUpdateForPastStop(previousTime, lastStop))
-		}
-		lastStop = stopTime
-	}
-	return updates
-}
-
-//buildStopUpdate creates gtfs.StopTimeUpdate from stopPrediction. previousTime is the last stop time the vehicle was
-//located at, (a previous StopUpdate or the vehicle schedule position if its between the previous stop and this one)
-//tripDistanceTraveled is how far along the vehicle is on this trip, should not be further than stopPrediction.toStop
-//previousPredictionRemainder is the previous predictions remainder after rounding the predictions to seconds
+// buildStopUpdate creates gtfs.StopTimeUpdate from stopPrediction. scheduleAccumulation is the last stop time the vehicle was
+// located at, (a previous StopUpdate or the vehicle schedule position if its between the previous stop and this one)
+// tripDistanceTraveled is how far along the vehicle is on this trip, should not be further than stopPrediction.toStop
+// previousPredictionRemainder is the previous predictions remainder after rounding the predictions to seconds
 func buildStopUpdate(log *logger.Logger,
-	previousTime time.Time,
+	scheduleAccumulation time.Time,
 	tripDistanceTraveled float64,
 	previousPredictionRemainder float64,
 	stopPrediction *stopPrediction,
@@ -178,7 +168,7 @@ func buildStopUpdate(log *logger.Logger,
 	}
 	//only whole seconds
 	traversalInt64, traversalRemainder := roundSecondsAndRemainder(traversalSeconds)
-	predictedArrivalTime := previousTime.Add(time.Duration(traversalInt64) * time.Second)
+	predictedArrivalTime := scheduleAccumulation.Add(time.Duration(traversalInt64) * time.Second)
 	arrivalDelay := int(predictedArrivalTime.Sub(toStop.ArrivalDateTime).Seconds())
 	//check for early departure from last stop
 	if stopPrediction.fromStop.IsTimepoint() &&
@@ -198,8 +188,8 @@ func buildStopUpdate(log *logger.Logger,
 	}, traversalRemainder
 }
 
-//adjustTraversalSeconds returns the distance measured in schedule seconds left to travel between stops in
-//stopPrediction based on tripDistanceTraveled (the vehicle's progress on its trip
+// adjustTraversalSeconds returns the distance measured in schedule seconds left to travel between stops in
+// stopPrediction based on tripDistanceTraveled (the vehicle's progress on its trip
 func adjustTraversalSeconds(log *logger.Logger, tripDistanceTraveled float64, segmentPrediction *stopPrediction) float64 {
 	distanceBetweenStops := segmentPrediction.toStop.ShapeDistTraveled - segmentPrediction.fromStop.ShapeDistTraveled
 	if distanceBetweenStops <= 0 {
@@ -216,34 +206,106 @@ func adjustTraversalSeconds(log *logger.Logger, tripDistanceTraveled float64, se
 	return segmentPrediction.predictedTime * percentBetweenStops
 }
 
-//roundSecondsAndRemainder returns truncated traversalSeconds fractional seconds and remainder
+// roundSecondsAndRemainder returns truncated traversalSeconds fractional seconds and remainder
 func roundSecondsAndRemainder(traversalSeconds float64) (int64, float64) {
 	seconds := int64(traversalSeconds)
 	return seconds, traversalSeconds - float64(seconds)
 }
 
-//buildStopUpdateForFirstStop creates gtfs.StopTimeUpdate for first stop of trip
-func buildStopUpdateForFirstStop(at time.Time, stopTime *gtfs.StopTimeInstance) gtfs.StopTimeUpdate {
+// buildStopUpdateForFirstStop creates gtfs.StopTimeUpdate for first stop of trip
+func buildStopUpdateForFirstStop(
+	scheduleAccumulation time.Time,
+	positionInSchedule time.Time,
+	positionTimestamp time.Time,
+	stopTime *gtfs.StopTimeInstance) gtfs.StopTimeUpdate {
 
-	late := at.Sub(stopTime.DepartureDateTime).Seconds()
-	if late < 0 { //don't report early departure
-		late = 0
+	stopUpdate := gtfs.StopTimeUpdate{
+		StopSequence:         stopTime.StopSequence,
+		StopId:               stopTime.StopId,
+		ScheduledArrivalTime: stopTime.ArrivalDateTime,
+		PredictionSource:     gtfs.SchedulePrediction,
+	}
+
+	//If this is true we have already passed the first stop, stopUpdate should indicate it's been past
+	if positionInSchedule.After(stopTime.DepartureDateTime) {
+		delay := positionTimestamp.Sub(positionInSchedule)
+		if delay.Seconds() < 0.0 {
+			//negative delay is an early position, use arrivalTime + delay
+			stopUpdate.PredictedArrivalTime = stopTime.ArrivalDateTime.Add(delay)
+		} else {
+			//a late position, use arrival time
+			stopUpdate.PredictedArrivalTime = stopTime.ArrivalDateTime
+		}
+		stopUpdate.ArrivalDelay = int(stopUpdate.PredictedArrivalTime.Sub(stopUpdate.ScheduledArrivalTime).Seconds())
+		return stopUpdate
+	}
+	departTime := laterOfDates(positionTimestamp, scheduleAccumulation)
+
+	//position will be before depart time, assume on time departure
+	if departTime.Unix() <= stopTime.DepartureDateTime.Unix() {
+		stopUpdate.PredictedArrivalTime = stopTime.ArrivalDateTime
+		stopUpdate.ArrivalDelay = 0
+		return stopUpdate
+
+	}
+	//late starting trip
+
+	//layoverTime := stopTime.DepartureDateTime.Sub(stopTime.ArrivalDateTime)
+	//set arrival time to earlier by the layover time, assuming vehicle will not dwell
+	//stopUpdate.PredictedArrivalTime = departTime.Add(-layoverTime)
+	//before depart time, position is before stop, scheduleAccumulation is after stop
+	stopUpdate.PredictedArrivalTime = scheduleAccumulation
+	stopUpdate.ArrivalDelay = int(stopUpdate.PredictedArrivalTime.Sub(stopUpdate.ScheduledArrivalTime).Seconds())
+
+	earliestPosition := earlierOfDates(positionTimestamp, scheduleAccumulation)
+
+	if earliestPosition.Unix() <= stopTime.DepartureDateTime.Unix() {
+		stopUpdate.ScheduledDepartureTime = &stopTime.DepartureDateTime
+		stopUpdate.PredictedDepartureTime = &departTime
+		departureDelay := int(stopUpdate.PredictedDepartureTime.Sub(stopTime.DepartureDateTime).Seconds())
+		stopUpdate.DepartureDelay = &departureDelay
+	}
+
+	return stopUpdate
+}
+
+// buildStopUpdateForAtStop creates gtfs.StopTimeUpdate when a vehicle is located at a stop.
+func buildStopUpdateForAtStop(at time.Time,
+	stopTime *gtfs.StopTimeInstance,
+	limitEarlyDepartureSeconds int) gtfs.StopTimeUpdate {
+
+	arrivalTime := at
+
+	delay := int(arrivalTime.Sub(stopTime.ArrivalDateTime).Seconds())
+
+	if stopTime.IsTimepoint() && delay < -limitEarlyDepartureSeconds {
+		delay = -limitEarlyDepartureSeconds
+		arrivalTime = stopTime.ArrivalDateTime.Add(time.Duration(delay) * time.Second)
 	}
 
 	return gtfs.StopTimeUpdate{
 		StopSequence:         stopTime.StopSequence,
 		StopId:               stopTime.StopId,
-		ArrivalDelay:         int(late),
+		ArrivalDelay:         delay,
 		ScheduledArrivalTime: stopTime.ArrivalDateTime,
-		PredictedArrivalTime: stopTime.ArrivalDateTime.Add(time.Duration(late) * time.Second),
+		PredictedArrivalTime: arrivalTime,
 		PredictionSource:     gtfs.SchedulePrediction,
 	}
 }
 
-//buildStopUpdateForPastStop creates gtfs.StopTimeUpdate stopTime that the vehicle has already past
-//to indicate to consumers the vehicle has past this stop already
-func buildStopUpdateForPastStop(at time.Time, stopTime *gtfs.StopTimeInstance) gtfs.StopTimeUpdate {
+// buildStopUpdateForPassedStop creates gtfs.StopTimeUpdate stopTime that the vehicle has already past
+func buildStopUpdateForPassedStop(at time.Time, stopTime *gtfs.StopTimeInstance) gtfs.StopTimeUpdate {
+
+	// use a time early enough to indicate the bus has moved beyond this stop
 	arrivalTime := earlierOfDates(at.Add(-time.Minute), stopTime.ArrivalDateTime)
+
+	//delay calculated from departure time
+	delay := int(arrivalTime.Sub(stopTime.DepartureDateTime).Seconds())
+
+	if !stopTime.ArrivalDateTime.Equal(stopTime.DepartureDateTime) {
+		//adjust time of arrival by delay calculated from departure
+		arrivalTime = arrivalTime.Add(time.Duration(delay) * time.Second)
+	}
 
 	return gtfs.StopTimeUpdate{
 		StopSequence:         stopTime.StopSequence,
@@ -255,7 +317,12 @@ func buildStopUpdateForPastStop(at time.Time, stopTime *gtfs.StopTimeInstance) g
 	}
 }
 
-//laterOfDates return the latter of two dates
+// consideredAtStop returns true if stopDistance is close enough to tripProgress to be considered at the stop
+func consideredAtStop(tripProgress float64, stopDistance float64) bool {
+	return math.Abs(tripProgress-stopDistance) < 2.0
+}
+
+// laterOfDates return the latter of two dates
 func laterOfDates(first time.Time, second time.Time) time.Time {
 	if first.After(second) {
 		return first
@@ -263,7 +330,7 @@ func laterOfDates(first time.Time, second time.Time) time.Time {
 	return second
 }
 
-//laterOfDates return the earlier of two dates
+// laterOfDates return the earlier of two dates
 func earlierOfDates(first time.Time, second time.Time) time.Time {
 	if first.Before(second) {
 		return first

@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-//predictionResult holds the result of a segmentPredictor prediction
+// predictionResult holds the result of a segmentPredictor prediction
 type predictionResult struct {
 	inferenceRequest *InferenceRequest
 	stopPredictions  []*stopPrediction
 }
 
-//segmentPredictor responsible for generating predictions and InferenceRequests for segments of a trip
-//(one or more stops)
+// segmentPredictor responsible for generating predictions and InferenceRequests for segments of a trip
+// (one or more stops)
 type segmentPredictor struct {
 	model             *mlmodels.MLModel
 	osts              *observedStopTransitions
@@ -23,7 +23,7 @@ type segmentPredictor struct {
 	holidayCalendar   *transitHolidayCalendar
 }
 
-//scheduledTime returns the scheduled arrival time of the first stop in this segment in seconds since midnight
+// scheduledTime returns the scheduled arrival time of the first stop in this segment in seconds since midnight
 func (s *segmentPredictor) scheduledTime() int {
 	return s.stopTimeInstances[len(s.stopTimeInstances)-1].ArrivalTime - s.stopTimeInstances[0].ArrivalTime
 }
@@ -32,7 +32,7 @@ func (s *segmentPredictor) firstScheduledStopTimeInstances() (*gtfs.StopTimeInst
 	return s.stopTimeInstances[0], s.stopTimeInstances[1]
 }
 
-//relevantForDistance returns true if this segment is relevant for predictions after the distance on the trip
+// relevantForDistance returns true if this segment is relevant for predictions after the distance on the trip
 func (s *segmentPredictor) relevantForDistance(distance float64) bool {
 	lastIndex := len(s.stopTimeInstances) - 1
 	if lastIndex <= 0 {
@@ -41,21 +41,21 @@ func (s *segmentPredictor) relevantForDistance(distance float64) bool {
 	return distance <= s.stopTimeInstances[lastIndex].ShapeDistTraveled
 }
 
-//predict produces predictionResult for this segment. If predictionResult.inferenceRequest is non-nil
-//then this segment needs am inference response before the prediction is complete
-func (s *segmentPredictor) predict(deviation *gtfs.TripDeviation) *predictionResult {
-	needsInference := s.useInference && s.relevantForDistance(deviation.TripProgress)
+// predict produces predictionResult for this segment. If predictionResult.inferenceRequest is non-nil
+// then this segment needs am inference response before the prediction is complete
+func (s *segmentPredictor) predict(tripDeviation *gtfs.TripDeviation) *predictionResult {
+	needsInference := s.useInference && s.relevantForDistance(tripDeviation.TripProgress)
 	result := predictionResult{}
 	segmentTime, source := s.statisticalSegmentTime()
-	result.stopPredictions = s.applySegmentTime(segmentTime, source, !needsInference)
+	result.stopPredictions = s.applySegmentTime(segmentTime, source, !needsInference, tripDeviation.TripProgress)
 
 	if needsInference {
-		result.inferenceRequest = s.buildInferenceRequest(deviation)
+		result.inferenceRequest = s.buildInferenceRequest(tripDeviation)
 	}
 	return &result
 }
 
-//buildInferenceRequest creates an InferenceRequest for tripDeviation on its segment
+// buildInferenceRequest creates an InferenceRequest for tripDeviation on its segment
 func (s *segmentPredictor) buildInferenceRequest(tripDeviation *gtfs.TripDeviation) *InferenceRequest {
 
 	at := tripDeviation.DeviationTimestamp
@@ -92,8 +92,8 @@ func (s *segmentPredictor) buildInferenceRequest(tripDeviation *gtfs.TripDeviati
 	}
 }
 
-//statisticalSegmentTime returns time to use for the segment prediction when inference is not used
-//and returns the gtfs.PredictionSource describing where this value derived from
+// statisticalSegmentTime returns time to use for the segment prediction when inference is not used
+// and returns the gtfs.PredictionSource describing where this value derived from
 func (s *segmentPredictor) statisticalSegmentTime() (float64, gtfs.PredictionSource) {
 	if s.useStatistics && s.model != nil && s.model.Average != nil {
 		if len(s.stopTimeInstances) > 2 {
@@ -104,50 +104,26 @@ func (s *segmentPredictor) statisticalSegmentTime() (float64, gtfs.PredictionSou
 	return float64(s.scheduledTime()), gtfs.SchedulePrediction
 }
 
-//applyInferenceResponse uses inferenceResponse value among the segments stops and returns resulting
-//stopPrediction slice
-func (s *segmentPredictor) applyInferenceResponse(inferenceResponse float64) []*stopPrediction {
+// applyInferenceResponse uses inferenceResponse value among the segments stops and returns resulting
+// stopPrediction slice
+func (s *segmentPredictor) applyInferenceResponse(inferenceResponse float64,
+	tripProgress float64) []*stopPrediction {
 	src := gtfs.TimepointMLPrediction
 	if len(s.stopTimeInstances) <= 2 {
 		src = gtfs.StopMLPrediction
 	}
-	return s.applySegmentTime(inferenceResponse, src, true)
+	return s.applySegmentTime(inferenceResponse, src, true, tripProgress)
 }
 
-//applySegmentTime distributes seconds accross stopTimeInstances and returns stopPrediction slice
-//with gtfs.PredictionSource
+// applySegmentTime distributes seconds across stopTimeInstances and returns stopPrediction slice
+// with gtfs.PredictionSource
+// seconds is the number of seconds predicted to have been traveled for this segment, it may be derived from
+// any of the sources defined by the gtfs.PredictionSource
+// predictionComplete should be false when an inference request is required
 func (s *segmentPredictor) applySegmentTime(seconds float64,
 	src gtfs.PredictionSource,
-	predictionComplete bool) []*stopPrediction {
-
-	if len(s.stopTimeInstances) <= 2 {
-		return s.applySegmentTimeForSingleStopPair(seconds, src, predictionComplete)
-	}
-	return s.applySegmentTimeForMultiStopPairs(seconds, src, predictionComplete)
-}
-
-//applySegmentTimeForSingleStopPair returns slice with single stopPrediction for segmentPredictor with
-//single stopTimeInstances
-func (s *segmentPredictor) applySegmentTimeForSingleStopPair(seconds float64,
-	src gtfs.PredictionSource,
-	predictionComplete bool) []*stopPrediction {
-
-	return []*stopPrediction{
-		{
-			fromStop:           s.stopTimeInstances[0],
-			toStop:             s.stopTimeInstances[1],
-			predictedTime:      seconds,
-			predictionSource:   src,
-			predictionComplete: predictionComplete,
-		},
-	}
-}
-
-//applySegmentTimeForMultiStopPairs returns slice with stopPrediction for each stopTimeInstance using
-//seconds among all stops in this segmentPredictor
-func (s *segmentPredictor) applySegmentTimeForMultiStopPairs(seconds float64,
-	src gtfs.PredictionSource,
-	predictionComplete bool) []*stopPrediction {
+	predictionComplete bool,
+	tripProgress float64) []*stopPrediction {
 
 	results := make([]*stopPrediction, 0)
 
@@ -156,11 +132,12 @@ func (s *segmentPredictor) applySegmentTimeForMultiStopPairs(seconds float64,
 	for _, stop := range s.stopTimeInstances {
 		if previousStop != nil {
 			results = append(results, &stopPrediction{
-				fromStop:           previousStop,
-				toStop:             stop,
-				predictedTime:      calcStopSegmentTime(previousStop, stop, allStopsScheduledTime, seconds),
-				predictionSource:   src,
-				predictionComplete: predictionComplete,
+				fromStop:              previousStop,
+				toStop:                stop,
+				predictedTime:         calcStopSegmentTime(previousStop, stop, allStopsScheduledTime, seconds),
+				predictionSource:      src,
+				stopUpdateDisposition: makeStopUpdateDisposition(tripProgress, stop.ShapeDistTraveled),
+				predictionComplete:    predictionComplete,
 			})
 		}
 		previousStop = stop
@@ -168,14 +145,14 @@ func (s *segmentPredictor) applySegmentTimeForMultiStopPairs(seconds float64,
 	return results
 }
 
-//isHoliday returns true if "at" is on an observed holiday
+// isHoliday returns true if "at" is on an observed holiday
 func (s *segmentPredictor) isHoliday(at time.Time) bool {
 	return s.holidayCalendar.isHoliday(at)
 }
 
-//calcStopSegmentTime calculates the amount of time to be applied from "totalPredictedTime" for travel between
-//"stop1" and "stop2", where the "totalPredictedTime" is the prediction for a trip segment that's
-//scheduled for "allStopsScheduledTime" seconds, of which "stop1" and "stop2" are a part.
+// calcStopSegmentTime calculates the amount of time to be applied from "totalPredictedTime" for travel between
+// "stop1" and "stop2", where the "totalPredictedTime" is the prediction for a trip segment that's
+// scheduled for "allStopsScheduledTime" seconds, of which "stop1" and "stop2" are a part.
 func calcStopSegmentTime(stop1 *gtfs.StopTimeInstance,
 	stop2 *gtfs.StopTimeInstance,
 	allStopsScheduledTime int,
@@ -186,7 +163,7 @@ func calcStopSegmentTime(stop1 *gtfs.StopTimeInstance,
 	return ourSegmentTime
 }
 
-//segmentPredictorFactory creates segmentPredictor from loaded mlmodels.MLModel
+// segmentPredictorFactory creates segmentPredictor from loaded mlmodels.MLModel
 type segmentPredictorFactory struct {
 	modelByName                 map[string]*mlmodels.MLModel
 	osts                        *observedStopTransitions
@@ -195,7 +172,7 @@ type segmentPredictorFactory struct {
 	holidayCalendar             *transitHolidayCalendar
 }
 
-//makeSegmentPredictionFactory builds segmentPredictorFactory
+// makeSegmentPredictionFactory builds segmentPredictorFactory
 func makeSegmentPredictionFactory(modelByName map[string]*mlmodels.MLModel,
 	osts *observedStopTransitions,
 	minimumRMSEModelImprovement float64,
@@ -212,8 +189,8 @@ func makeSegmentPredictionFactory(modelByName map[string]*mlmodels.MLModel,
 	return &factory
 }
 
-//makeSegmentPredictors given a series of stopTimeInstances create segmentPredictor, preferring timepoint based
-//models over stop to stop based models.
+// makeSegmentPredictors given a series of stopTimeInstances create segmentPredictor, preferring timepoint based
+// models over stop to stop based models.
 func (f *segmentPredictorFactory) makeSegmentPredictors(
 	stopTimeInstances []*gtfs.StopTimeInstance) []*segmentPredictor {
 
@@ -229,7 +206,7 @@ func (f *segmentPredictorFactory) makeSegmentPredictors(
 	return f.makeStopSegmentPredictors(stopTimeInstances)
 }
 
-//makeStopSegmentPredictors create slice of segmentPredictor with stop to stop based models for gtfs.StopTimeInstance
+// makeStopSegmentPredictors create slice of segmentPredictor with stop to stop based models for gtfs.StopTimeInstance
 func (f *segmentPredictorFactory) makeStopSegmentPredictors(stopTimeInstances []*gtfs.StopTimeInstance) []*segmentPredictor {
 	results := make([]*segmentPredictor, 0)
 
@@ -245,7 +222,7 @@ func (f *segmentPredictorFactory) makeStopSegmentPredictors(stopTimeInstances []
 	return results
 }
 
-//makeSegmentPredictor makes a segmentPredictor with mlModel for slice of gtfs.StopTimeInstance
+// makeSegmentPredictor makes a segmentPredictor with mlModel for slice of gtfs.StopTimeInstance
 func (f *segmentPredictorFactory) makeSegmentPredictor(mlModel *mlmodels.MLModel,
 	stopTimeInstances []*gtfs.StopTimeInstance,
 ) *segmentPredictor {
@@ -259,14 +236,14 @@ func (f *segmentPredictorFactory) makeSegmentPredictor(mlModel *mlmodels.MLModel
 	}
 }
 
-//shouldUseModelToPredict returns true if mlModel is suitable for inference
+// shouldUseModelToPredict returns true if mlModel is suitable for inference
 func (f *segmentPredictorFactory) shouldUseModelToPredict(mlModel *mlmodels.MLModel) bool {
 	return mlModel != nil &&
 		mlModel.TrainedTimestamp != nil &&
 		mlModel.AvgRMSE-mlModel.MLRMSE >= f.minimumRMSEModelImprovement
 }
 
-//shouldUseStatisticsToPredict returns true if mlModel can be used for predictions based on average travel times
+// shouldUseStatisticsToPredict returns true if mlModel can be used for predictions based on average travel times
 func (f *segmentPredictorFactory) shouldUseStatisticsToPredict(mlModel *mlmodels.MLModel) bool {
 	return mlModel != nil &&
 		mlModel.ObservedStopCount != nil &&

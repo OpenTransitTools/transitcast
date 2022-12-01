@@ -21,6 +21,12 @@ type TripDeviation struct {
 	RouteId   string `db:"-" json:"route_id"`
 }
 
+// SchedulePosition returns the schedule position (where the vehicle is according to its schedule) of the vehicle
+// derived from Delay and DeviationTimestamp
+func (t *TripDeviation) SchedulePosition() time.Time {
+	return t.DeviationTimestamp.Add(time.Duration(-t.Delay) * time.Second)
+}
+
 // RecordTripDeviation saves slice of TripDeviations into database in batch
 func RecordTripDeviation(tripDeviations []*TripDeviation, db *sqlx.DB) error {
 	if len(tripDeviations) == 0 {

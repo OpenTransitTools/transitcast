@@ -190,6 +190,26 @@ func Test_tripPredictor_predict(t *testing.T) {
 				},
 				stopPredictions: []*stopPrediction{
 					{
+						fromStop:         trip.StopTimeInstances[0],
+						toStop:           trip.StopTimeInstances[1],
+						predictionSource: gtfs.StopStatisticsPrediction,
+					},
+					{
+						fromStop:         trip.StopTimeInstances[1],
+						toStop:           trip.StopTimeInstances[2],
+						predictionSource: gtfs.SchedulePrediction,
+					},
+					{
+						fromStop:         trip.StopTimeInstances[2],
+						toStop:           trip.StopTimeInstances[3],
+						predictionSource: gtfs.TimepointStatisticsPrediction,
+					},
+					{
+						fromStop:         trip.StopTimeInstances[3],
+						toStop:           trip.StopTimeInstances[4],
+						predictionSource: gtfs.TimepointStatisticsPrediction,
+					},
+					{
 						fromStop:         trip.StopTimeInstances[4],
 						toStop:           trip.StopTimeInstances[5],
 						predictionSource: gtfs.StopStatisticsPrediction,

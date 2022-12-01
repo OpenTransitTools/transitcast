@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-//tripPredictorsCollection factory and cache of tripPredictions
+// tripPredictorsCollection factory and cache of tripPredictions
 type tripPredictorsCollection struct {
 	db                       *sqlx.DB
 	predictorFactory         *segmentPredictorFactory
@@ -18,7 +18,7 @@ type tripPredictorsCollection struct {
 	maximumPredictionMinutes int
 }
 
-//makeTripPredictorsCollection builds tripPredictorsCollection
+// makeTripPredictorsCollection builds tripPredictorsCollection
 func makeTripPredictorsCollection(db *sqlx.DB,
 	osts *observedStopTransitions,
 	minimumRMSEModelImprovement float64,
@@ -40,7 +40,7 @@ func makeTripPredictorsCollection(db *sqlx.DB,
 	}, nil
 }
 
-//retrieveTripPredictor finds the tripPredictor for use on gtfs.TripDeviation in cache or loads it if not in cache
+// retrieveTripPredictor finds the tripPredictor for use on gtfs.TripDeviation in cache or loads it if not in cache
 func (t *tripPredictorsCollection) retrieveTripPredictor(deviation *gtfs.TripDeviation) (*tripPredictor, error) {
 	predictorMapId := makePredictorMapId(deviation.DataSetId, deviation.TripId)
 	predictor := t.locker.retrieve(predictorMapId)
@@ -57,19 +57,19 @@ func (t *tripPredictorsCollection) retrieveTripPredictor(deviation *gtfs.TripDev
 	return predictor, nil
 }
 
-//removeExpiredPredictors removes all expired predictors from cache as of "now"
-//returns number of tripPredictors in collection before and after cleanup
+// removeExpiredPredictors removes all expired predictors from cache as of "now"
+// returns number of tripPredictors in collection before and after cleanup
 func (t *tripPredictorsCollection) removeExpiredPredictors(now time.Time) (int, int) {
 	return t.locker.removeExpiredPredictors(now, t.expireSeconds)
 }
 
-//tripPredictorsLocker thread safe wrapper around map containing tripPredictor for use by tripPredictorsCollection
+// tripPredictorsLocker thread safe wrapper around map containing tripPredictor for use by tripPredictorsCollection
 type tripPredictorsLocker struct {
 	mu               sync.Mutex
 	tripPredictorMap map[string]*tripPredictor
 }
 
-//makeTripPredictorLocker builds tripPredictorsLocker
+// makeTripPredictorLocker builds tripPredictorsLocker
 func makeTripPredictorLocker() *tripPredictorsLocker {
 	return &tripPredictorsLocker{
 		mu:               sync.Mutex{},
@@ -89,9 +89,9 @@ func (t *tripPredictorsLocker) put(predictorMapId string, predictor *tripPredict
 	t.tripPredictorMap[predictorMapId] = predictor
 }
 
-//removeExpiredPredictors builds new tripPredictor with only items that have not expired as of "expireSeconds"
-//a tripPredictor has expired if its final stop's arrival time is "expireSeconds" after "now"
-//returns number of tripPredictors in collection before and after cleanup
+// removeExpiredPredictors builds new tripPredictor with only items that have not expired as of "expireSeconds"
+// a tripPredictor has expired if its final stop's arrival time is "expireSeconds" after "now"
+// returns number of tripPredictors in collection before and after cleanup
 func (t *tripPredictorsLocker) removeExpiredPredictors(now time.Time, expireSeconds int) (int, int) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -108,20 +108,20 @@ func (t *tripPredictorsLocker) removeExpiredPredictors(now time.Time, expireSeco
 	return startSize, len(newMap)
 }
 
-//makePredictorMapId returns string key for tripPredictor map used by tripPredictorsCollection and tripPredictorsLocker
+// makePredictorMapId returns string key for tripPredictor map used by tripPredictorsCollection and tripPredictorsLocker
 func makePredictorMapId(dataSetId int64, tripId string) string {
 	return fmt.Sprintf("%d:%s", dataSetId, tripId)
 }
 
-//tripPredictor a tripPrediction factory for a gtfs.TripInstance that can be reused for every gtfs.TripDeviation
-//for that trip
+// tripPredictor a tripPrediction factory for a gtfs.TripInstance that can be reused for every gtfs.TripDeviation
+// for that trip
 type tripPredictor struct {
 	tripInstance             *gtfs.TripInstance
 	segmentPredictors        []*segmentPredictor
 	maximumPredictionMinutes int
 }
 
-//makeTripPredictor builds tripPredictor
+// makeTripPredictor builds tripPredictor
 func makeTripPredictor(tripInstance *gtfs.TripInstance,
 	factory *segmentPredictorFactory,
 	maximumPredictionMinutes int) *tripPredictor {
@@ -147,12 +147,12 @@ func makeTripPredictor(tripInstance *gtfs.TripInstance,
 	return &predictor
 }
 
-//tripIsWithinPredictionRange checks if tripInstance is within prediction range of the start of the trip
+// tripIsWithinPredictionRange checks if tripInstance is within prediction range of the start of the trip
 func (p *tripPredictor) tripIsWithinPredictionRange(tripDeviation *gtfs.TripDeviation) bool {
 	return tripIsWithinPredictionRange(tripDeviation, p.tripInstance, p.maximumPredictionMinutes)
 }
 
-//tripIsWithinPredictionRange checks if tripInstance is within maximumPredictionMinutes of the start of tripInstance
+// tripIsWithinPredictionRange checks if tripInstance is within maximumPredictionMinutes of the start of tripInstance
 func tripIsWithinPredictionRange(tripDeviation *gtfs.TripDeviation,
 	tripInstance *gtfs.TripInstance,
 	maximumPredictionMinutes int) bool {
@@ -160,13 +160,11 @@ func tripIsWithinPredictionRange(tripDeviation *gtfs.TripDeviation,
 	return tripInstance.FirstStopTimeInstance().DepartureDateTime.Unix() < predictUpTo
 }
 
-//predict produces tripPrediction and InferenceRequest from a gtfs.TripDeviation
+// predict produces tripPrediction and InferenceRequest from a gtfs.TripDeviation
 func (p *tripPredictor) predict(tripDeviation *gtfs.TripDeviation) (*tripPrediction, []*InferenceRequest) {
 	stopPredictions := make([]*stopPrediction, 0)
 	inferenceRequests := make([]*InferenceRequest, 0)
 	predictUpTo := tripDeviation.DeviationTimestamp.Add(time.Duration(p.maximumPredictionMinutes) * time.Minute).Unix()
-
-	lastStopPassed := p.findLastStopPassed(tripDeviation.TripProgress)
 
 	for _, sp := range p.segmentPredictors {
 
@@ -176,10 +174,7 @@ func (p *tripPredictor) predict(tripDeviation *gtfs.TripDeviation) (*tripPredict
 			stopPredictions = append(stopPredictions, makeTerminatingStopPrediction(fromStop, toStop))
 			break
 		}
-		//don't add stops we have past, except for the first stop
-		if lastStopPassed != nil && lastStopPassed.ShapeDistTraveled > fromStop.ShapeDistTraveled {
-			continue
-		}
+
 		result := sp.predict(tripDeviation)
 		if result.inferenceRequest != nil {
 			inferenceRequests = append(inferenceRequests, result.inferenceRequest)
@@ -191,27 +186,15 @@ func (p *tripPredictor) predict(tripDeviation *gtfs.TripDeviation) (*tripPredict
 	return prediction, inferenceRequests
 }
 
-func (p *tripPredictor) findLastStopPassed(tripProgress float64) *gtfs.StopTimeInstance {
-	if tripProgress < 0.01 {
-		return nil
-	}
-	var pastStopTimeInstance *gtfs.StopTimeInstance
-	for _, sti := range p.tripInstance.StopTimeInstances {
-		if tripProgress > sti.ShapeDistTraveled {
-			pastStopTimeInstance = sti
-		} else {
-			return pastStopTimeInstance
-		}
-	}
-	return pastStopTimeInstance
-}
-
+// makeTerminatingStopPrediction builds a stop prediction with type of gtfs.NoFurtherPredictions to indicate
+// that no more predictions are being made on this trip
 func makeTerminatingStopPrediction(fromStop, toStop *gtfs.StopTimeInstance) *stopPrediction {
 	return &stopPrediction{
-		fromStop:           fromStop,
-		toStop:             toStop,
-		predictedTime:      0,
-		predictionSource:   gtfs.NoFurtherPredictions,
-		predictionComplete: true,
+		fromStop:              fromStop,
+		toStop:                toStop,
+		predictedTime:         0,
+		predictionSource:      gtfs.NoFurtherPredictions,
+		stopUpdateDisposition: FutureStop,
+		predictionComplete:    true,
 	}
 }

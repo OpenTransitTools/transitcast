@@ -75,7 +75,7 @@
       "departure_time": 49300,
       "timepoint": 1,
       "first_stop": false,
-      "shape_dist_traveled": 5000.0
+      "shape_dist_traveled": 6000.0
     }
   ],
   "shapes": []
