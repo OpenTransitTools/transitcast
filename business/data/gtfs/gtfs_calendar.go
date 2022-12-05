@@ -128,8 +128,8 @@ func GetActiveServiceIds(db *sqlx.DB, dataSet *DataSet, serviceDate time.Time) (
 	}
 
 	var calendarDates []CalendarDate
-	query = "select * from calendar_date where date = $1"
-	err = db.Select(&calendarDates, query, serviceDate)
+	query = "select * from calendar_date where data_set_id = $1 and date = $2"
+	err = db.Select(&calendarDates, query, dataSet.Id, serviceDate)
 	if err != nil {
 		return nil, fmt.Errorf("unable to query calendar_date table. query:%s error: %w", query, err)
 	}
