@@ -11,14 +11,14 @@ import (
 
 //holds structs related to predictions that are in process of being completed.
 
-//predictionBatch holds all predictions for a vehicle and its current and upcoming trips
+// predictionBatch holds all predictions for a vehicle and its current and upcoming trips
 type predictionBatch struct {
 	id                     string
 	createdAt              time.Time
 	pendingTripPredictions []*pendingTripPrediction
 }
 
-//makePredictionBatch builds predictionBatch
+// makePredictionBatch builds predictionBatch
 func makePredictionBatch(at time.Time, vehicleId string) *predictionBatch {
 	return &predictionBatch{
 		id:        makePredictionsBatchId(at, vehicleId),
@@ -26,7 +26,7 @@ func makePredictionBatch(at time.Time, vehicleId string) *predictionBatch {
 	}
 }
 
-//predictionsRemaining returns the number of predictions awaiting inference responses in this batch
+// predictionsRemaining returns the number of predictions awaiting inference responses in this batch
 func (p *predictionBatch) predictionsRemaining() int {
 	remaining := 0
 	for _, pendingTrip := range p.pendingTripPredictions {
@@ -36,7 +36,7 @@ func (p *predictionBatch) predictionsRemaining() int {
 	return remaining
 }
 
-//addPendingTripPrediction files tripPrediction and its inferenceRequests
+// addPendingTripPrediction files tripPrediction and its inferenceRequests
 func (p *predictionBatch) addPendingTripPrediction(tripPrediction *tripPrediction,
 	inferenceRequests []*InferenceRequest) {
 
@@ -49,7 +49,7 @@ func (p *predictionBatch) addPendingTripPrediction(tripPrediction *tripPredictio
 	})
 }
 
-//findInferenceRequest looks for a tripPrediction and InferenceRequest in this batch
+// findInferenceRequest looks for a tripPrediction and InferenceRequest in this batch
 func (p *predictionBatch) findInferenceRequest(requestId *predictionIdParts) (*tripPrediction, *InferenceRequest) {
 	for _, prediction := range p.pendingTripPredictions {
 		if prediction.tripPrediction.tripInstance.TripId == requestId.tripId {
@@ -59,7 +59,7 @@ func (p *predictionBatch) findInferenceRequest(requestId *predictionIdParts) (*t
 	return nil, nil
 }
 
-//orderedTripPredictions returns this batch's tripPredictions ordered by the trip start times
+// orderedTripPredictions returns this batch's tripPredictions ordered by the trip start times
 func (p *predictionBatch) orderedTripPredictions() []*tripPrediction {
 	var results []*tripPrediction
 	for _, pending := range p.pendingTripPredictions {
@@ -71,7 +71,7 @@ func (p *predictionBatch) orderedTripPredictions() []*tripPrediction {
 	return results
 }
 
-//allInferenceRequests returns slice of all InferenceRequests for this batch
+// allInferenceRequests returns slice of all InferenceRequests for this batch
 func (p *predictionBatch) allInferenceRequests() []*InferenceRequest {
 	var results []*InferenceRequest
 	for _, pending := range p.pendingTripPredictions {
@@ -80,13 +80,13 @@ func (p *predictionBatch) allInferenceRequests() []*InferenceRequest {
 	return results
 }
 
-//pendingTripPrediction contains tripPrediction and it's InferenceRequests
+// pendingTripPrediction contains tripPrediction and it's InferenceRequests
 type pendingTripPrediction struct {
 	tripPrediction    *tripPrediction
 	inferenceRequests []*InferenceRequest
 }
 
-//findInferenceRequest returns the InferenceRequest associated with a requests predictionIdParts
+// findInferenceRequest returns the InferenceRequest associated with a requests predictionIdParts
 func (t *pendingTripPrediction) findInferenceRequest(requestId *predictionIdParts) *InferenceRequest {
 	for _, request := range t.inferenceRequests {
 		if request.MLModelId == requestId.mlModelId &&
@@ -97,21 +97,21 @@ func (t *pendingTripPrediction) findInferenceRequest(requestId *predictionIdPart
 	return nil
 }
 
-//pendingPredictionBatch wraps a predictionBatch and provides an expiration time so the batch can be cleared
-//if not completed in time
+// pendingPredictionBatch wraps a predictionBatch and provides an expiration time so the batch can be cleared
+// if not completed in time
 type pendingPredictionBatch struct {
 	expireTime      time.Time
 	predictionBatch *predictionBatch
 }
 
-//pendingPredictionsCollection contains and manages all predictionBatch structs, and allows for them to be expired
+// pendingPredictionsCollection contains and manages all predictionBatch structs, and allows for them to be expired
 type pendingPredictionsCollection struct {
 	mu                 sync.Mutex
 	pendingList        []*pendingPredictionBatch
 	expirationDuration time.Duration
 }
 
-//makePendingPredictionsCollection builds pendingPredictionsCollection
+// makePendingPredictionsCollection builds pendingPredictionsCollection
 func makePendingPredictionsCollection(expireAfterSeconds int) *pendingPredictionsCollection {
 	return &pendingPredictionsCollection{
 		mu:                 sync.Mutex{},
@@ -120,7 +120,7 @@ func makePendingPredictionsCollection(expireAfterSeconds int) *pendingPrediction
 	}
 }
 
-//addPendingPredictionBatch store a predictionBatch for later completion when InferenceResponses have been received
+// addPendingPredictionBatch store a predictionBatch for later completion when InferenceResponses have been received
 func (p *pendingPredictionsCollection) addPendingPredictionBatch(at time.Time, batch *predictionBatch) {
 
 	p.mu.Lock()
@@ -133,8 +133,8 @@ func (p *pendingPredictionsCollection) addPendingPredictionBatch(at time.Time, b
 	p.pendingList = append(p.pendingList, &newPrediction)
 }
 
-//getPendingPrediction for an InferenceResponse, retrieve its non-expired predictionBatch, tripPrediction,
-//and InferenceRequest
+// getPendingPrediction for an InferenceResponse, retrieve its non-expired predictionBatch, tripPrediction,
+// and InferenceRequest
 func (p *pendingPredictionsCollection) getPendingPrediction(at time.Time,
 	response InferenceResponse) (*predictionBatch, *tripPrediction, *InferenceRequest, error) {
 	p.mu.Lock()
@@ -159,8 +159,8 @@ func (p *pendingPredictionsCollection) getPendingPrediction(at time.Time,
 	return nil, nil, nil, fmt.Errorf("unable to find inference request for %v", response)
 }
 
-//removeExpiredPredictions remove all expired predictionBatch that have expired. Called by a background cleanup routine
-//returns slice of expired predictionBatch and size of current predictionBatch in collection
+// removeExpiredPredictions remove all expired predictionBatch that have expired. Called by a background cleanup routine
+// returns slice of expired predictionBatch and size of current predictionBatch in collection
 func (p *pendingPredictionsCollection) removeExpiredPredictions(at time.Time) ([]*predictionBatch, int) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -179,12 +179,15 @@ func (p *pendingPredictionsCollection) removeExpiredPredictions(at time.Time) ([
 	return expiredList, len(p.pendingList)
 }
 
-//makePredictionsBatchId builds an identifier for use in a predictionBatch
+// makePredictionsBatchId builds an identifier for use in a predictionBatch
 func makePredictionsBatchId(at time.Time, vehicleId string) string {
+	//replace underscores and dashes from vehicleId, so they don't clash with our own prediction strings
+	vehicleId = strings.ReplaceAll(vehicleId, "_", "~")
+	vehicleId = strings.ReplaceAll(vehicleId, "-", "~")
 	return fmt.Sprintf("%s_%d", vehicleId, at.UnixMilli())
 }
 
-//makePredictionRequestId builds an identifier for use in a InferenceRequest
+// makePredictionRequestId builds an identifier for use in a InferenceRequest
 func makePredictionRequestId(predictionsBatchId string,
 	tripPrediction *tripPrediction,
 	inferenceRequest *InferenceRequest) string {
@@ -195,8 +198,8 @@ func makePredictionRequestId(predictionsBatchId string,
 		inferenceRequest.Version)
 }
 
-//predictionIdParts contains the identifiable parts of a InferenceRequest.RequestId or InferenceResponse.RequestId,
-//for use looking up the pending prediction in pendingPredictionsCollection
+// predictionIdParts contains the identifiable parts of a InferenceRequest.RequestId or InferenceResponse.RequestId,
+// for use looking up the pending prediction in pendingPredictionsCollection
 type predictionIdParts struct {
 	predictionBatchId string
 	tripId            string
@@ -204,7 +207,7 @@ type predictionIdParts struct {
 	mlModelVersion    int
 }
 
-//extractPredictionIdParts returns a predictionIdParts given a InferenceRequest.RequestId or InferenceResponse.RequestId
+// extractPredictionIdParts returns a predictionIdParts given a InferenceRequest.RequestId or InferenceResponse.RequestId
 func extractPredictionIdParts(requestId string) (*predictionIdParts, error) {
 	split := strings.Split(requestId, "-")
 	if len(split) < 4 {
