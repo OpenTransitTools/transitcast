@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-//ObservedStopTime contains details when a vehicle is observed to have transitioned between two stops, or
-//assumed to have passed a two stops based on the subsequent vehicle positions indicating it passed two or more
-//stops on a trip, in which case the travel time is interpolated
+// ObservedStopTime contains details when a vehicle is observed to have transitioned between two stops, or
+// assumed to have passed a two stops based on the subsequent vehicle positions indicating it passed two or more
+// stops on a trip, in which case the travel time is interpolated
 // primary key consists of ObservedTime, StopId, NextStopId, VehicleId
 type ObservedStopTime struct {
 	//ObservedTime is the time the vehicle movement was seen
@@ -41,8 +41,8 @@ type ObservedStopTime struct {
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
 
-//AssumedDepartTime returns the time the vehicle is assumed to have departed the from stopId, this is calculated
-//based on the last time the vehicle was observed at or before the from stopId
+// AssumedDepartTime returns the time the vehicle is assumed to have departed the from stopId, this is calculated
+// based on the last time the vehicle was observed at or before the from stopId
 func (ost *ObservedStopTime) AssumedDepartTime() int {
 	return int(ost.ObservedTime.Unix() - int64(ost.TravelSeconds))
 }

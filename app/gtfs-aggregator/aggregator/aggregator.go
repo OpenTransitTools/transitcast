@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-//Conf contains all configurable parameters in aggregator
+// Conf contains all configurable parameters in aggregator
 type Conf struct {
 	ExpirePredictionSeconds               int
 	MaximumObservedTransitionAgeInSeconds int
@@ -24,8 +24,8 @@ type Conf struct {
 	MaximumPredictionMinutes              int
 }
 
-//StartPredictionAggregator starts all routines for aggregation of predicted trips
-//shuts down all routines after receiving on shutdownSignal
+// StartPredictionAggregator starts all routines for aggregation of predicted trips
+// shuts down all routines after receiving on shutdownSignal
 func StartPredictionAggregator(log *logger.Logger,
 	db *sqlx.DB,
 	shutdownSignal chan os.Signal,
@@ -40,11 +40,17 @@ func StartPredictionAggregator(log *logger.Logger,
 	log.Println("Creating ObservedStopTransitions")
 	osts := makeObservedStopTransitions(conf.MaximumObservedTransitionAgeInSeconds)
 	log.Println("Creating predictionPublisher")
-	publisher := makePredictionPublisher(log, natsConn, conf.PredictionSubject,
-		conf.LimitEarlyDepartureSeconds)
+	predictionDestination := natsPredictionPublicationDestination{
+		natsConn:          natsConn,
+		predictionSubject: conf.PredictionSubject,
+	}
+	publisher := makePredictionPublisher(log, &predictionDestination, conf.LimitEarlyDepartureSeconds)
 	log.Println("Creating tripPredictorsCollection")
-	predictorsCollection, err := makeTripPredictorsCollection(db, osts,
-		conf.MinimumRMSEModelImprovement, conf.MinimumObservedStopCount, conf.ExpirePredictorSeconds,
+	predictorsCollection, err := makeTripPredictorsCollection(&dbTripPredictorsDataProvider{db: db},
+		osts,
+		conf.MinimumRMSEModelImprovement,
+		conf.MinimumObservedStopCount,
+		conf.ExpirePredictorSeconds,
 		conf.MaximumPredictionMinutes)
 	log.Println("Done creating shared aggregator structures")
 
@@ -83,7 +89,7 @@ func StartPredictionAggregator(log *logger.Logger,
 	return nil
 }
 
-//runBackgroundLoop frequently runs clean up on pendingPredictionsCollection and tripPredictorsCollection
+// runBackgroundLoop frequently runs clean up on pendingPredictionsCollection and tripPredictorsCollection
 func runBackgroundLoop(log *logger.Logger,
 	wg *sync.WaitGroup,
 	pendingPredictions *pendingPredictionsCollection,
@@ -137,7 +143,7 @@ func runBackgroundLoop(log *logger.Logger,
 	}
 }
 
-//countExpiredPredictionCompletions count number of predictions completed and not completed in expiredBatches
+// countExpiredPredictionCompletions count number of predictions completed and not completed in expiredBatches
 func countExpiredPredictionCompletions(expiredBatches []*predictionBatch) (completed int, notCompleted int) {
 
 	completed = 0

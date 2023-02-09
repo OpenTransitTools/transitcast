@@ -3,8 +3,8 @@ package monitor
 import (
 	"encoding/json"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -59,7 +59,7 @@ func getTestTrip(trips []*gtfs.TripInstance, tripId *string, t *testing.T) *gtfs
 
 func getTestTrips(serviceDate time.Time, t *testing.T) []*gtfs.TripInstance {
 	var result []*gtfs.TripInstance
-	file, err := ioutil.ReadFile("testdata/test_trips.json")
+	file, err := os.ReadFile("testdata/test_trips.json")
 	if err != nil {
 		t.Errorf("unable to read test trips file: %v", err)
 	}
@@ -78,7 +78,7 @@ func getTestTrips(serviceDate time.Time, t *testing.T) []*gtfs.TripInstance {
 
 func getTestTripsFromJson(fileName string, t *testing.T) []*gtfs.TripInstance {
 	var result []*gtfs.TripInstance
-	file, err := ioutil.ReadFile(filepath.Join("testdata", fileName))
+	file, err := os.ReadFile(filepath.Join("testdata", fileName))
 	if err != nil {
 		t.Errorf("unable to read test trips file: %v", err)
 	}

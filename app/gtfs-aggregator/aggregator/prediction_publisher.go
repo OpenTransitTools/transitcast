@@ -2,6 +2,7 @@ package aggregator
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/nats-io/nats.go"
 	logger "log"
@@ -9,24 +10,40 @@ import (
 	"time"
 )
 
+// predictionPublicationDestination is where predictions should be sent after completion.
+type predictionPublicationDestination interface {
+	Publish(update *gtfs.TripUpdate) error
+}
+
+// natsPredictionPublicationDestination sends predictions over nats
+type natsPredictionPublicationDestination struct {
+	natsConn          *nats.Conn
+	predictionSubject string
+}
+
+func (n *natsPredictionPublicationDestination) Publish(tripUpdate *gtfs.TripUpdate) error {
+	jsonData, err := json.Marshal(tripUpdate)
+	if err != nil {
+		return fmt.Errorf("error marshaling tripUpdate to json: error:%v\n", err)
+	}
+	return n.natsConn.Publish(n.predictionSubject, jsonData)
+}
+
 // predictionPublisher takes completed predictions and publishes them on NATS connection as TripUpdates
 type predictionPublisher struct {
-	log                        *logger.Logger
-	natsConn                   *nats.Conn
-	predictionSubject          string
-	limitEarlyDepartureSeconds int
+	log                              *logger.Logger
+	predictionPublicationDestination predictionPublicationDestination
+	limitEarlyDepartureSeconds       int
 }
 
 // makePredictionPublisher builds predictionPublisher
 func makePredictionPublisher(log *logger.Logger,
-	natsConn *nats.Conn,
-	predictionSubject string,
+	predictionPublicationDestination predictionPublicationDestination,
 	limitEarlyDepartureSeconds int) *predictionPublisher {
 	return &predictionPublisher{
-		log:                        log,
-		natsConn:                   natsConn,
-		predictionSubject:          predictionSubject,
-		limitEarlyDepartureSeconds: limitEarlyDepartureSeconds,
+		log:                              log,
+		predictionPublicationDestination: predictionPublicationDestination,
+		limitEarlyDepartureSeconds:       limitEarlyDepartureSeconds,
 	}
 }
 
@@ -36,14 +53,9 @@ func (p *predictionPublisher) publishPredictionBatch(batch *predictionBatch) {
 	orderedTripPredictions := batch.orderedTripPredictions()
 	tripUpdates := makeTripUpdates(p.log, orderedTripPredictions, p.limitEarlyDepartureSeconds)
 	for _, tripUpdate := range tripUpdates {
-		jsonData, err := json.Marshal(tripUpdate)
+		err := p.predictionPublicationDestination.Publish(tripUpdate)
 		if err != nil {
-			p.log.Printf("Error marshaling tripUpdate to json: error:%v\n", err)
-			return
-		}
-		err = p.natsConn.Publish(p.predictionSubject, jsonData)
-		if err != nil {
-			p.log.Printf("Error sending tripUpdate to nats: error:%v\n", err)
+			p.log.Printf("Error publishing tripUpdate: error:%v\n", err)
 			return
 		}
 	}
@@ -55,17 +67,17 @@ func makeTripUpdates(log *logger.Logger,
 	limitEarlyDepartureSeconds int) []*gtfs.TripUpdate {
 
 	tripUpdates := make([]*gtfs.TripUpdate, 0)
-	var previousSchedulePositionTime time.Time
-
+	var scheduleAccumulation time.Time
 	for _, prediction := range orderedPredictions {
 		if len(tripUpdates) == 0 {
-			previousSchedulePositionTime = prediction.tripDeviation.SchedulePosition()
+			tripDeviation := prediction.tripDeviation
+			scheduleAccumulation = laterOfDates(tripDeviation.DeviationTimestamp, tripDeviation.SchedulePosition())
 		}
-		tripUpdate := buildTripUpdate(log, previousSchedulePositionTime, prediction, limitEarlyDepartureSeconds)
+		tripUpdate := buildTripUpdate(log, scheduleAccumulation, prediction, limitEarlyDepartureSeconds)
 		if tripUpdate != nil {
 			newSchedulePosition := tripUpdate.LastSchedulePosition()
 			if newSchedulePosition != nil {
-				previousSchedulePositionTime = *newSchedulePosition
+				scheduleAccumulation = *newSchedulePosition
 			}
 			tripUpdates = append(tripUpdates, tripUpdate)
 		}

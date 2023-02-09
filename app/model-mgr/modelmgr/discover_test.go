@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/OpenTransitTools/transitcast/business/data/mlmodels"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -229,7 +229,7 @@ func Test_discoverModelsOnTrip(t *testing.T) {
 
 func getTestStopTimesFromJson(fileName string, t *testing.T) []*gtfs.StopTime {
 	var result []*gtfs.StopTime
-	file, err := ioutil.ReadFile(filepath.Join("testdata", fileName))
+	file, err := os.ReadFile(filepath.Join("testdata", fileName))
 	if err != nil {
 		t.Errorf("unable to read test trips file: %v", err)
 	}

@@ -9,9 +9,31 @@ import (
 	"time"
 )
 
+// tripPredictorsDataProvider provides data needed for trip predictions
+type tripPredictorsDataProvider interface {
+	GetTripInstance(dataSetId int64,
+		tripId string,
+		at time.Time,
+		tripSearchRangeSeconds int) (*gtfs.TripInstance, error)
+	GetCurrentMLModelsByName() (map[string]*mlmodels.MLModel, error)
+}
+
+// dbTripPredictorsDataProvider uses a database connection to retrieve data for trip predictions
+type dbTripPredictorsDataProvider struct {
+	db *sqlx.DB
+}
+
+func (d *dbTripPredictorsDataProvider) GetTripInstance(dataSetId int64, tripId string, at time.Time, tripSearchRangeSeconds int) (*gtfs.TripInstance, error) {
+	return gtfs.GetTripInstance(d.db, dataSetId, tripId, at, tripSearchRangeSeconds)
+}
+
+func (d *dbTripPredictorsDataProvider) GetCurrentMLModelsByName() (map[string]*mlmodels.MLModel, error) {
+	return mlmodels.GetAllCurrentMLModelsByName(d.db, true)
+}
+
 // tripPredictorsCollection factory and cache of tripPredictions
 type tripPredictorsCollection struct {
-	db                       *sqlx.DB
+	dataProvider             tripPredictorsDataProvider
 	predictorFactory         *segmentPredictorFactory
 	expireSeconds            int
 	locker                   *tripPredictorsLocker
@@ -19,20 +41,20 @@ type tripPredictorsCollection struct {
 }
 
 // makeTripPredictorsCollection builds tripPredictorsCollection
-func makeTripPredictorsCollection(db *sqlx.DB,
+func makeTripPredictorsCollection(dataProvider tripPredictorsDataProvider,
 	osts *observedStopTransitions,
 	minimumRMSEModelImprovement float64,
 	minimumObservedStopCount int,
 	tripPredictorExpireSeconds int,
 	maximumPredictionMinutes int) (*tripPredictorsCollection, error) {
-	modelsByName, err := mlmodels.GetAllCurrentMLModelsByName(db, true)
+	modelsByName, err := dataProvider.GetCurrentMLModelsByName()
 	if err != nil {
 		return nil, fmt.Errorf("unable to retrieve models in makeTripPredictorsCollection: %w", err)
 	}
 	predictorFactory := makeSegmentPredictionFactory(modelsByName, osts,
 		minimumRMSEModelImprovement, minimumObservedStopCount)
 	return &tripPredictorsCollection{
-		db:                       db,
+		dataProvider:             dataProvider,
 		predictorFactory:         predictorFactory,
 		expireSeconds:            tripPredictorExpireSeconds,
 		locker:                   makeTripPredictorLocker(),
@@ -47,7 +69,7 @@ func (t *tripPredictorsCollection) retrieveTripPredictor(deviation *gtfs.TripDev
 	if predictor != nil {
 		return predictor, nil
 	}
-	tripInstance, err := gtfs.GetTripInstance(t.db, deviation.DataSetId, deviation.TripId,
+	tripInstance, err := t.dataProvider.GetTripInstance(deviation.DataSetId, deviation.TripId,
 		deviation.DeviationTimestamp, 60*60*8)
 	if err != nil {
 		return nil, err

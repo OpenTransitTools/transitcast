@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/OpenTransitTools/transitcast/business/data/mlmodels"
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
 
 func getTestTrip(serviceDate time.Time, fileName string, t *testing.T) *gtfs.TripInstance {
 	var result *gtfs.TripInstance
-	file, err := ioutil.ReadFile(fmt.Sprintf("testdata/%s", fileName))
+	file, err := os.ReadFile(fmt.Sprintf("testdata/%s", fileName))
 	if err != nil {
 		t.Errorf("unable to read test trips file: %v", err)
 	}
@@ -30,7 +30,7 @@ func getTestTrip(serviceDate time.Time, fileName string, t *testing.T) *gtfs.Tri
 
 func getTestModels(fileName string, t *testing.T) []*mlmodels.MLModel {
 	var result []*mlmodels.MLModel
-	file, err := ioutil.ReadFile(fmt.Sprintf("testdata/%s", fileName))
+	file, err := os.ReadFile(fmt.Sprintf("testdata/%s", fileName))
 	if err != nil {
 		t.Errorf("unable to read test trips file: %v", err)
 	}

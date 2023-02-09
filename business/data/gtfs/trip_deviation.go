@@ -1,6 +1,8 @@
 package gtfs
 
 import (
+	"fmt"
+	"github.com/OpenTransitTools/transitcast/foundation/database"
 	"github.com/jmoiron/sqlx"
 	"time"
 )
@@ -50,4 +52,37 @@ func RecordTripDeviation(tripDeviations []*TripDeviation, db *sqlx.DB) error {
 	statementString = db.Rebind(statementString)
 	_, err := db.NamedExec(statementString, tripDeviations)
 	return err
+}
+
+// GetTripDeviations returns list of TripDeviations between start and end for vehicleId
+func GetTripDeviations(db *sqlx.DB,
+	start time.Time,
+	end time.Time,
+	vehicleId string) ([]*TripDeviation, error) {
+	statementString := "select * from trip_deviation where created_at between :start and :end " +
+		" and vehicle_id = :vehicle_id " +
+		"order by created_at"
+	rows, err := database.PrepareNamedQueryRowsFromMap(statementString, db, map[string]interface{}{
+		"start":      start,
+		"end":        end,
+		"vehicle_id": vehicleId,
+	})
+
+	defer func() {
+		if rows != nil {
+			_ = rows.Close()
+		}
+	}()
+
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve trip_deviation rows, error: %w", err)
+	}
+
+	tripDeviations := make([]*TripDeviation, 0)
+	for rows.Next() {
+		tripDeviation := TripDeviation{}
+		err = rows.StructScan(&tripDeviation)
+		tripDeviations = append(tripDeviations, &tripDeviation)
+	}
+	return tripDeviations, err
 }

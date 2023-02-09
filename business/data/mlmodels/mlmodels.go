@@ -45,7 +45,7 @@ type MLModelStop struct {
 	NextStopId    string `db:"next_stop_id" json:"next_stop_id"`
 }
 
-//GetMLModelType loads MLModelType with ml_model_type of modelTypeName
+// GetMLModelType loads MLModelType with ml_model_type of modelTypeName
 func GetMLModelType(db *sqlx.DB, modelTypeName string) (*MLModelType, error) {
 	query := "select * from ml_model_type where name = $1"
 	var modelType MLModelType
@@ -56,7 +56,7 @@ func GetMLModelType(db *sqlx.DB, modelTypeName string) (*MLModelType, error) {
 	return &modelType, nil
 }
 
-//MakeMLModel MLModelType factory
+// MakeMLModel MLModelType factory
 func MakeMLModel(modelType *MLModelType,
 	version int,
 	at time.Time,
@@ -74,8 +74,8 @@ func MakeMLModel(modelType *MLModelType,
 	}
 }
 
-//GetModelNameForStops names a model based on its series of stops
-func GetModelNameForStops(stopTimes []*gtfs.StopTime) string {
+// GetModelNameForStops names a model based on its series of stops
+func GetModelNameForStops(stopTimes ...*gtfs.StopTime) string {
 	stopNames := make([]string, len(stopTimes))
 	for i, st := range stopTimes {
 		stopNames[i] = st.StopId
@@ -83,7 +83,7 @@ func GetModelNameForStops(stopTimes []*gtfs.StopTime) string {
 	return strings.Join(stopNames, "_")
 }
 
-//GetModelNameForStopTimeInstances names a model based on its series of stops
+// GetModelNameForStopTimeInstances names a model based on its series of stops
 func GetModelNameForStopTimeInstances(stopTimes []*gtfs.StopTimeInstance) string {
 	stopNames := make([]string, len(stopTimes))
 	for i, st := range stopTimes {
@@ -92,7 +92,7 @@ func GetModelNameForStopTimeInstances(stopTimes []*gtfs.StopTimeInstance) string
 	return strings.Join(stopNames, "_")
 }
 
-//MakeMLModelStop MLModelStop factory
+// MakeMLModelStop MLModelStop factory
 func MakeMLModelStop(sequence int, stopId string, nextStopId string) *MLModelStop {
 	return &MLModelStop{
 		Sequence:   sequence,
@@ -101,7 +101,7 @@ func MakeMLModelStop(sequence int, stopId string, nextStopId string) *MLModelSto
 	}
 }
 
-//RecordNewMLModel inserts new MLModel record
+// RecordNewMLModel inserts new MLModel record
 func RecordNewMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 	statementString := "insert into ml_model " +
 		"(version, " +
@@ -180,7 +180,7 @@ func RecordNewMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 	return model, nil
 }
 
-//UpdateMLModel updates existing MLModel record
+// UpdateMLModel updates existing MLModel record
 func UpdateMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 	statementString := "update ml_model set version = :version, " +
 		"start_timestamp = :start_timestamp, " +
@@ -207,7 +207,7 @@ func UpdateMLModel(db *sqlx.DB, model *MLModel) (*MLModel, error) {
 	return model, nil
 }
 
-//RecordNewMLStopModel records new MLModelStop record.
+// RecordNewMLStopModel records new MLModelStop record.
 func RecordNewMLStopModel(db *sqlx.DB, modelStop *MLModelStop) (*MLModelStop, error) {
 
 	statementString := "insert into ml_model_stop (ml_model_id, sequence, stop_id, next_stop_id) " +
@@ -226,8 +226,8 @@ func RecordNewMLStopModel(db *sqlx.DB, modelStop *MLModelStop) (*MLModelStop, er
 	return modelStop, nil
 }
 
-//GetAllCurrentMLModelsByName returns map of all current MLModel by ModelName, where current timestamp is between
-//ml_model.start_timestamp and ml_model.end_timestamp
+// GetAllCurrentMLModelsByName returns map of all current MLModel by ModelName, where current timestamp is between
+// ml_model.start_timestamp and ml_model.end_timestamp
 func GetAllCurrentMLModelsByName(db *sqlx.DB, trainedOnly bool) (map[string]*MLModel, error) {
 	modelStopsWhereClause := ""
 	modelWhereClause := ""
@@ -276,8 +276,8 @@ func GetAllCurrentMLModelsByName(db *sqlx.DB, trainedOnly bool) (map[string]*MLM
 	return modelMap, nil
 }
 
-//GetMLModels returns map of all current MLModel by ModelName, where current timestamp is between
-//ml_model.start_timestamp and ml_model.end_timestamp
+// GetMLModels returns map of all current MLModel by ModelName, where current timestamp is between
+// ml_model.start_timestamp and ml_model.end_timestamp
 func GetMLModels(db *sqlx.DB, callback func(model *MLModel), modelStopMap map[int64][]*MLModelStop,
 	query string, args ...interface{}) error {
 

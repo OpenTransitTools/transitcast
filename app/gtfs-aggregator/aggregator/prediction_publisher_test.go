@@ -1029,6 +1029,7 @@ func Test_makeTripUpdates(t *testing.T) {
 	timeAt1343 := time.Date(2022, 5, 22, 13, 43, 0, 0, location)
 	timeAt1348 := time.Date(2022, 5, 22, 13, 48, 0, 0, location)
 	timeAt1353 := time.Date(2022, 5, 22, 13, 53, 0, 0, location)
+	timeAt140730 := time.Date(2022, 5, 22, 14, 7, 30, 0, location)
 
 	tests := []struct {
 		name                       string
@@ -1289,6 +1290,71 @@ func Test_makeTripUpdates(t *testing.T) {
 						buildTestStopUpdate(stop1Trip4, 300, gtfs.SchedulePrediction),
 						buildTestStopUpdate(stop2Trip4, 180, gtfs.StopMLPrediction), //makes up 2 minutes
 						buildTestStopUpdate(stop3Trip4, 240, gtfs.StopMLPrediction), //looses a minute
+					},
+				},
+			},
+		},
+		{
+			name: "Late prediction in middle of second trip",
+			orderedPredictions: []*tripPrediction{
+				{
+					tripDeviation: &gtfs.TripDeviation{
+						CreatedAt:          timeAt140730,
+						DeviationTimestamp: timeAt140730,
+						TripProgress:       1500.0,
+						TripId:             trip2.TripId,
+						VehicleId:          "1",
+						Delay:              1110,
+					},
+					mu: sync.Mutex{},
+					stopPredictions: []*stopPrediction{
+						buildTestPrediction(stop1Trip2, stop2Trip2, 0, gtfs.StopMLPrediction, PastStop),
+						buildTestPrediction(stop2Trip2, stop3Trip2, 0, gtfs.StopMLPrediction, FutureStop),
+					},
+					tripInstance:       trip2,
+					pendingPredictions: 0,
+				},
+				{
+					tripDeviation: &gtfs.TripDeviation{
+						CreatedAt:          timeAt140730,
+						DeviationTimestamp: timeAt140730,
+						TripProgress:       -500.0,
+						TripId:             trip3.TripId,
+						VehicleId:          "1",
+						Delay:              1110,
+					},
+					mu: sync.Mutex{},
+					stopPredictions: []*stopPrediction{
+						buildTestPrediction(stop1Trip3, stop2Trip3, 0, gtfs.StopMLPrediction, FutureStop),
+						buildTestPrediction(stop2Trip3, stop3Trip3, 0, gtfs.StopMLPrediction, FutureStop),
+					},
+					tripInstance:       trip3,
+					pendingPredictions: 0,
+				},
+			},
+			want: []*gtfs.TripUpdate{
+				{
+					TripId:               trip2.TripId,
+					RouteId:              trip2.RouteId,
+					ScheduleRelationship: "SCHEDULED",
+					Timestamp:            uint64(timeAt140730.Unix()),
+					VehicleId:            "1",
+					StopTimeUpdates: []gtfs.StopTimeUpdate{
+						buildTestStopUpdate(stop1Trip2, 0, gtfs.SchedulePrediction),
+						buildTestStopUpdate(stop2Trip2, 0, gtfs.SchedulePrediction),
+						buildTestStopUpdate(stop3Trip2, 1200, gtfs.StopMLPrediction),
+					},
+				},
+				{
+					TripId:               trip3.TripId,
+					RouteId:              trip3.RouteId,
+					ScheduleRelationship: "SCHEDULED",
+					Timestamp:            uint64(timeAt140730.Unix()),
+					VehicleId:            "1",
+					StopTimeUpdates: []gtfs.StopTimeUpdate{
+						buildTestStopUpdate(stop1Trip3, 1200, gtfs.SchedulePrediction),
+						buildTestStopUpdate(stop2Trip3, 1200, gtfs.StopMLPrediction),
+						buildTestStopUpdate(stop3Trip3, 1200, gtfs.StopMLPrediction),
 					},
 				},
 			},

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-//InferenceResponse holds the results of an InferenceRequest sent back from the model runner
+// InferenceResponse holds the results of an InferenceRequest sent back from the model runner
 type InferenceResponse struct {
 	RequestId  string  `json:"request_id"`
 	MLModelId  int64   `json:"ml_model_id"`
@@ -19,9 +19,9 @@ type InferenceResponse struct {
 	Timestamp  int64   `json:"timestamp"`
 }
 
-//startInferenceResponseListener starts a listener on nats connection and applies these results to the predictions in
-//pendingPredictionsCollection. When an inference response completes a prediction the result is sent to
-//the predictionPublisher as a completed TripUpdate.
+// startInferenceResponseListener starts a listener on nats connection and applies these results to the predictions in
+// pendingPredictionsCollection. When an inference response completes a prediction the result is sent to
+// the predictionPublisher as a completed TripUpdate.
 func startInferenceResponseListener(
 	log *logger.Logger,
 	wg *sync.WaitGroup,
@@ -62,14 +62,14 @@ func startInferenceResponseListener(
 	}
 }
 
-//inferenceResultHandler applies inference results to predictions in pendingPredictionsCollection
+// inferenceResultHandler applies inference results to predictions in pendingPredictionsCollection
 type inferenceResultHandler struct {
 	log                 *logger.Logger
 	pendingPredictions  *pendingPredictionsCollection
 	predictionPublisher *predictionPublisher
 }
 
-//makeInferenceResultHandler builds inferenceResultHandler
+// makeInferenceResultHandler builds inferenceResultHandler
 func makeInferenceResultHandler(log *logger.Logger,
 	pendingPredictions *pendingPredictionsCollection,
 	predictionPublisher *predictionPublisher) *inferenceResultHandler {
@@ -80,7 +80,7 @@ func makeInferenceResultHandler(log *logger.Logger,
 	}
 }
 
-//applyInferenceResultFromMsg unmarshal nats message and applies result to pending prediction
+// applyInferenceResultFromMsg unmarshal nats message and applies result to pending prediction
 func (i *inferenceResultHandler) applyInferenceResultFromMsg(msg *nats.Msg) {
 	inferenceResponse := InferenceResponse{}
 	err := json.Unmarshal(msg.Data, &inferenceResponse)
@@ -96,8 +96,8 @@ func (i *inferenceResultHandler) applyInferenceResultFromMsg(msg *nats.Msg) {
 	i.applyInferenceResult(inferenceResponse)
 }
 
-//applyInferenceResult finds pending prediction, applies the InferenceResponse,
-//if this completes the prediction passes the prediction on to be published by predictionPublisher
+// applyInferenceResult finds pending prediction, applies the InferenceResponse,
+// if this completes the prediction passes the prediction on to be published by predictionPublisher
 func (i *inferenceResultHandler) applyInferenceResult(response InferenceResponse) {
 	batch, prediction, inferenceRequest, err := i.pendingPredictions.getPendingPrediction(time.Now(), response)
 	if err != nil {

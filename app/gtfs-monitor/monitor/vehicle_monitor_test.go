@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
-	"io/ioutil"
+	"os"
 	"reflect"
 
 	"strings"
@@ -844,7 +844,7 @@ func observedStopTimesSame(got []*gtfs.ObservedStopTime, want []*gtfs.ObservedSt
 	return true, ""
 }
 
-//printObservedStopTimesRows format errors in a way that is easy to scan
+// printObservedStopTimesRows format errors in a way that is easy to scan
 func printObservedStopTimesRows(stopTimes []*gtfs.ObservedStopTime) string {
 	if stopTimes == nil {
 		return "nil"
@@ -1892,7 +1892,7 @@ func Test_TestVehicleMonitor_NewPositionGetsEveryStopPairOnce(t *testing.T) {
 }
 
 func getTestVehiclePositions(t *testing.T, fileName string) []vehiclePosition {
-	file, err := ioutil.ReadFile(fileName)
+	file, err := os.ReadFile(fileName)
 	if err != nil {
 		t.Errorf("unable to read test file: %v", err)
 	}

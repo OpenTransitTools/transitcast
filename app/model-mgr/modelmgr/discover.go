@@ -8,28 +8,28 @@ import (
 	"time"
 )
 
-//discoveredModels holds all unique MLModels by name
+// discoveredModels holds all unique MLModels by name
 type discoveredModels struct {
 	modelsByName map[string]*mlmodels.MLModel
 }
 
-//makeDiscoveredModels builds makeDiscoveredModels
+// makeDiscoveredModels builds makeDiscoveredModels
 func makeDiscoveredModels() *discoveredModels {
 	return &discoveredModels{modelsByName: make(map[string]*mlmodels.MLModel)}
 }
 
-//addModel convenience method for adding model to map
+// addModel convenience method for adding model to map
 func (dm *discoveredModels) addModel(model *mlmodels.MLModel) {
 	dm.modelsByName[model.ModelName] = model
 }
 
-//containsModel convenience method to check for presence of model by model_name
+// containsModel convenience method to check for presence of model by model_name
 func (dm *discoveredModels) containsModel(modelName string) bool {
 	_, contains := dm.modelsByName[modelName]
 	return contains
 }
 
-//getUniqueTripIds retrieves all trip ids in dataset that are active during activeServiceIds
+// getUniqueTripIds retrieves all trip ids in dataset that are active during activeServiceIds
 func loadUniqueTripIds(db *sqlx.DB,
 	dataSet *gtfs.DataSet,
 	activeServiceIds []string) ([]string, error) {
@@ -48,7 +48,7 @@ func loadUniqueTripIds(db *sqlx.DB,
 
 }
 
-//loadStopTimesForTrip retrieves gtfs.StopTime in stop sequence order for tripId
+// loadStopTimesForTrip retrieves gtfs.StopTime in stop sequence order for tripId
 func loadStopTimesForTrip(db *sqlx.DB,
 	dataSet *gtfs.DataSet,
 	tripId string) ([]*gtfs.StopTime, error) {
@@ -77,7 +77,7 @@ func loadStopTimesForTrip(db *sqlx.DB,
 	return stopTimes, nil
 }
 
-//updateRequiredModelIfNeeded sets mlmodels.MLModel.CurrentlyRelevant to true and updates record if needed
+// updateRequiredModelIfNeeded sets mlmodels.MLModel.CurrentlyRelevant to true and updates record if needed
 func updateRequiredModelIfNeeded(db *sqlx.DB, model *mlmodels.MLModel) (*mlmodels.MLModel, error) {
 
 	if !model.CurrentlyRelevant {
@@ -87,8 +87,8 @@ func updateRequiredModelIfNeeded(db *sqlx.DB, model *mlmodels.MLModel) (*mlmodel
 	return model, nil
 }
 
-//markModelsNotRelevant sets all mlmodels.MLModel.CurrentlyRelevant columns to false for models map
-//and updates record if needed
+// markModelsNotRelevant sets all mlmodels.MLModel.CurrentlyRelevant columns to false for models map
+// and updates record if needed
 func markModelsNotRelevant(db *sqlx.DB, models map[string]*mlmodels.MLModel) (int, error) {
 	count := 0
 	for _, model := range models {
@@ -104,8 +104,8 @@ func markModelsNotRelevant(db *sqlx.DB, models map[string]*mlmodels.MLModel) (in
 	return count, nil
 }
 
-//discoverCurrentModels looks through days of service for all trips in current dataset
-//and returns discoveredModels containing all models needed
+// discoverCurrentModels looks through days of service for all trips in current dataset
+// and returns discoveredModels containing all models needed
 func discoverCurrentModels(db *sqlx.DB, days int) (*discoveredModels, error) {
 	//get current dataset
 	dateSet, err := gtfs.GetLatestDataSet(db)
@@ -141,7 +141,7 @@ func discoverCurrentModels(db *sqlx.DB, days int) (*discoveredModels, error) {
 	return models, err
 }
 
-//discoverModelsInTrips creates models for each tripId for dataSet
+// discoverModelsInTrips creates models for each tripId for dataSet
 func discoverModelsInTrips(
 	db *sqlx.DB,
 	dataSet *gtfs.DataSet,
@@ -168,7 +168,7 @@ func discoverModelsInTrips(
 	return models, nil
 }
 
-//discoverModelsOnTrip add MLModels to discoveredModels for stopTimes on trip, in stop sequence order
+// discoverModelsOnTrip add MLModels to discoveredModels for stopTimes on trip, in stop sequence order
 func discoverModelsOnTrip(models *discoveredModels,
 	stopTimes []*gtfs.StopTime,
 	timePointModelType *mlmodels.MLModelType,
@@ -192,9 +192,9 @@ func discoverModelsOnTrip(models *discoveredModels,
 	}
 }
 
-//addModel creates and adds model to discoveredModels
+// addModel creates and adds model to discoveredModels
 func addModel(models *discoveredModels, stopTimes []*gtfs.StopTime, modelType *mlmodels.MLModelType) {
-	modelName := mlmodels.GetModelNameForStops(stopTimes)
+	modelName := mlmodels.GetModelNameForStops(stopTimes...)
 	if models.containsModel(modelName) {
 		return
 	}
@@ -206,7 +206,7 @@ func addModel(models *discoveredModels, stopTimes []*gtfs.StopTime, modelType *m
 
 }
 
-//makeModel builds model with MLStopTimes for each gtfs.StopTime pair.
+// makeModel builds model with MLStopTimes for each gtfs.StopTime pair.
 func makeModel(stopTimes []*gtfs.StopTime,
 	modelName string,
 	modelType *mlmodels.MLModelType) *mlmodels.MLModel {
@@ -228,8 +228,8 @@ func makeModel(stopTimes []*gtfs.StopTime,
 	return model
 }
 
-//getModelTypes returns all MLModelTypes currently known.
-//returns model types for timepoint, stops in that order
+// getModelTypes returns all MLModelTypes currently known.
+// returns model types for timepoint, stops in that order
 func getModelTypes(db *sqlx.DB) (*mlmodels.MLModelType, *mlmodels.MLModelType, error) {
 	timePointModelType, err := mlmodels.GetMLModelType(db, "Timepoints")
 	if err != nil {
