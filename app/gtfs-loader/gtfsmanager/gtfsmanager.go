@@ -9,7 +9,6 @@ import (
 	"github.com/OpenTransitTools/transitcast/business/data/gtfs"
 	"github.com/OpenTransitTools/transitcast/foundation/httpclient"
 	"github.com/jmoiron/sqlx"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -223,7 +222,7 @@ func loadGTFSScheduleFromFile(log *log.Logger,
 	return &ds, err
 }
 
-//ExportTripToJson attempts to load tripId effective "at" a point in time and writes to destinationFile in Json format
+// ExportTripToJson attempts to load tripId effective "at" a point in time and writes to destinationFile in Json format
 func ExportTripToJson(log *log.Logger,
 	db *sqlx.DB,
 	at time.Time,
@@ -251,7 +250,7 @@ func ExportTripToJson(log *log.Logger,
 		return err
 	}
 	log.Printf("saving trip to %s", destinationFile)
-	return ioutil.WriteFile(destinationFile, file, 0644)
+	return os.WriteFile(destinationFile, file, 0644)
 }
 
 func makeDirectoryIfNotPresent(directory string) error {
@@ -285,4 +284,45 @@ func transact(log *log.Logger, db *sqlx.DB, txFunc func(*sqlx.Tx) error) (err er
 	}()
 	err = txFunc(tx)
 	return err
+}
+
+// ExportAggregatorDataToJson attempts to load data needed for aggregator tests and writes
+// to destinationFile in Json format
+func ExportAggregatorDataToJson(log *log.Logger,
+	db *sqlx.DB,
+	start time.Time,
+	end time.Time,
+	vehicleId string,
+	destinationFile string) error {
+
+	tripDeviations, err := gtfs.GetTripDeviations(db, start, end, vehicleId)
+	if err != nil {
+		return err
+	}
+
+	tripIdMap := make(map[string]bool, 0)
+
+	trips := make([]*gtfs.TripInstance, 0)
+	for _, tripDeviation := range tripDeviations {
+		if _, present := tripIdMap[tripDeviation.TripId]; !present {
+			tripIdMap[tripDeviation.TripId] = true
+			trip, err := gtfs.GetTripInstance(db, tripDeviation.DataSetId, tripDeviation.TripId,
+				tripDeviation.CreatedAt, 60*60*2)
+			if err != nil {
+				return err
+			}
+			trips = append(trips, trip)
+		}
+	}
+
+	jsonMap := map[string]interface{}{
+		"trip_deviations": tripDeviations,
+		"trip_instances":  trips,
+	}
+	file, err := json.MarshalIndent(jsonMap, "", " ")
+	if err != nil {
+		return err
+	}
+	log.Printf("saving aggregator test data to %s", destinationFile)
+	return os.WriteFile(destinationFile, file, 0644)
 }

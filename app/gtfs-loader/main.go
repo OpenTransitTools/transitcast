@@ -128,6 +128,15 @@ func run(log *logger.Logger) error {
 			return err
 		}
 		return gtfsmanager.ExportTripToJson(log, db, exportCmd.date, exportCmd.tripId, exportCmd.destinationFile)
+	case "exportAggregator":
+		exportCmd, err := parseAggregatorExportCmd(cfg.Args)
+		if err != nil {
+			log.Printf("error parsing exportAggregator command: %v", err)
+			printUsage(usage)
+			return err
+		}
+		return gtfsmanager.ExportAggregatorDataToJson(log, db, exportCmd.start, exportCmd.end,
+			exportCmd.vehicleId, exportCmd.destinationFile)
 
 	default:
 		printUsage(usage)
@@ -142,5 +151,8 @@ func printUsage(confUsage string) {
 	fmt.Println("delete <dataSetID>: remove a gtfs data set from the database with <dataSetID>")
 	fmt.Println("list: list all gtfs data sets in the database")
 	fmt.Println("exportTrip <tripID> <date in yyyy-MM-ddTHH:mm:ssZ> " +
-		"(where Z is local time minus UTC, example -0700 for 7 hours) <destination>: export trip instance in json format to destination file")
+		"<destination>: export trip instance in json format to destination file")
+	fmt.Println("exportAggregator <start in yyyy-MM-ddTHH:mm:ssZ> <end in yyyy-MM-ddTHH:mm:ssZ> <vehicleId> <destination>" +
+		": export trip instance in json format to destination file")
+	fmt.Println("Note: in date formats Z is local time minus UTC, example -0700 for 7 hours")
 }
