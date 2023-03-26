@@ -170,13 +170,17 @@ type segmentPredictorFactory struct {
 	minimumRMSEModelImprovement float64
 	minimumObservedStopCount    int
 	holidayCalendar             *transitHolidayCalendar
+	makePredictions             bool
+	useStatistics               bool
 }
 
 // makeSegmentPredictionFactory builds segmentPredictorFactory
 func makeSegmentPredictionFactory(modelByName map[string]*mlmodels.MLModel,
 	osts *observedStopTransitions,
 	minimumRMSEModelImprovement float64,
-	minimumObservedStopCount int) *segmentPredictorFactory {
+	minimumObservedStopCount int,
+	makePredictions bool,
+	useStatistics bool) *segmentPredictorFactory {
 
 	factory := segmentPredictorFactory{
 		modelByName:                 modelByName,
@@ -184,6 +188,8 @@ func makeSegmentPredictionFactory(modelByName map[string]*mlmodels.MLModel,
 		minimumRMSEModelImprovement: minimumRMSEModelImprovement,
 		minimumObservedStopCount:    minimumObservedStopCount,
 		holidayCalendar:             makeTransitHolidayCalendar(),
+		makePredictions:             makePredictions,
+		useStatistics:               useStatistics,
 	}
 
 	return &factory
@@ -238,14 +244,16 @@ func (f *segmentPredictorFactory) makeSegmentPredictor(mlModel *mlmodels.MLModel
 
 // shouldUseModelToPredict returns true if mlModel is suitable for inference
 func (f *segmentPredictorFactory) shouldUseModelToPredict(mlModel *mlmodels.MLModel) bool {
-	return mlModel != nil &&
+	return f.makePredictions &&
+		mlModel != nil &&
 		mlModel.TrainedTimestamp != nil &&
 		mlModel.AvgRMSE-mlModel.MLRMSE >= f.minimumRMSEModelImprovement
 }
 
 // shouldUseStatisticsToPredict returns true if mlModel can be used for predictions based on average travel times
 func (f *segmentPredictorFactory) shouldUseStatisticsToPredict(mlModel *mlmodels.MLModel) bool {
-	return mlModel != nil &&
+	return f.useStatistics &&
+		mlModel != nil &&
 		mlModel.ObservedStopCount != nil &&
 		*mlModel.ObservedStopCount > f.minimumObservedStopCount
 }

@@ -112,7 +112,7 @@ func Test_segmentPredictorFactory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			factory := makeSegmentPredictionFactory(tt.factoryArgs.modelMap, osts,
-				tt.factoryArgs.minimumRMSEModelImprovement, 1)
+				tt.factoryArgs.minimumRMSEModelImprovement, 1, true, true)
 			result := factory.makeSegmentPredictors(tt.stopTimeInstances)
 			same, discrepancyDescription := segmentPredictorsAreTheSame(result, tt.want)
 			if !same {

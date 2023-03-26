@@ -27,7 +27,7 @@ func Test_buildStopUpdate(t *testing.T) {
 	fourthStop := trip.StopTimeInstances[3] //dist: 3000.0 	arrive 13:00:00 depart 13:00:00
 
 	type args struct {
-		scheduleAccumulation        time.Time
+		predictedPositionInTime     time.Time
 		tripDistanceTraveled        float64
 		previousPredictionRemainder float64
 		stopPrediction              *stopPrediction
@@ -42,7 +42,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "Simple no remainders",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 12, 0, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 12, 0, 0, 0, location),
 				tripDistanceTraveled:        0,
 				previousPredictionRemainder: 0,
 				stopPrediction: &stopPrediction{
@@ -66,7 +66,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "Simple 1 second late no remainders",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 12, 0, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 12, 0, 0, 0, location),
 				tripDistanceTraveled:        0,
 				previousPredictionRemainder: 0,
 				stopPrediction: &stopPrediction{
@@ -90,7 +90,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "Vehicle is half way between the stops and estimated to arrive on time",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 12, 10, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 12, 10, 0, 0, location),
 				tripDistanceTraveled:        500.0,
 				previousPredictionRemainder: 0,
 				stopPrediction: &stopPrediction{
@@ -114,7 +114,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "Vehicle is half way between the stops and estimated to arrive two minutes late",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 12, 10, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 12, 10, 0, 0, location),
 				tripDistanceTraveled:        500.0,
 				previousPredictionRemainder: 0,
 				stopPrediction: &stopPrediction{
@@ -138,7 +138,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "Vehicle is half way between the stops and estimated to arrive two minutes late with .25 remainder",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 12, 10, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 12, 10, 0, 0, location),
 				tripDistanceTraveled:        500.0,
 				previousPredictionRemainder: 0,
 				stopPrediction: &stopPrediction{
@@ -162,7 +162,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "Vehicle located prior the stops and estimated to arrive two minutes early with .3 remainder",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 12, 20, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 12, 20, 0, 0, location),
 				tripDistanceTraveled:        500.0,
 				previousPredictionRemainder: 0,
 				stopPrediction: &stopPrediction{
@@ -186,7 +186,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "Vehicle located prior the stops and estimated to arrive two minutes early, with previousPrediction remainder and returning .1 remainder",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 12, 20, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 12, 20, 0, 0, location),
 				tripDistanceTraveled:        500.0,
 				previousPredictionRemainder: .6,
 				stopPrediction: &stopPrediction{
@@ -210,7 +210,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "vehicle 5 minutes early at timepoint, next stop should not be earlier than limitEarlyDepartureSeconds",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 12, 35, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 12, 35, 0, 0, location),
 				tripDistanceTraveled:        0,
 				previousPredictionRemainder: 0,
 				stopPrediction: &stopPrediction{
@@ -235,7 +235,7 @@ func Test_buildStopUpdate(t *testing.T) {
 		{
 			name: "vehicle very late, before stops",
 			args: args{
-				scheduleAccumulation:        time.Date(2022, 5, 22, 13, 10, 0, 0, location),
+				predictedPositionInTime:     time.Date(2022, 5, 22, 13, 10, 0, 0, location),
 				tripDistanceTraveled:        -2500,
 				previousPredictionRemainder: 0,
 				stopPrediction:              buildTestPrediction(thirdStop, fourthStop, 0.0, gtfs.TimepointMLPrediction, FutureStop),
@@ -255,7 +255,7 @@ func Test_buildStopUpdate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testLog := makeTestLogWriter()
-			gotStopTimeUpdate, gotPredictionRemainder := buildStopUpdate(testLog.log, tt.args.scheduleAccumulation,
+			gotStopTimeUpdate, gotPredictionRemainder := buildStopUpdate(testLog.log, tt.args.predictedPositionInTime,
 				tt.args.tripDistanceTraveled, tt.args.previousPredictionRemainder, tt.args.stopPrediction,
 				tt.args.limitEarlyDepartureSeconds)
 			if !reflect.DeepEqual(gotStopTimeUpdate, tt.wantStopTimeUpdate) {
@@ -426,7 +426,7 @@ func Test_buildTripUpdate(t *testing.T) {
 					tripDeviation: &gtfs.TripDeviation{
 						CreatedAt:          eleven59Am,
 						DeviationTimestamp: eleven59Am,
-						TripProgress:       0,
+						TripProgress:       -500,
 						TripId:             trip1.TripId,
 						VehicleId:          "1",
 						Delay:              -60,
@@ -1211,7 +1211,7 @@ func Test_makeTripUpdates(t *testing.T) {
 					Timestamp:            uint64(timeAt1348.Unix()),
 					VehicleId:            "1",
 					StopTimeUpdates: []gtfs.StopTimeUpdate{
-						buildTestStopUpdate(stop1Trip2, 0, gtfs.SchedulePrediction),
+						buildTestStopUpdate(stop1Trip2, 120, gtfs.SchedulePrediction),
 						buildTestStopUpdate(stop2Trip2, 120, gtfs.SchedulePrediction),
 						buildTestStopUpdate(stop3Trip2, 120, gtfs.StopMLPrediction),
 					},
@@ -1275,7 +1275,7 @@ func Test_makeTripUpdates(t *testing.T) {
 					Timestamp:            uint64(timeAt1353.Unix()),
 					VehicleId:            "1",
 					StopTimeUpdates: []gtfs.StopTimeUpdate{
-						buildTestStopUpdate(stop1Trip2, 0, gtfs.SchedulePrediction),
+						buildTestStopUpdate(stop1Trip2, 420, gtfs.SchedulePrediction),
 						buildTestStopUpdate(stop2Trip2, 420, gtfs.SchedulePrediction),
 						buildTestStopUpdate(stop3Trip2, 300, gtfs.StopMLPrediction),
 					},
@@ -1295,7 +1295,7 @@ func Test_makeTripUpdates(t *testing.T) {
 			},
 		},
 		{
-			name: "Late prediction in middle of second trip",
+			name: "Late prediction in middle of trip2",
 			orderedPredictions: []*tripPrediction{
 				{
 					tripDeviation: &gtfs.TripDeviation{
@@ -1304,7 +1304,7 @@ func Test_makeTripUpdates(t *testing.T) {
 						TripProgress:       1500.0,
 						TripId:             trip2.TripId,
 						VehicleId:          "1",
-						Delay:              1110,
+						Delay:              1200,
 					},
 					mu: sync.Mutex{},
 					stopPredictions: []*stopPrediction{
@@ -1321,7 +1321,7 @@ func Test_makeTripUpdates(t *testing.T) {
 						TripProgress:       -500.0,
 						TripId:             trip3.TripId,
 						VehicleId:          "1",
-						Delay:              1110,
+						Delay:              1200,
 					},
 					mu: sync.Mutex{},
 					stopPredictions: []*stopPrediction{
@@ -1340,8 +1340,8 @@ func Test_makeTripUpdates(t *testing.T) {
 					Timestamp:            uint64(timeAt140730.Unix()),
 					VehicleId:            "1",
 					StopTimeUpdates: []gtfs.StopTimeUpdate{
-						buildTestStopUpdate(stop1Trip2, 0, gtfs.SchedulePrediction),
-						buildTestStopUpdate(stop2Trip2, 0, gtfs.SchedulePrediction),
+						buildTestStopUpdate(stop1Trip2, 1200, gtfs.SchedulePrediction),
+						buildTestStopUpdate(stop2Trip2, 1200, gtfs.SchedulePrediction),
 						buildTestStopUpdate(stop3Trip2, 1200, gtfs.StopMLPrediction),
 					},
 				},
@@ -1401,10 +1401,11 @@ func Test_buildStopUpdateForFirstStop(t *testing.T) {
 	timeAt1402 := time.Date(2022, 5, 22, 14, 2, 0, 0, location)
 
 	type args struct {
-		scheduleAccumulation time.Time
-		positionInSchedule   time.Time
-		positionTimestamp    time.Time
-		stopTime             *gtfs.StopTimeInstance
+		predictedPositionInTime time.Time
+		positionInSchedule      time.Time
+		positionTimestamp       time.Time
+		stopTime                *gtfs.StopTimeInstance
+		delay                   int
 	}
 	tests := []struct {
 		name string
@@ -1414,110 +1415,121 @@ func Test_buildStopUpdateForFirstStop(t *testing.T) {
 		{
 			name: "Time exactly at arrival time of stop",
 			args: args{
-				scheduleAccumulation: firstStop.ArrivalDateTime,
-				positionInSchedule:   firstStop.ArrivalDateTime,
-				positionTimestamp:    firstStop.ArrivalDateTime,
-				stopTime:             firstStop,
+				predictedPositionInTime: firstStop.ArrivalDateTime,
+				positionInSchedule:      firstStop.ArrivalDateTime,
+				positionTimestamp:       firstStop.ArrivalDateTime,
+				stopTime:                firstStop,
+				delay:                   0,
 			},
 			want: buildTestStopUpdate(firstStop, 0, gtfs.SchedulePrediction),
 		},
 		{
 			name: "Time is before arrive time of stop, on time",
 			args: args{
-				scheduleAccumulation: timeAt1347,
-				positionInSchedule:   timeAt1347,
-				positionTimestamp:    timeAt1347,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1347,
+				positionInSchedule:      timeAt1347,
+				positionTimestamp:       timeAt1347,
+				stopTime:                firstStop,
+				delay:                   0,
 			},
 			want: buildTestStopUpdate(firstStop, 0, gtfs.SchedulePrediction),
 		},
 		{
 			name: "Time is one second after depart time",
 			args: args{
-				scheduleAccumulation: timeAt135201,
-				positionInSchedule:   firstStop.ArrivalDateTime,
-				positionTimestamp:    timeAt135201,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt135201,
+				positionInSchedule:      firstStop.ArrivalDateTime,
+				positionTimestamp:       timeAt135201,
+				stopTime:                firstStop,
+				delay:                   181,
 			},
 			want: buildTestStopUpdate(firstStop, 181, gtfs.SchedulePrediction),
 		},
 		{
 			name: "Time is one minute after arrive time but before depart time",
 			args: args{
-				scheduleAccumulation: timeAt1350,
-				positionInSchedule:   firstStop.ArrivalDateTime,
-				positionTimestamp:    timeAt1350,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1350,
+				positionInSchedule:      firstStop.ArrivalDateTime,
+				positionTimestamp:       timeAt1350,
+				stopTime:                firstStop,
+				delay:                   0,
 			},
 			want: buildTestStopUpdate(firstStop, 0, gtfs.SchedulePrediction),
 		},
 		{
-			name: "Time is one minute after arrive time but before depart time, scheduleAccumulation is one minute after depart time",
+			name: "Time is one minute after arrive time but before depart time, predictedPositionInTime is one minute after depart time",
 			args: args{
-				scheduleAccumulation: timeAt1353,
-				positionInSchedule:   timeAt1344,
-				positionTimestamp:    timeAt1353,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1353,
+				positionInSchedule:      timeAt1344,
+				positionTimestamp:       timeAt1353,
+				stopTime:                firstStop,
+				delay:                   240,
 			},
 			want: buildTestStopUpdate(firstStop, 240, gtfs.SchedulePrediction),
 		},
 		{
 			name: "Time is five minutes after depart time, at the stop",
 			args: args{
-				scheduleAccumulation: timeAt1357,
-				positionInSchedule:   firstStop.ArrivalDateTime,
-				positionTimestamp:    timeAt1357,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1357,
+				positionInSchedule:      firstStop.ArrivalDateTime,
+				positionTimestamp:       timeAt1357,
+				stopTime:                firstStop,
+				delay:                   480,
 			},
 			want: buildTestStopUpdate(firstStop, 480, gtfs.SchedulePrediction),
 		},
 		{
-			name: "five minutes before depart time, position is before stop, scheduleAccumulation is after stop",
+			name: "five minutes before depart time, position is before stop, predictedPositionInTime is after stop",
 			args: args{
-				scheduleAccumulation: timeAt1357,
-				positionInSchedule:   timeAt1344,
-				positionTimestamp:    timeAt1344,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1357,
+				positionInSchedule:      timeAt1344,
+				positionTimestamp:       timeAt1344,
+				stopTime:                firstStop,
+				delay:                   480,
 			},
 			want: buildTestStopUpdateWithDeparture(firstStop, 480, 300, gtfs.SchedulePrediction),
 		},
 		{
 			name: "Started trip, and are five minutes early",
 			args: args{
-				scheduleAccumulation: timeAt1402,
-				positionInSchedule:   timeAt1402,
-				positionTimestamp:    timeAt1344,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1402,
+				positionInSchedule:      timeAt1402,
+				positionTimestamp:       timeAt1344,
+				stopTime:                firstStop,
+				delay:                   -1080,
 			},
 			want: buildTestStopUpdate(firstStop, -1080, gtfs.SchedulePrediction),
 		},
 		{
 			name: "Started trip, and five minutes late",
 			args: args{
-				scheduleAccumulation: timeAt1357,
-				positionInSchedule:   timeAt1357,
-				positionTimestamp:    timeAt1402,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1357,
+				positionInSchedule:      timeAt1357,
+				positionTimestamp:       timeAt1402,
+				stopTime:                firstStop,
+				delay:                   0,
 			},
 			want: buildTestStopUpdate(firstStop, 0, gtfs.SchedulePrediction),
 		},
 		{
 			name: "Previous trip, and seven minutes late",
 			args: args{
-				scheduleAccumulation: timeAt1356,
-				positionInSchedule:   timeAt1339,
-				positionTimestamp:    timeAt1356,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1356,
+				positionInSchedule:      timeAt1339,
+				positionTimestamp:       timeAt1356,
+				stopTime:                firstStop,
+				delay:                   420,
 			},
 			want: buildTestStopUpdate(firstStop, 420, gtfs.SchedulePrediction),
 		},
 		{
 			name: "Previous trip, and four minutes after departure minutes, timestamp before location",
 			args: args{
-				scheduleAccumulation: timeAt1356,
-				positionInSchedule:   timeAt1346,
-				positionTimestamp:    timeAt1353,
-				stopTime:             firstStop,
+				predictedPositionInTime: timeAt1356,
+				positionInSchedule:      timeAt1346,
+				positionTimestamp:       timeAt1353,
+				stopTime:                firstStop,
+				delay:                   420,
 			},
 			want: buildTestStopUpdate(firstStop, 420, gtfs.SchedulePrediction),
 		},
@@ -1525,8 +1537,8 @@ func Test_buildStopUpdateForFirstStop(t *testing.T) {
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
-			got := buildStopUpdateForFirstStop(tt.args.scheduleAccumulation, tt.args.positionInSchedule,
-				tt.args.positionTimestamp, tt.args.stopTime)
+			got := buildStopUpdateForFirstStop(tt.args.predictedPositionInTime, tt.args.positionInSchedule,
+				tt.args.positionTimestamp, time.Duration(tt.args.delay)*time.Second, tt.args.stopTime)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("buildStopUpdateForFirstStop() = \n%s, \nwant=\n%s",
 					sprintStopUpdate(got), sprintStopUpdate(tt.want))
@@ -1711,6 +1723,7 @@ func Test_buildStopUpdateForPassedStop(t *testing.T) {
 	type args struct {
 		at       time.Time
 		stopTime *gtfs.StopTimeInstance
+		delay    int
 	}
 	tests := []struct {
 		name string
@@ -1722,6 +1735,7 @@ func Test_buildStopUpdateForPassedStop(t *testing.T) {
 			args: args{
 				at:       stop1.ArrivalDateTime,
 				stopTime: stop1,
+				delay:    -60,
 			},
 			want: gtfs.StopTimeUpdate{
 				StopSequence:         stop1.StopSequence,
@@ -1737,6 +1751,7 @@ func Test_buildStopUpdateForPassedStop(t *testing.T) {
 			args: args{
 				at:       stop1.ArrivalDateTime.Add(time.Duration(300) * time.Second),
 				stopTime: stop1,
+				delay:    0,
 			},
 			want: gtfs.StopTimeUpdate{
 				StopSequence:         stop1.StopSequence,
@@ -1752,6 +1767,7 @@ func Test_buildStopUpdateForPassedStop(t *testing.T) {
 			args: args{
 				at:       stop1.ArrivalDateTime.Add(time.Duration(-300) * time.Second),
 				stopTime: stop1,
+				delay:    -360,
 			},
 			want: gtfs.StopTimeUpdate{
 				StopSequence:         stop1.StopSequence,
@@ -1767,6 +1783,7 @@ func Test_buildStopUpdateForPassedStop(t *testing.T) {
 			args: args{
 				at:       dwellingStop.ArrivalDateTime,
 				stopTime: dwellingStop,
+				delay:    -300,
 			},
 			want: gtfs.StopTimeUpdate{
 				StopSequence:         dwellingStop.StopSequence,
@@ -1782,6 +1799,7 @@ func Test_buildStopUpdateForPassedStop(t *testing.T) {
 			args: args{
 				at:       dwellingStop.DepartureDateTime.Add(-1 * time.Minute),
 				stopTime: dwellingStop,
+				delay:    -180,
 			},
 			want: gtfs.StopTimeUpdate{
 				StopSequence:         dwellingStop.StopSequence,
@@ -1795,7 +1813,7 @@ func Test_buildStopUpdateForPassedStop(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := buildStopUpdateForPassedStop(tt.args.at, tt.args.stopTime); !reflect.DeepEqual(got, tt.want) {
+			if got := buildStopUpdateForPassedStop(tt.args.at, tt.args.stopTime, time.Duration(tt.args.delay)*time.Second); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("buildStopUpdateForPassedStop()\ngot=\n%s,\nwant=\n%s",
 					sprintStopUpdate(got), sprintStopUpdate(tt.want))
 			}

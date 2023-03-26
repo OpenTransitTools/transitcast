@@ -22,6 +22,8 @@ type Conf struct {
 	InferenceBuckets                      int
 	IncludedRouteIds                      []string
 	MaximumPredictionMinutes              int
+	MakePredictions                       bool
+	UseStatistics                         bool
 }
 
 // StartPredictionAggregator starts all routines for aggregation of predicted trips
@@ -51,7 +53,9 @@ func StartPredictionAggregator(log *logger.Logger,
 		conf.MinimumRMSEModelImprovement,
 		conf.MinimumObservedStopCount,
 		conf.ExpirePredictorSeconds,
-		conf.MaximumPredictionMinutes)
+		conf.MaximumPredictionMinutes,
+		conf.MakePredictions,
+		conf.UseStatistics)
 	log.Println("Done creating shared aggregator structures")
 
 	if err != nil {

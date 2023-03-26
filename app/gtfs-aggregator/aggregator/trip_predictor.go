@@ -46,13 +46,19 @@ func makeTripPredictorsCollection(dataProvider tripPredictorsDataProvider,
 	minimumRMSEModelImprovement float64,
 	minimumObservedStopCount int,
 	tripPredictorExpireSeconds int,
-	maximumPredictionMinutes int) (*tripPredictorsCollection, error) {
+	maximumPredictionMinutes int,
+	makePredictions bool,
+	useStatistics bool) (*tripPredictorsCollection, error) {
 	modelsByName, err := dataProvider.GetCurrentMLModelsByName()
 	if err != nil {
 		return nil, fmt.Errorf("unable to retrieve models in makeTripPredictorsCollection: %w", err)
 	}
-	predictorFactory := makeSegmentPredictionFactory(modelsByName, osts,
-		minimumRMSEModelImprovement, minimumObservedStopCount)
+	predictorFactory := makeSegmentPredictionFactory(modelsByName,
+		osts,
+		minimumRMSEModelImprovement,
+		minimumObservedStopCount,
+		makePredictions,
+		useStatistics)
 	return &tripPredictorsCollection{
 		dataProvider:             dataProvider,
 		predictorFactory:         predictorFactory,

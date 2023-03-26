@@ -22,7 +22,8 @@ func Test_makeTripPredictor(t *testing.T) {
 	trip1 := getTestTrip(time.Date(2022, 5, 22, 0, 0, 0, 0, location),
 		"trip_instance_1.json", t)
 
-	segmentPredictorFactory1 := makeSegmentPredictionFactory(modelMap, osts, 0.0, 1)
+	segmentPredictorFactory1 := makeSegmentPredictionFactory(modelMap, osts, 0.0, 1,
+		true, true)
 
 	type args struct {
 		tripInstance *gtfs.TripInstance
@@ -96,7 +97,7 @@ func Test_tripPredictor_predict(t *testing.T) {
 	timeAt1310 := time.Date(2022, 5, 22, 13, 10, 0, 0, location)
 
 	segmentPredictionFactory := makeSegmentPredictionFactory(modelMap, osts,
-		0.0, 1)
+		0.0, 1, true, true)
 
 	tests := []struct {
 		name                     string
