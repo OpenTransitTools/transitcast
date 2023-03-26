@@ -53,12 +53,12 @@ type aggregatorExportCmd struct {
 // parseTripExportCmd using conf.Args attemps to load tripExportCmd, returns error if any arguments are not present or malformed
 func parseAggregatorExportCmd(args conf.Args) (*aggregatorExportCmd, error) {
 
-	startDate, err := parseDateArg(1, "start", args)
+	startDate, err := parseTimeArg(1, "start", args)
 	if err != nil {
 		return nil, err
 	}
 
-	endDate, err := parseDateArg(2, "end", args)
+	endDate, err := parseTimeArg(2, "end", args)
 	if err != nil {
 		return nil, err
 	}
@@ -81,16 +81,16 @@ func parseAggregatorExportCmd(args conf.Args) (*aggregatorExportCmd, error) {
 
 }
 
-// parseDateArg retrieves and parses date argument from args
+// parseTimeArg retrieves and parses date argument from args
 // returns result or error with description of expected parameter
-func parseDateArg(argPosition int, name string, args conf.Args) (*time.Time, error) {
+func parseTimeArg(argPosition int, name string, args conf.Args) (*time.Time, error) {
 	dateString := args.Num(argPosition)
 	if len(dateString) < 1 {
-		return nil, fmt.Errorf("expected %s in yyyy-MM-dd format in position %d", name, argPosition)
+		return nil, fmt.Errorf("expected %s in yyyy-MM-ddTHH:mm:ss-0000 format in position %d", name, argPosition)
 	}
 	date, err := time.Parse("2006-01-02T15:04:05-0700", dateString)
 	if err != nil {
-		return nil, fmt.Errorf("expected %s in yyyy-MM-dd format in position %d, unable to parse %s",
+		return nil, fmt.Errorf("expected %s in yyyy-MM-ddTHH:mm:ss-0000 format in position %d, unable to parse %s",
 			name, argPosition, dateString)
 	}
 	return &date, nil
